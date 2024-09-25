@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "forecasttools-py"
+version = "0.0.1"
+description = "Python package for common pre- and post-processing operations done by CFA Predict for short term forecasting, nowcasting, and scenario modeling"
+authors = ["CFA"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pre-commit = "^3.8.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
