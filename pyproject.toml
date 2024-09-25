@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "forecasttools-py"
+name = "forecasttools"
 version = "0.0.1"
 description = "Python package for common pre- and post-processing operations done by CFA Predict for short term forecasting, nowcasting, and scenario modeling."
 authors = ["CFA"]
 license = "Apache-2.0"
 readme = "README.md"
-packages = [{include = "forecasttools_py"}]
+packages = [{include = "forecasttools"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
