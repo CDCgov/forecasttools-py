@@ -1,0 +1,41 @@
+---
+title: "Formatting Output For FluSight Submission"
+
+format: gfm
+engine: jupyter
+---
+
+_This document details the process of using `forecasttools-py` to turn an infectious disease forecast produced in Python and stored as an `InferenceData` object into a correctly formatted FluSight submission._
+
+---
+
+# Background
+
+> The FluSight Challenge[^historical_flusight] uses the [`hubverse`](https://hubverse.io/) framework to accept forecast submissions from contributing teams via [GitHub pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). The submitted `model-output` files need to follow a [specified formatting schema](https://github.com/cdcepi/FluSight-forecast-hub/blob/main/model-output/README.md). `forecasttools-py` provides functions to automate production of FluSight submissions.
+
+[^historical_flusight]: For FluSight data, please refer to [this repository](https://github.com/cdcepi/Flusight-forecast-data). For the FluSight Hub repository, please refer [here](https://github.com/cdcepi/FluSight-forecast-hub), and for historical FluSight forecasts, please refer [here](https://github.com/cdcepi/FluSight-forecasts).
+
+Below is an example[^example_forecast] of model output submitted to the FluSight Hub:
+
+[^example_forecast]: [This forecast](https://github.com/cdcepi/FluSight-forecast-hub/blob/main/model-output/cfarenewal-cfaepimlight/2023-12-02-cfarenewal-cfaepimlight.csv) was made for `2023-12-02` by the model `cfarenewal-cfaepimlight`.
+
+```
+reference_date,target,horizon,target_end_date,location,output_type,output_type_id,value
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.01,48
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.025,52
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.05,57
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.1,61
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.15,64
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.2,67
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.25,70
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.3,72
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.35,74
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.4,75
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.45,77
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.5,79
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.55,81
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.6,83
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.65,85
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.7,87
+2023-12-02,wk inc flu hosp,-1,2023-11-25,01,quantile,0.75,89
+```
