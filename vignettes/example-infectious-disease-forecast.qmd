@@ -3,3 +3,8 @@ title: "Example Infectious Disease Forecast"
 format: gfm
 engine: jupyter
 ---
+
+
+# Background
+
+The fitting data for this example came from HHS's HealthData website, which hosted the National Health Safety Network's (NHSN) [dataset](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh/about_data), which the author located off of the FluSight Hub's [data GitHub repository](https://github.com/cdcepi/Flusight-forecast-data/tree/master/data-truth).
