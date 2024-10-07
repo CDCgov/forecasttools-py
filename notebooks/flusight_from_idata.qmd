@@ -218,28 +218,14 @@ Recode locations:
 
 
 ```{python}
-def loc_abbr_to_flusight_code(
-    df: pl.DataFrame,
-    location_col: str
-) -> pl.DataFrame:
-    # get location table
-    loc_table = forecasttools.location_table
-    mapping_dict = dict(zip(loc_table["short_name"], loc_table["location_code"]))
-    # replace column
-    df = df.with_columns([
-        pl.col(location_col).map_elements(lambda x: mapping_dict.get(x, None)).alias(location_col)
-    ])
-    return df
-
-forecast_df = loc_abbr_to_flusight_code(df=forecast_df, location_col="location")
+forecast_df = forecasttools.loc_abbr_to_flusight_code(
+    df=forecast_df, location_col="location")
 ```
 
 Format to FluSight:
 
 ```{python}
-
-
-x = get_flusight_table(
+x = forecasttools.get_flusight_table(
     quantile_forecasts=forecast_df,
     reference_date="2023-12-15"
 )
