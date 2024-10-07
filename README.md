@@ -4,6 +4,85 @@ The following repository, `forecasttools-py` is a _Python package for common pre
 
 NOTE: This repository is a WORK IN PROGRESS.
 
+---
+
+TODO: README, file docstrings.
+
+# Package Installation
+
+
+# Package Usage
+
+
+
+# Datasets Native To This Package
+
+NOTE: Information. Section of the data. How to instantiate. Reason for being. How it was created.
+
+
+## Location Table
+
+
+```python
+make_census_dataset(
+    save_directory=os.getcwd(),
+    file_save_name="location_table.csv")
+```
+
+## Example FluSight Hub Submission
+
+```python
+read_example_flusight_submission(
+    save_directory=os.getcwd(),
+    file_save_name="example_flusight_submission.csv",
+    create_save_directory=False,
+)
+```
+
+
+## NHSN COVID Hospital Admissions
+
+```python
+make_nshn_fitting_dataset(
+    dataset="COVID",
+    nhsn_dataset_path="NHSN_RAW_20240926.csv",
+    save_directory=os.getcwd(),
+    file_save_name="nhsn_hosp_COVID.csv"
+)
+```
+
+## NHSN Influenza Hospital Admissions
+
+
+```python
+make_nshn_fitting_dataset(
+    dataset="flu",
+    nhsn_dataset_path="NHSN_RAW_20240926.csv",
+    save_directory=os.getcwd(),
+    file_save_name="nhsn_hosp_flu.csv"
+)
+```
+
+## Influenza Hospitalizations Forecast
+
+```python
+make_nhsn_fitted_forecast_idata(
+    nhsn_dataset_path="nhsn_hosp_flu.csv",
+    save_directory=os.getcwd(),
+    file_save_name="example_flu_forecast.nc",
+    start_date"2022/08/08",
+    end_date="2023/12/08",
+    forecast_days=28,
+    juris_subset=["TX"],
+    create_save_directory=False,
+    show_plot=True,
+    save_idata=True
+)
+```
+
+
+
+
 
 ---
 

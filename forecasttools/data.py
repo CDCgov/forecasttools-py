@@ -62,9 +62,9 @@ def make_census_dataset(
             f"The path {save_directory} is not a directory."
         )
     # check if the save file already exists
-    file_path = os.path.join(save_directory, file_save_name)
-    if os.path.exists(file_path):
-        raise FileExistsError(f"The file {file_path} already exists.")
+    file_save_path = os.path.join(save_directory, file_save_name)
+    if os.path.exists(file_save_path):
+        raise FileExistsError(f"The file {file_save_path} already exists.")
     else:
         # check if the census url is still valid
         url = "https://www2.census.gov/geo/docs/reference/state.txt"
@@ -94,7 +94,7 @@ def make_census_dataset(
             ]
         )
         location_table = nation.vstack(jurisdictions)
-        location_table.write_csv(file_path)
+        location_table.write_csv(file_save_path)
         print(
             f"The file {file_save_name} has been created at {save_directory}."
         )
@@ -176,6 +176,9 @@ def make_nshn_fitting_dataset(
                 )
             # fully load and save NHSN dataframe
             df = pl.read_csv(nhsn_dataset_path)
+            # change date formatting to ISO8601
+            df = df.with_columns(df["date"].str.replace_all("/", "-"))
+            # pathogen specific df saving
             if dataset == "COVID":
                 df_covid = (
                     df.select(
@@ -213,17 +216,24 @@ def make_nshn_fitting_dataset(
             )
 
 
-def make_nhsn_fitted_forecast(
+def make_nhsn_fitted_forecast_idata(
     nhsn_dataset_path: str,
     save_directory: str,
     file_save_name: str,
-    start_date: str = "2023/08/08",
-    end_date: str = "2024/02/01",
-    forecast_days: int = 30,
-    jurisdiction_subset: list[str] = ["AZ"],
+    start_date: str = "2022/08/08",
+    end_date: str = "2023/12/08",
+    forecast_days: int = 28,
+    juris_subset: list[str] = ["TX"],
     create_save_directory: bool = False,
+    show_plot: bool = True,
+    save_idata: bool = True,
 ):
-    """ """
+    """
+    Make an example forecast idata object
+    using a spline regression model on
+    NHSN influenza hospitalization count
+    data.
+    """
     # check if the save directory exists
     if not os.path.exists(save_directory):
         if create_save_directory:
@@ -248,7 +258,8 @@ def make_nhsn_fitted_forecast(
             f"The file {nhsn_dataset_path} does not exist."
         )
     # check that the loaded CSV has the needed columns
-    df_cols = pl.scan_csv(nhsn_dataset_path).columns
+    df_scan = pl.scan_csv(nhsn_dataset_path)
+    df_cols = df_scan.columns
     required_cols = ["state", "date", "hosp"]
     if len(set(required_cols).intersection(set(df_cols))) != len(
         required_cols
@@ -256,12 +267,16 @@ def make_nhsn_fitted_forecast(
         raise ValueError(
             f"NHSN dataset missing required columns: {set(required_cols) - set(required_cols).intersection(set(df_cols))}"
         )
-    # check if jurisdictions are acceptable
-    # assert len(set(jurisdiction_subset).intersection(set(df_cols))) == len(jurisdiction_subset),"There are jurisdictions present that are not found in the dataset."
-    # load dataset, cleaning null values
+    # load dataset
     nhsn = pl.read_csv(nhsn_dataset_path)
+    # check if provided jurisdictions are in NHSN jurisdictions
+    nhsn_juris = list(nhsn["state"].unique().to_numpy())
+    assert len(set(juris_subset).intersection(set(nhsn_juris))) == len(
+        juris_subset
+    ), f"There are jurisdictions present that are not found in the dataset.\nEntered {juris_subset}, Available: {nhsn_juris}"
+    # clean data and organize data, cleaning null values
     nhsn = nhsn.filter(pl.col("hosp").is_not_null())
-    nhsn = nhsn.filter(pl.col("state").is_in(jurisdiction_subset))
+    nhsn = nhsn.filter(pl.col("state").is_in(juris_subset))
     nhsn = nhsn.with_columns(
         pl.col("hosp").cast(pl.Int64),
         pl.col("date").str.strptime(pl.Date, "%Y/%m/%d"),
@@ -269,17 +284,17 @@ def make_nhsn_fitted_forecast(
     nhsn = nhsn.filter(
         (
             pl.col("date")
-            >= pl.lit(start_date).str.strptime(pl.Date, "%Y/%m/%d")
+            >= pl.lit(start_date).str.strptime(pl.Date, "%Y-%m-%d")
         )
         & (
             pl.col("date")
-            <= pl.lit(end_date).str.strptime(pl.Date, "%Y/%m/%d")
+            <= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d")
         )
     )
     nhsn = nhsn.group_by("state").agg([pl.col("hosp")])
 
     # spline basis function
-    def spline_basis(X, degree=3, df=5):
+    def spline_basis(X, degree=4, df=8):
         basis = patsy.dmatrix(
             "bs(x, df=df, degree=degree, include_intercept=True) - 1",
             {"x": X, "df": df, "degree": degree},
@@ -287,22 +302,37 @@ def make_nhsn_fitted_forecast(
         )
         return np.array(basis)
 
-    # spline regression model
-    def model(X, basis_matrix, y=None):
+    # spline regression model(s)
+    def model(basis_matrix, y=None):
         # priors
+        shift = npro.sample("shift", dist.Normal(0.0, 5.0))
         beta_coeffs = npro.sample(
-            "beta_coeffs", dist.Normal(jnp.zeros(basis_matrix.shape[1]), 0.1)
+            "beta_coeffs", dist.Normal(jnp.zeros(basis_matrix.shape[1]), 5.0)
         )
-        mu = jnp.dot(basis_matrix, beta_coeffs)
-        mu_exp = jnp.exp(mu)
+        shift_mu = jnp.dot(basis_matrix, beta_coeffs) + shift
+        mu_exp = jnp.exp(shift_mu)
+        alpha = npro.sample("alpha", dist.Exponential(1.0))
         # likelihood
-        npro.sample("obs", dist.Poisson(mu_exp), obs=y)
+        npro.sample("obs", dist.NegativeBinomial2(mu_exp, alpha), obs=y)
+
+    def model2(X, basis_matrix, y=None):
+        # priors
+        time_drift = npro.sample("time_drift", dist.Normal(0, 3.0))
+        drift_effect = time_drift * X
+        beta_coeffs = npro.sample(
+            "beta_coeffs", dist.Normal(jnp.zeros(basis_matrix.shape[1]), 3.0)
+        )
+        mu = jnp.dot(basis_matrix, beta_coeffs) + drift_effect
+        mu_exp = jnp.exp(mu)
+        alpha = npro.sample("alpha", dist.Exponential(1.0))
+        # likelihood
+        npro.sample("obs", dist.NegativeBinomial2(mu_exp, alpha), obs=y)
 
     # define some shared inference values
     random_seed = 2134312
     num_samples, num_warmup = 1000, 500
     # get posterior samples and make forecasts for each selected state
-    for state in jurisdiction_subset:
+    for state in juris_subset:
         # get the state data
         state_nhsn = nhsn.filter(pl.col("state") == state)
         # get actual data y, X
@@ -313,91 +343,151 @@ def make_nhsn_fitted_forecast(
         mcmc = npro.infer.MCMC(
             kernel, num_warmup=num_warmup, num_samples=num_samples
         )
-        sbm = spline_basis(X)
-        mcmc.run(rng_key=jr.key(random_seed), X=X, basis_matrix=sbm, y=y)
-        posterior_samples = mcmc.get_samples()
-        # get prior predictive
-        prior_pred = npro.infer.Predictive(model, num_samples=num_samples)(
-            rng_key=jr.key(random_seed), X=X, basis_matrix=sbm
-        )
-        # get posterior predictive fit
-        posterior_pred_fit = npro.infer.Predictive(
-            model, posterior_samples=posterior_samples
-        )(rng_key=jr.key(random_seed), X=X, basis_matrix=sbm)
-        # get posterior predictive forecast
+        # create spline basis for obs period and forecast period
         last = X[-1]
         X_future = np.hstack(
             (X, np.arange(last + 1, last + 1 + forecast_days))
         )
-        sbm_future = spline_basis(X_future)
+        sbm = spline_basis(X_future)
+        # get posterior samples
+        mcmc.run(rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X)], y=y)
+        posterior_samples = mcmc.get_samples()
+        # get prior predictive
+        prior_pred = npro.infer.Predictive(model, num_samples=num_samples)(
+            rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X)]
+        )
+        # get posterior predictive forecast
         posterior_pred_for = npro.infer.Predictive(
             model, posterior_samples=posterior_samples
-        )(rng_key=jr.key(random_seed), X=X_future, basis_matrix=sbm_future)
-        # create inference data object
-        constant_data = {"X": X, "X_future": X_future}
+        )(rng_key=jr.key(random_seed), basis_matrix=sbm)
+        # create initial inference data object(s)
         idata = az.from_numpyro(
             posterior=mcmc,
-            posterior_predictive=posterior_pred_fit,
+            posterior_predictive=posterior_pred_for,
             prior=prior_pred,
-            constant_data=constant_data,
-            predictions=posterior_pred_for,
-            predictions_constant_data={"obs": X_future},
         )
-        # plot the posterior predictive fit results
-        axes = az.plot_ts(
-            idata,
-            y="obs",
-            y_hat="obs",
-            y_forecasts="predictions",
-            num_samples=100,
-            y_kwargs={
-                "color": "blue",
-                "linewidth": 1.0,
-                "marker": "o",
-                "markersize": 3.0,
-                "linestyle": "solid",
-            },
-            y_hat_plot_kwargs={"color": "skyblue", "alpha": 0.05},
-            y_mean_plot_kwargs={
-                "color": "black",
-                "linestyle": "--",
-                "linewidth": 2.5,
-            },
-            backend_kwargs={"figsize": (8, 6)},
-            textsize=15.0,
+        # save idata object(s)
+        idata.to_netcdf(file_save_path)
+        # plot forecast (if desired) from idata light
+        if show_plot:
+            x_data = idata.posterior_predictive["obs_dim_0"]
+            y_data = idata.posterior_predictive["obs"]
+            fig, axes = plt.subplots(1, 1, figsize=(8, 6))
+            az.plot_hdi(
+                x_data,
+                y_data,
+                hdi_prob=0.95,
+                color="skyblue",
+                smooth=False,
+                fill_kwargs={"alpha": 0.2, "label": "95% Credible"},
+                ax=axes,
+            )
+            az.plot_hdi(
+                x_data,
+                y_data,
+                hdi_prob=0.75,
+                color="skyblue",
+                smooth=False,
+                fill_kwargs={"alpha": 0.4, "label": "75% Credible"},
+                ax=axes,
+            )
+            az.plot_hdi(
+                x_data,
+                y_data,
+                hdi_prob=0.5,
+                color="C0",
+                smooth=False,
+                fill_kwargs={"alpha": 0.6, "label": "50% Credible"},
+                ax=axes,
+            )
+            axes.plot(
+                X,
+                y,
+                marker="o",
+                color="black",
+                linewidth=1.0,
+                markersize=3.0,
+                label="Observed",
+            )
+            median_ts = y_data.median(dim=["chain", "draw"])
+            axes.plot(x_data, median_ts, color="blue", label="Median")
+            axes.legend()
+            axes.axvline(last, color="black", linestyle="--")
+            axes.set_title(
+                f"Hospital Admissions ({state}, {start_date}-{end_date})",
+                fontsize=15,
+            )
+            axes.set_xlabel("Time", fontsize=20)
+            axes.set_ylabel("Hospital Admissions", fontsize=20)
+            plt.show()
+
+
+def read_example_flusight_submission(
+    save_directory: str,
+    file_save_name: str,
+    create_save_directory: bool = False,
+) -> None:
+    """
+    Parameters
+    ----------
+    save_directory
+        The directory to save the outputted csv in.
+    file_save_name
+        The name of the file to save.
+    create_save_directory
+        Whether to make the save directory, if it
+        does not exist.
+    """
+    # check if the save directory exists
+    if not os.path.exists(save_directory):
+        if create_save_directory:
+            os.makedirs(save_directory)
+            print(f"Directory {save_directory} created.")
+        else:
+            raise FileNotFoundError(
+                f"The directory {save_directory} does not exist."
+            )
+    # check if save directory is actual directory
+    if not os.path.isdir(save_directory):
+        raise NotADirectoryError(
+            f"The path {save_directory} is not a directory."
         )
-        ax = axes[0][0]
-        ax.set_xlabel("Time", fontsize=20)
-        ax.axvline(last, color="black", linestyle="--")
-        ax.set_ylabel("Hospital Admissions", fontsize=20)
-        handles, labels = ax.get_legend_handles_labels()
-        ax.legend(
-            handles,
-            ["Observed", "Sample Mean", "Posterior Samples"],
-            loc="best",
+    # check if the save file already exists
+    file_save_path = os.path.join(save_directory, file_save_name)
+    if os.path.exists(file_save_path):
+        raise FileExistsError(f"The file {file_save_path} already exists.")
+    else:
+        # check if the FluSight example url is still valid
+        url = "https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv"
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                print(f"FluSight example url is valid: {url}")
+            else:
+                raise ValueError(
+                    f"FluSight example url bad status: {response.status_code}"
+                )
+        except requests.exceptions.RequestException as e:
+            raise ValueError(f"Failed to access FluSight example url: {e}")
+        # read csv from URL, convert to polars
+        submission_df = pl.read_csv(url, infer_schema_length=7500)
+        # save the dataframe
+        submission_df.write_csv(file_save_path)
+        print(
+            f"The file {file_save_name} has been created at {save_directory}."
         )
-        plt.show()
 
 
-# make_nhsn_fitted_forecast(
-#     nhsn_dataset_path="nhsn_hosp_flu.csv",
-#     save_directory=os.getcwd(),
-#     file_save_name="example_flu_forecast.csv")
+make_nshn_fitting_dataset(
+    dataset="COVID",
+    nhsn_dataset_path="NHSN_RAW_20240926.csv",
+    save_directory=os.getcwd(),
+    file_save_name="nhsn_hosp_COVID.csv",
+)
 
-# make_census_dataset(
-#     save_directory=os.getcwd(),
-#     file_save_name="location_table.csv")
-
-# make_nshn_fitting_dataset(
-#     dataset="flu",
-#     nhsn_dataset_path="NHSN_RAW_20240926.csv",
-#     save_directory=os.getcwd(),
-#     file_save_name="nhsn_hosp_flu.csv"
-# )
-
-# make_nshn_fitting_dataset(
-#     dataset="COVID",
-#     nhsn_dataset_path="NHSN_RAW_20240926.csv",
-#     save_directory=os.getcwd(),
-#     file_save_name="nhsn_hosp_COVID.csv"
-# )
+make_nshn_fitting_dataset(
+    dataset="flu",
+    nhsn_dataset_path="NHSN_RAW_20240926.csv",
+    save_directory=os.getcwd(),
+    file_save_name="nhsn_hosp_flu.csv",
+)

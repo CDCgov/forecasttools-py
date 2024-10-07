@@ -1,0 +1,6 @@
+---
+title: Scoring A Forecast From Arviz InferenceData
+format: gfm
+engine: jupyter
+ipynb-shell-interactivity: all
+---

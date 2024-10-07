@@ -8,7 +8,15 @@ readme = "README.md"
 packages = [{include = "forecasttools"}]
 include = [
     { path = "forecasttools/location_table.csv", format = "sdist" },
-    { path = "forecasttools/location_table.csv", format = "wheel" }
+    { path = "forecasttools/location_table.csv", format = "wheel" },
+    { path = "forecasttools/example_flusight_submission.csv", format = "sdist" },
+    { path = "forecasttools/example_flusight_submission.csv", format = "wheel" },
+    { path = "forecasttools/example_flu_forecast.nc", format = "sdist" },
+    { path = "forecasttools/example_flu_forecast.nc", format = "wheel" },
+    { path = "forecasttools/nhsn_hosp_COVID.csv", format = "sdist" },
+    { path = "forecasttools/nhsn_hosp_COVID.csv", format = "wheel" },
+    { path = "forecasttools/nhsn_hosp_flu.csv", format = "sdist" },
+    { path = "forecasttools/nhsn_hosp_flu.csv", format = "wheel" },
 ]
 
 
@@ -23,6 +31,7 @@ numpyro = "^0.15.3"
 diffrax = "^0.6.0"
 patsy = "^0.5.6"
 matplotlib = "^3.9.2"
+xarray = "^2024.9.0"
 
 
 [build-system]
