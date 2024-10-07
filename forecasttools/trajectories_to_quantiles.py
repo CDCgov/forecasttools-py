@@ -4,7 +4,7 @@ import polars as pl
 
 def trajectories_to_quantiles(
     trajectories: pl.DataFrame,
-    quantiles: list[int] = None,
+    quantiles: list[float] = None,
     timepoint_cols: list[str] = ["timepoint"],
     value_col: str = "value",
     quantile_value_name: str = "quantile_value",
