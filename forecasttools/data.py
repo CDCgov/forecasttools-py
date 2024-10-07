@@ -19,7 +19,7 @@ import jax.numpy as jnp
 import jax.random as jr
 import matplotlib.pyplot as plt
 import numpy as np
-import numpyro as npro
+import numpyro
 import numpyro.distributions as dist
 import patsy
 import polars as pl
