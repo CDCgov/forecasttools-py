@@ -476,18 +476,3 @@ def read_example_flusight_submission(
         print(
             f"The file {file_save_name} has been created at {save_directory}."
         )
-
-
-make_nshn_fitting_dataset(
-    dataset="COVID",
-    nhsn_dataset_path="NHSN_RAW_20240926.csv",
-    save_directory=os.getcwd(),
-    file_save_name="nhsn_hosp_COVID.csv",
-)
-
-make_nshn_fitting_dataset(
-    dataset="flu",
-    nhsn_dataset_path="NHSN_RAW_20240926.csv",
-    save_directory=os.getcwd(),
-    file_save_name="nhsn_hosp_flu.csv",
-)

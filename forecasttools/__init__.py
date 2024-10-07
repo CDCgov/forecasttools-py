@@ -5,10 +5,9 @@ import polars as pl
 
 from .daily_to_epiweekly import daily_to_epiweekly
 from .idata_to_df_w_dates import forecast_as_df_with_dates
+from .recode_locations import loc_abbr_to_flusight_code
+from .to_flusight import get_flusight_table
 from .trajectories_to_quantiles import trajectories_to_quantiles
-
-# from .recode_locations import loc_abbr_to_flusight_code
-# from .to_flusight import get_flusight_table
 
 # location table (from Census data)
 with importlib.resources.path(__package__, "location_table.csv") as data_path:
@@ -45,4 +44,6 @@ __all__ = [
     "forecast_as_df_with_dates",
     "trajectories_to_quantiles",
     "daily_to_epiweekly",
+    "loc_abbr_to_flusight_code",
+    "get_flusight_table",
 ]

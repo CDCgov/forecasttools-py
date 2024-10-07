@@ -1,6 +1,0 @@
----
-title: Scoring A Forecast From A FluSight Submission
-format: gfm
-engine: jupyter
-ipynb-shell-interactivity: all
----

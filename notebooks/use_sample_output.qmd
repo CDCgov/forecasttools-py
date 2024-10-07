@@ -1,6 +1,0 @@
----
-title: Include Samples As Output For FluSight Submission
-format: gfm
-engine: jupyter
-ipynb-shell-interactivity: all
----
