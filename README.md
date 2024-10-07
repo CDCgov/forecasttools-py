@@ -71,10 +71,6 @@ make_nhsn_fitted_forecast_idata(
 )
 ```
 
-
-
-
-
 ---
 
 # CDC Open Source Considerations
