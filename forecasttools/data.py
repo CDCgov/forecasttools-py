@@ -305,28 +305,28 @@ def make_nhsn_fitted_forecast_idata(
     # spline regression model(s)
     def model(basis_matrix, y=None):
         # priors
-        shift = npro.sample("shift", dist.Normal(0.0, 5.0))
-        beta_coeffs = npro.sample(
+        shift = numpyro.sample("shift", dist.Normal(0.0, 5.0))
+        beta_coeffs = numpyro.sample(
             "beta_coeffs", dist.Normal(jnp.zeros(basis_matrix.shape[1]), 5.0)
         )
         shift_mu = jnp.dot(basis_matrix, beta_coeffs) + shift
         mu_exp = jnp.exp(shift_mu)
-        alpha = npro.sample("alpha", dist.Exponential(1.0))
+        alpha = numpyro.sample("alpha", dist.Exponential(1.0))
         # likelihood
-        npro.sample("obs", dist.NegativeBinomial2(mu_exp, alpha), obs=y)
+        numpyro.sample("obs", dist.NegativeBinomial2(mu_exp, alpha), obs=y)
 
     def model2(X, basis_matrix, y=None):
         # priors
-        time_drift = npro.sample("time_drift", dist.Normal(0, 3.0))
+        time_drift = numpyro.sample("time_drift", dist.Normal(0, 3.0))
         drift_effect = time_drift * X
-        beta_coeffs = npro.sample(
+        beta_coeffs = numpyro.sample(
             "beta_coeffs", dist.Normal(jnp.zeros(basis_matrix.shape[1]), 3.0)
         )
         mu = jnp.dot(basis_matrix, beta_coeffs) + drift_effect
         mu_exp = jnp.exp(mu)
-        alpha = npro.sample("alpha", dist.Exponential(1.0))
+        alpha = numpyro.sample("alpha", dist.Exponential(1.0))
         # likelihood
-        npro.sample("obs", dist.NegativeBinomial2(mu_exp, alpha), obs=y)
+        numpyro.sample("obs", dist.NegativeBinomial2(mu_exp, alpha), obs=y)
 
     # define some shared inference values
     random_seed = 2134312
@@ -339,8 +339,8 @@ def make_nhsn_fitted_forecast_idata(
         y = state_nhsn["hosp"].to_numpy()[0]
         X = np.arange(y.shape[0])
         # set up inference, NUTS/MCMC
-        kernel = npro.infer.NUTS(model=model)
-        mcmc = npro.infer.MCMC(
+        kernel = numpyro.infer.NUTS(model=model)
+        mcmc = numpyro.infer.MCMC(
             kernel, num_warmup=num_warmup, num_samples=num_samples
         )
         # create spline basis for obs period and forecast period
@@ -353,11 +353,11 @@ def make_nhsn_fitted_forecast_idata(
         mcmc.run(rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X)], y=y)
         posterior_samples = mcmc.get_samples()
         # get prior predictive
-        prior_pred = npro.infer.Predictive(model, num_samples=num_samples)(
+        prior_pred = numpyro.infer.Predictive(model, num_samples=num_samples)(
             rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X)]
         )
         # get posterior predictive forecast
-        posterior_pred_for = npro.infer.Predictive(
+        posterior_pred_for = numpyro.infer.Predictive(
             model, posterior_samples=posterior_samples
         )(rng_key=jr.key(random_seed), basis_matrix=sbm)
         # create initial inference data object(s)
