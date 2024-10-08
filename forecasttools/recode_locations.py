@@ -8,16 +8,10 @@ def loc_abbr_to_flusight_code(
 ) -> pl.DataFrame:
     # get location table
     loc_table = forecasttools.location_table
-    # map abbr name to codes
-    mapping_dict = dict(
-        zip(loc_table["short_name"], loc_table["location_code"])
+    # recode and replaced existing loc abbrs with loc codes
+    loc_recoded_df = df.with_columns(
+        location=pl.col("location").replace(
+            old=loc_table["short_name"], new=loc_table["location_code"]
+        )
     )
-    # replace column values with codes
-    df = df.with_columns(
-        [
-            pl.col(location_col)
-            .map_elements(lambda x: mapping_dict.get(x, None))
-            .alias(location_col)
-        ]
-    )
-    return df
+    return loc_recoded_df
