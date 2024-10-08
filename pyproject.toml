@@ -27,6 +27,7 @@ requests = "^2.32.3"
 polars = "^1.8.2"
 xarray = "^2024.9.0"
 matplotlib = "^3.9.2"
+epiweeks = "^2.3.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"

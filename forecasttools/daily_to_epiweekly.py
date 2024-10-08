@@ -48,6 +48,12 @@ def daily_to_epiweekly(
     grouped_df = forecast_df.group_by(group_cols)
     # number of elements per group
     n_elements = grouped_df.agg(pl.count().alias("n_elements"))
+    problematic_trajectories = n_elements.filter(pl.col("n_elements") > 7)
+    if not problematic_trajectories.is_empty():
+        message = f"Problematic trajectories with more than 7 values per epiweek per year: {problematic_trajectories}"
+        raise ValueError(
+            f"At least one trajectory has more than 7 values for a given epiweek of a given year.\n{message}"
+        )
     # check if any week has more than 7 dates
     if not n_elements["n_elements"].to_numpy().max() <= 7:
         raise ValueError(
