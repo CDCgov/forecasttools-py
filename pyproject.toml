@@ -22,16 +22,18 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pre-commit = "^3.8.0"
-polars = "^1.8.2"
 arviz = "^0.19.0"
-ipykernel = "^6.29.5"
 requests = "^2.32.3"
+polars = "^1.8.2"
+xarray = "^2024.9.0"
+matplotlib = "^3.9.2"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^3.8.0"
+ipykernel = "^6.29.5"
 numpyro = "^0.15.3"
 diffrax = "^0.6.0"
 patsy = "^0.5.6"
-matplotlib = "^3.9.2"
-xarray = "^2024.9.0"
 nbformat = "^5.10.4"
 nbclient = "^0.10.0"
 
