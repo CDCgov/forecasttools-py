@@ -12,7 +12,7 @@ def calculate_epidate(date):
 def get_flusight_target_end_dates(
     reference_date: str, horizons=None
 ) -> pl.DataFrame:
-    # default horizons
+    # set default horizons in case of no specification
     if horizons is None:
         horizons = list(range(-1, 4))
     reference_date_dt = datetime.strptime(reference_date, "%Y-%m-%d")

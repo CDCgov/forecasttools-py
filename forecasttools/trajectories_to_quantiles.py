@@ -14,7 +14,9 @@ def trajectories_to_quantiles(
     # set default quantiles
     if quantiles is None:
         quantiles = (
-            [0.01, 0.025] + list(np.arange(0.05, 1.0, 0.05)) + [0.975, 0.99]
+            [0.01, 0.025]
+            + [0.05 * elt for elt in range(1, 20)]
+            + [0.975, 0.99]
         )
     # group trajectories based on timepoint_cols and id_cols
     group_cols = (
