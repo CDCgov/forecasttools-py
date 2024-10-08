@@ -208,7 +208,7 @@ def make_nshn_fitting_dataset(
             )
 
 
-def read_example_flusight_submission(
+def get_and_save_flusight_submission(
     save_directory: str,
     file_save_name: str,
     create_save_directory: bool = False,

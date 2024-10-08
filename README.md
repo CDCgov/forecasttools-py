@@ -23,7 +23,7 @@ make_census_dataset(
 ## Example FluSight Hub Submission
 
 ```python
-read_example_flusight_submission(
+get_and_save_flusight_submission(
     save_directory=os.getcwd(),
     file_save_name="example_flusight_submission.csv",
     create_save_directory=False,
