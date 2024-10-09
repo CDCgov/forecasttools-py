@@ -60,8 +60,8 @@ Using `data.py`, the location table was created by running the following:
 
 ```python
 make_census_dataset(
-    save_directory=os.getcwd(),
-    file_save_name="location_table.csv")
+    file_save_path=os.path.join(os.getcwd(), "location_table.csv"),
+)
 ```
 
 ## Example FluSight Hub Submission
@@ -105,9 +105,7 @@ Using `data.py`, the example FluSight submission was created by running the foll
 
 ```python
 get_and_save_flusight_submission(
-    save_directory=os.getcwd(),
-    file_save_name="example_flusight_submission.csv",
-    create_save_directory=False,
+    file_save_path=os.path.join(os.getcwd(), "example_flusight_submission.csv"),
 )
 ```
 
@@ -155,22 +153,19 @@ flu_nhsn_data = forecasttools.nhsn_hosp_flu
 
 The data was created by placing a csv file called `NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools` and running, in `data.py`, the following:
 
-
 ```python
 # generate COVID dataset
 make_nshn_fitting_dataset(
     dataset="COVID",
     nhsn_dataset_path="NHSN_RAW_20240926.csv",
-    save_directory=os.getcwd(),
-    file_save_name="nhsn_hosp_COVID.csv"
+    file_save_path=os.path.join(os.getcwd(),"nhsn_hosp_COVID.csv")
 )
 
 # generate flu dataset
 make_nshn_fitting_dataset(
     dataset="flu",
     nhsn_dataset_path="NHSN_RAW_20240926.csv",
-    save_directory=os.getcwd(),
-    file_save_name="nhsn_hosp_flu.csv"
+    file_save_path=os.path.join(os.getcwd(),"nhsn_hosp_flu.csv")
 )
 ```
 
@@ -203,8 +198,7 @@ The forecast was generated following the creation of `nhsn_hosp_flu.csv` (see pr
 ```python
 make_nhsn_fitted_forecast_idata(
     nhsn_dataset_path="nhsn_hosp_flu.csv",
-    save_directory=os.getcwd(),
-    file_save_name="example_flu_forecast.nc",
+    file_save_path=os.path.join(os.getcwd(), "example_flu_forecast.nc"),
     start_date"2022/08/08",
     end_date="2023/12/08",
     forecast_days=28,
