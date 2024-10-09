@@ -70,10 +70,7 @@ The example FluSight submission comes from the [following 2023-24 submission](ht
 
 Shape: (4_876, 8)
 
-| reference_ | target     | horizon | target_end | location | output_typ | output_typ | value      |
-| date       | ---        | ---     | _date      | ---      | e          | e_id       | ---        |
-| ---        | str        | i64     | ---        | str      | ---        | ---        | f64        |
-| str        |            |         | str        |          | str        | f64        |            |
+| reference_date | target     | horizon | target_end_date | location | output_type | output_type_id | value |
 |------------|------------|---------|------------|----------|------------|------------|------------|
 | 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.01       | 7.670286   |
 |            | hosp       |         |            |          |            |            |            |
