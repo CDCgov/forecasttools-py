@@ -3,7 +3,6 @@ from datetime import datetime
 import polars as pl
 
 
-# NOTE: this needs to change to ACTUAL epiweeks
 def calculate_epidate(date):
     iso_calendar = date.isocalendar()
     return iso_calendar[1], iso_calendar[0]

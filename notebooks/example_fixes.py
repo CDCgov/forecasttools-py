@@ -10,9 +10,34 @@ PR is merged.
 # %% IMPORTS
 
 
+import arviz as az
 import polars as pl
+import xarray as xr
 
 import forecasttools
+
+# %% USE OF PREDICTIONS IN ARVIZ
+
+# load idata object from forecasttools
+idata = forecasttools.nhsn_flu_forecast
+print(idata.posterior_predictive)
+
+# get posterior samples
+postp_samps = idata.posterior_predictive["obs"]
+
+# break into forecast and fit component
+forecast = postp_samps.isel(obs_dim_0=slice(-28, None))
+fitted = postp_samps.isel(obs_dim_0=slice(None, -28))
+
+# create predictions
+predictions_dict = {"obs": forecast}
+predictions_idata = az.InferenceData(predictions=xr.Dataset(predictions_dict))
+
+
+# edit original idata object
+idata.posterior_predictive["obs"] = fitted
+idata = idata.extend(predictions_idata)
+
 
 # %% PRINT MARKDOWN VERSION OF DATAFRAME
 
