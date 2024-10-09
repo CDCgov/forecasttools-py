@@ -14,6 +14,21 @@ import polars as pl
 
 import forecasttools
 
+# %% PRINT MARKDOWN VERSION OF DATAFRAME
+
+loc_table = forecasttools.location_table
+flu_fit = forecasttools.nhsn_hosp_flu
+cov_fit = forecasttools.nhsn_hosp_COVID
+sub = forecasttools.example_flusight_submission
+idata = forecasttools.nhsn_flu_forecast
+pl.Config.set_tbl_formatting("ASCII_MARKDOWN")
+with pl.Config(tbl_rows=15):
+    # print(f"Location Table:\n{loc_table}\n")
+    # print(f"Flu Fitting:\n{flu_fit}\n")
+    # print(f"COVID Fitting:\n{cov_fit}\n")
+    # print(f"Submission:\n{sub}\n")
+    print(f"Forecast:\n{idata}\n")
+
 # %% EXAMINING FILE PATH BEING RETURNED
 
 # example dataframe and location table

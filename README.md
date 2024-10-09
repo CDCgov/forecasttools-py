@@ -6,13 +6,57 @@ NOTE: This repository is a WORK IN PROGRESS.
 
 ---
 
-# Datasets Native To This Package
+# Installation
 
-NOTE: Information. Section of the data. How to instantiate. Reason for being. How it was created.
+Install `forecasttools` via:
 
+```
+pip3 install git+https://github.com/CDCgov/forecasttools-py@main
+```
+
+# Vignettes
+
+* Format Arviz Forecast Output For FluSight Submission (In Progress)
+
+# Datasets
+
+By default, `forecasttools` contains several datasets. These datasets aid with experimentation or are directly necessary to some of `forecasttools` utilities.
 
 ## Location Table
 
+The location table contains abbreviations, codes, and extended names for the US jurisdictions for which the FluSight and COVID forecasting hubs require users to generate forecasts.
+
+Shape: (58, 3)
+
+| location_code | short_name | long_name                   |
+| ---           | ---        | ---                         |
+| str           | str        | str                         |
+|---------------|------------|-----------------------------|
+| US            | US         | United States               |
+| 1             | AL         | Alabama                     |
+| 2             | AK         | Alaska                      |
+| 4             | AZ         | Arizona                     |
+| 5             | AR         | Arkansas                    |
+| 6             | CA         | California                  |
+| 8             | CO         | Colorado                    |
+| 9             | CT         | Connecticut                 |
+| …            | …         | …                          |
+| 56            | WY         | Wyoming                     |
+| 60            | AS         | American Samoa              |
+| 66            | GU         | Guam                        |
+| 69            | MP         | Northern Mariana Islands    |
+| 72            | PR         | Puerto Rico                 |
+| 74            | UM         | U.S. Minor Outlying Islands |
+| 78            | VI         | U.S. Virgin Islands         |
+
+The location table is stored in `forecasttools` as a `polars` dataframe and is accessed via:
+
+```python
+import forecasttools
+loc_table = forecasttools.location_table
+```
+
+Using `data.py`, the location table was created by running the following:
 
 ```python
 make_census_dataset(
@@ -21,6 +65,46 @@ make_census_dataset(
 ```
 
 ## Example FluSight Hub Submission
+
+The example FluSight submission comes from the [following 2023-24 submission](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv).
+
+Shape: (4_876, 8)
+
+| reference_ | target     | horizon | target_end | location | output_typ | output_typ | value      |
+| date       | ---        | ---     | _date      | ---      | e          | e_id       | ---        |
+| ---        | str        | i64     | ---        | str      | ---        | ---        | f64        |
+| str        |            |         | str        |          | str        | f64        |            |
+|------------|------------|---------|------------|----------|------------|------------|------------|
+| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.01       | 7.670286   |
+|            | hosp       |         |            |          |            |            |            |
+| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.025      | 9.968043   |
+|            | hosp       |         |            |          |            |            |            |
+| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.05       | 12.022354  |
+|            | hosp       |         |            |          |            |            |            |
+| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.1        | 14.497646  |
+|            | hosp       |         |            |          |            |            |            |
+| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.15       | 16.119813  |
+|            | hosp       |         |            |          |            |            |            |
+| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.2        | 17.670122  |
+|            | hosp       |         |            |          |            |            |            |
+| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.25       | 19.125462  |
+|            | hosp       |         |            |          |            |            |            |
+| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.3        | 20.443282  |
+|            | hosp       |         |            |          |            |            |            |
+| …         | …         | …      | …         | …       | …         | …         | …          |
+| 2023-10-14 | wk inc flu | 2       | 2023-10-28 | US       | quantile   | 0.75       | 1995.98533 |
+|            | hosp       |         |            |          |            |            | 6          |
+| 2023-10-14 | wk inc flu | 2       | 2023-10-28 | US       | quantile   | 0.99       | 4761.75738 |
+|            | hosp       |         |            |          |            |            | 5          |
+
+The example FluSight submission is stored in `forecasttools` as a `polars` dataframe and is accessed via:
+
+```python
+import forecasttools
+submission = forecasttools.example_flusight_submission
+```
+
+Using `data.py`, the example FluSight submission was created by running the following:
 
 ```python
 get_and_save_flusight_submission(
@@ -31,21 +115,60 @@ get_and_save_flusight_submission(
 ```
 
 
-## NHSN COVID Hospital Admissions
+## NHSN COVID And Flu Hospital Admissions
+
+Hospital admissions data for fitting from NHSN for COVID and Flu is included in `forecasttools` as well, for user experimentation. This data is current as of `2024-04-27` and comes from the website [HealthData.gov COVID-19 Reported Patient Impact and Hospital Capacity by State Timeseries](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh). For influenza, the `previous_day_admission_influenza_confirmed` column is retained and for COVID the `previous_day_admission_adult_covid_confirmed` column is retained. As can be seen in the example below, some early dates for each jurisdiction do not have data.
+
+Shape: (81_713, 3)
+
+| state | date       | hosp |
+| ---   | ---        | ---  |
+| str   | str        | str  |
+|-------|------------|------|
+| AK    | 2020-03-23 | null |
+| AK    | 2020-03-24 | null |
+| AK    | 2020-03-25 | null |
+| AK    | 2020-03-26 | null |
+| AK    | 2020-03-27 | null |
+| AK    | 2020-03-28 | null |
+| AK    | 2020-03-29 | null |
+| AK    | 2020-03-30 | null |
+| …    | …         | …   |
+| WY    | 2024-04-21 | 0    |
+| WY    | 2024-04-22 | 2    |
+| WY    | 2024-04-23 | 1    |
+| WY    | 2024-04-24 | 1    |
+| WY    | 2024-04-25 | 0    |
+| WY    | 2024-04-26 | 0    |
+| WY    | 2024-04-27 | 0    |
+
+
+The fitting data is stored in `forecasttools` as a `polars` dataframe and is accessed via:
 
 ```python
+import forecasttools
+
+
+# access COVID data
+covid_nhsn_data = forecasttools.nhsn_hosp_COVID
+
+# access flu data
+flu_nhsn_data = forecasttools.nhsn_hosp_flu
+```
+
+The data was created by placing a csv file called `NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools` and running, in `data.py`, the following:
+
+
+```python
+# generate COVID dataset
 make_nshn_fitting_dataset(
     dataset="COVID",
     nhsn_dataset_path="NHSN_RAW_20240926.csv",
     save_directory=os.getcwd(),
     file_save_name="nhsn_hosp_COVID.csv"
 )
-```
 
-## NHSN Influenza Hospital Admissions
-
-
-```python
+# generate flu dataset
 make_nshn_fitting_dataset(
     dataset="flu",
     nhsn_dataset_path="NHSN_RAW_20240926.csv",
@@ -55,6 +178,30 @@ make_nshn_fitting_dataset(
 ```
 
 ## Influenza Hospitalizations Forecast
+
+An example forecast stored in an Arviz `InferenceData` object is included for vignettes and user experimentation. This 28 day forecast for Texas was made using a spline regression model fitted to NHSN influenza data between 2022-08-08 and 2022-12-08. The `idata` object which includes the observed data and posterior predictive samples is given below:
+
+```
+Inference data with groups:
+	> posterior
+	> posterior_predictive
+	> log_likelihood
+	> sample_stats
+	> prior
+	> prior_predictive
+	> observed_data
+```
+
+The forecast `idata` is accessed via:
+
+```python
+import forecasttools
+
+
+idata = forecasttools.nhsn_flu_forecast
+```
+
+The forecast was generated following the creation of `nhsn_hosp_flu.csv` (see previous section) by running `data.py` with the following added:
 
 ```python
 make_nhsn_fitted_forecast_idata(
@@ -76,7 +223,6 @@ make_nhsn_fitted_forecast_idata(
 # CDC Open Source Considerations
 
 **General disclaimer** This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm).  GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.
-
 
 ## Rules, Policy, And Collaboration
 

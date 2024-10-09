@@ -8,10 +8,11 @@ import forecasttools
 
 xr.set_options(display_expand_data=False, display_expand_attrs=False)
 
-# retrieve inference data object from forecasttools
-idata = forecasttools.nhsn_flu_forecast
 
 # %% CREATING DATES ARRAY
+
+# retrieve inference data object from forecasttools
+idata = forecasttools.nhsn_flu_forecast
 
 # create fictitious starting date for fitting
 start_date_iso = "2022-08-01"
@@ -27,7 +28,6 @@ obs_dates = np.array(
         for i in range(obs_length)
     ]
 )
-
 
 # %% ADDING DATES TO IDATA
 

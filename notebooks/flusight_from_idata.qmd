@@ -1,5 +1,5 @@
 ---
-title: Format Forecast Output For FluSight Submission
+title: Format Arviz Forecast Output For FluSight Submission
 format: gfm
 engine: jupyter
 ---
