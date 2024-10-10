@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
+import epiweeks
 import polars as pl
 
 
-# NOTE: needs to change
 def calculate_epidate(date):
-    iso_calendar = date.isocalendar()
-    return iso_calendar[1], iso_calendar[0]
+    epiweek = epiweeks.Week.fromdate(date)
+    return epiweek.week, epiweek.year
 
 
 def get_flusight_target_end_dates(

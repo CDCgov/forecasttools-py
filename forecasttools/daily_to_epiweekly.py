@@ -1,11 +1,12 @@
 from datetime import datetime
 
+import epiweeks
 import polars as pl
 
 
 def calculate_epidate(date):
-    iso_calendar = date.isocalendar()
-    return iso_calendar[1], iso_calendar[0]
+    epiweek = epiweeks.Week.fromdate(date)
+    return epiweek.week, epiweek.year
 
 
 def daily_to_epiweekly(
