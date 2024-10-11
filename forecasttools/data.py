@@ -13,9 +13,21 @@ import os
 os.environ["JAX_TRACEBACK_FILTERING"] = "off"
 
 import os
+from urllib import error, request
 
 import polars as pl
-import requests
+
+
+def check_url(url: str) -> bool:
+    try:
+        response = request.urlopen(url)
+        return response.status == 200
+    except error.URLError as e:
+        print(f"URL Error: {e.reason}")
+        return False
+    except error.HTTPError as e:
+        print(f"HTTP Error: {e.code}")
+        return False
 
 
 def check_file_save_path(file_save_path: str) -> None:
@@ -46,14 +58,7 @@ def make_census_dataset(
     check_file_save_path(file_save_path)
     # check if the census url is still valid
     url = "https://www2.census.gov/geo/docs/reference/state.txt"
-    try:
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            print(f"Census url is valid: {url}")
-        else:
-            raise ValueError(f"Census url bad status: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        raise ValueError(f"Failed to access Census url: {e}")
+    check_url(url)
     # create location table with code, abbreviation, and full name
     nation = pl.DataFrame(
         {
@@ -172,16 +177,7 @@ def get_and_save_flusight_submission(
     check_file_save_path(file_save_path)
     # check if the FluSight example url is still valid
     url = "https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv"
-    try:
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            print(f"FluSight example url is valid: {url}")
-        else:
-            raise ValueError(
-                f"FluSight example url bad status: {response.status_code}"
-            )
-    except requests.exceptions.RequestException as e:
-        raise ValueError(f"Failed to access FluSight example url: {e}")
+    check_url(url)
     # read csv from URL, convert to polars
     submission_df = pl.read_csv(url, infer_schema_length=7500)
     # save the dataframe

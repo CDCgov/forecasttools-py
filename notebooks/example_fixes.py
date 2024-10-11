@@ -11,6 +11,7 @@ PR is merged.
 
 
 from datetime import datetime, timedelta
+from urllib import error, request
 
 import arviz as az
 import epiweeks
@@ -18,6 +19,25 @@ import polars as pl
 import xarray as xr
 
 import forecasttools
+
+# %% USE BUILT IN URL CHECKING
+
+
+def check_url(url: str) -> bool:
+    try:
+        response = request.urlopen(url)
+        return response.status == 200
+    except error.URLError as e:
+        print(f"URL Error: {e.reason}")
+        return False
+    except error.HTTPError as e:
+        print(f"HTTP Error: {e.code}")
+        return False
+
+
+url = "https://www2.census.gov/geo/docs/reference/state.txt"
+print(check_url(url))
+
 
 # %% REFORMATTING TARGET END DATES
 
