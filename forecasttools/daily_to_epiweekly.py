@@ -58,7 +58,7 @@ def daily_to_epiweekly(
     if strict:
         valid_groups = n_elements.filter(pl.col("n_elements") == 7)
         forecast_df = forecast_df.join(
-            valid_groups.select(group_cols), on=group_cols
+            valid_groups.select(group_cols), on=group_cols, how="inner"
         )
     # aggregate; sum values in the specified value_col
     df = (
