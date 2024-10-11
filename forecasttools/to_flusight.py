@@ -4,11 +4,6 @@ import epiweeks
 import polars as pl
 
 
-def calculate_epidate(date):
-    epiweek = epiweeks.Week.fromdate(date)
-    return epiweek.week, epiweek.year
-
-
 def get_flusight_target_end_dates(
     reference_date: str, horizons=None
 ) -> pl.DataFrame:
@@ -20,7 +15,8 @@ def get_flusight_target_end_dates(
     data = []
     for horizon in horizons:
         target_end_date = reference_date_dt + timedelta(weeks=horizon)
-        epiweek, epiyear = calculate_epidate(target_end_date)
+        epiweek = epiweeks.Week.fromdate(target_end_date)
+        epiweek, epiyear = epiweek.week, epiweek.year
         data.append(
             {
                 "reference_date": reference_date,

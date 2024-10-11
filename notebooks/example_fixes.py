@@ -10,17 +10,68 @@ PR is merged.
 # %% IMPORTS
 
 
+import datetime as dt
+
 import arviz as az
+import epiweeks
 import polars as pl
 import xarray as xr
 
 import forecasttools
 
+# %% SIMPLE EPI COLUMNS
+
+
+# create artificial date dataframe
+df_dict = {
+    "date": ["2024-01-01", "2024-01-06", "2024-01-08"],
+    "value": [1, 2, 2],
+}
+df = pl.DataFrame(df_dict)
+print(df)
+
+# method 01: use map elements
+new_df = df.with_columns(
+    pl.col("date").str.strptime(pl.Date, "%Y-%m-%d")
+).with_columns(
+    pl.col("date")
+    .map_elements(
+        lambda d: epiweeks.Week.fromdate(d).week, return_dtype=pl.Int64
+    )
+    .alias("epiweek"),
+    pl.col("date")
+    .map_elements(
+        lambda d: epiweeks.Week.fromdate(d).year, return_dtype=pl.Int64
+    )
+    .alias("epiyear"),
+)
+
+
+# method 02: use unnest w/ a function
+def calculate_epidate(date: str):
+    week_obj = epiweeks.Week.fromdate(dt.datetime.strptime(date, "%Y-%m-%d"))
+    return {"epiweek": week_obj.week, "epiyear": week_obj.year}
+
+
+newer_df = df.with_columns(
+    pl.struct(["date"])
+    .map_elements(
+        lambda x: calculate_epidate(x["date"]), return_dtype=pl.Struct
+    )
+    .alias("epi_struct")
+).unnest("epi_struct")
+print(newer_df)
+
+
 # %% USE OF PREDICTIONS IN ARVIZ
 
 # load idata object from forecasttools
 idata = forecasttools.nhsn_flu_forecast
-print(idata.posterior_predictive)
+
+# has predictions by default
+print(idata.predictions["obs_dim_0"])
+print(idata.observed_data["obs_dim_0"])
+print(idata.posterior_predictive["obs_dim_0"])
 
 # get posterior samples
 postp_samps = idata.posterior_predictive["obs"]
@@ -34,7 +85,7 @@ predictions_dict = {"obs": forecast}
 predictions_idata = az.InferenceData(predictions=xr.Dataset(predictions_dict))
 
 
-# edit original idata object
+# (attempt) edit original idata object
 idata.posterior_predictive["obs"] = fitted
 idata = idata.extend(predictions_idata)
 

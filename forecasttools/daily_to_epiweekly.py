@@ -4,9 +4,9 @@ import epiweeks
 import polars as pl
 
 
-def calculate_epidate(date):
-    epiweek = epiweeks.Week.fromdate(date)
-    return epiweek.week, epiweek.year
+def calculate_epidate(date: str):
+    week_obj = epiweeks.Week.fromdate(datetime.strptime(date, "%Y-%m-%d"))
+    return {"epiweek": week_obj.week, "epiyear": week_obj.year}
 
 
 def daily_to_epiweekly(
@@ -21,28 +21,19 @@ def daily_to_epiweekly(
     Aggregate daily forecast draws to epiweekly.
     """
     # check intended df columns are in received df
-    # forecast_df_cols = forecast_df.columns
-    # = [value_col, date_col] + id_cols
-    # assert set(required_cols).issubset(set(forecast_df_cols)),f"Column mismatch between require columns {required_cols} and forecast dateframe columns {forecast_df_cols}."
+    forecast_df_cols = forecast_df.columns
+    required_cols = [value_col, date_col] + id_cols
+    assert set(required_cols).issubset(
+        set(forecast_df_cols)
+    ), f"Column mismatch between require columns {required_cols} and forecast dateframe columns {forecast_df_cols}."
     # add epiweek and epiyear columns
     forecast_df = forecast_df.with_columns(
-        [
-            pl.col(date_col)
-            .map_elements(
-                lambda x: calculate_epidate(datetime.strptime(x, "%Y-%m-%d"))[
-                    0
-                ]
-            )
-            .alias("epiweek"),
-            pl.col(date_col)
-            .map_elements(
-                lambda x: calculate_epidate(datetime.strptime(x, "%Y-%m-%d"))[
-                    1
-                ]
-            )
-            .alias("epiyear"),
-        ]
-    )
+        pl.struct(["date"])
+        .map_elements(
+            lambda x: calculate_epidate(x["date"]), return_dtype=pl.Struct
+        )
+        .alias("epi_struct")
+    ).unnest("epi_struct")
     # group by epiweek, epiyear, and the id_cols
     group_cols = ["epiweek", "epiyear"] + id_cols
     grouped_df = forecast_df.group_by(group_cols)
