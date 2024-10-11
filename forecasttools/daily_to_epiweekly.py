@@ -1,3 +1,7 @@
+"""
+
+"""
+
 from datetime import datetime
 
 import epiweeks
@@ -28,12 +32,12 @@ def daily_to_epiweekly(
     ), f"Column mismatch between require columns {required_cols} and forecast dateframe columns {forecast_df_cols}."
     # add epiweek and epiyear columns
     forecast_df = forecast_df.with_columns(
-        pl.struct(["date"])
+        pl.col(["date"])
         .map_elements(
-            lambda x: calculate_epidate(x["date"]), return_dtype=pl.Struct
+            lambda elt: calculate_epidate(elt), return_dtype=pl.Struct
         )
-        .alias("epi_struct")
-    ).unnest("epi_struct")
+        .alias("epi_struct_out")
+    ).unnest("epi_struct_out")
     # group by epiweek, epiyear, and the id_cols
     group_cols = ["epiweek", "epiyear"] + id_cols
     grouped_df = forecast_df.group_by(group_cols)

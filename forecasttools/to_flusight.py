@@ -5,29 +5,39 @@ import polars as pl
 
 
 def get_flusight_target_end_dates(
-    reference_date: str, horizons=None
+    reference_date: str, horizons: list[str] | None = None
 ) -> pl.DataFrame:
     # set default horizons in case of no specification
     if horizons is None:
         horizons = list(range(-1, 4))
+    # create list of ref. date, target, horizon, end date, and epidate
     reference_date_dt = datetime.strptime(reference_date, "%Y-%m-%d")
-    # list of horizons, target end dates, epiweeks, and epiyears
-    data = []
-    for horizon in horizons:
-        target_end_date = reference_date_dt + timedelta(weeks=horizon)
-        epiweek = epiweeks.Week.fromdate(target_end_date)
-        epiweek, epiyear = epiweek.week, epiweek.year
-        data.append(
-            {
-                "reference_date": reference_date,
-                "target": "wk inc flu hosp",
-                "horizon": horizon,
-                "target_end_date": target_end_date.date(),
-                "epiweek": epiweek,
-                "epiyear": epiyear,
-            }
+    data_df = pl.DataFrame(
+        list(
+            map(
+                lambda h: {
+                    "reference_date": reference_date,
+                    "target": "wk inc flu hosp",
+                    "horizon": h,
+                    "target_end_date": (
+                        reference_date_dt + timedelta(weeks=h)
+                    ).date(),
+                    "epidate": epiweeks.Week.fromdate(
+                        reference_date_dt + timedelta(weeks=h)
+                    ),
+                },
+                horizons,
+            )
         )
-    return pl.DataFrame(data)
+    )
+    # unnest epidate column
+    data_df = data_df.with_columns(
+        pl.col(["epidate"]).map_elements(
+            lambda elt: {"epiweek": elt.week, "epiyear": elt.year},
+            return_dtype=pl.Struct,
+        )
+    ).unnest("epidate")
+    return data_df
 
 
 def get_flusight_table(

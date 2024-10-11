@@ -10,7 +10,7 @@ PR is merged.
 # %% IMPORTS
 
 
-import datetime as dt
+from datetime import datetime, timedelta
 
 import arviz as az
 import epiweeks
@@ -18,6 +18,46 @@ import polars as pl
 import xarray as xr
 
 import forecasttools
+
+# %% REFORMATTING TARGET END DATES
+
+
+def get_flusight_target_end_dates(
+    reference_date: str, horizons: list[str] | None = None
+) -> pl.DataFrame:
+    # set default horizons in case of no specification
+    if horizons is None:
+        horizons = list(range(-1, 4))
+    # create list of ref. date, target, horizon, end date, and epidate
+    reference_date_dt = datetime.strptime(reference_date, "%Y-%m-%d")
+    data_df = pl.DataFrame(
+        list(
+            map(
+                lambda h: {
+                    "reference_date": reference_date,
+                    "target": "wk inc flu hosp",
+                    "horizon": h,
+                    "target_end_date": (
+                        reference_date_dt + timedelta(weeks=h)
+                    ).date(),
+                    "epidate": epiweeks.Week.fromdate(
+                        reference_date_dt + timedelta(weeks=h)
+                    ),
+                },
+                horizons,
+            )
+        )
+    )
+    # unnest epidate column
+    data_df = data_df.with_columns(
+        pl.col(["epidate"]).map_elements(
+            lambda elt: {"epiweek": elt.week, "epiyear": elt.year},
+            return_dtype=pl.Struct,
+        )
+    ).unnest("epidate")
+
+
+get_flusight_target_end_dates("2024-12-08")
 
 # %% SIMPLE EPI COLUMNS
 
@@ -49,17 +89,15 @@ new_df = df.with_columns(
 
 # method 02: use unnest w/ a function
 def calculate_epidate(date: str):
-    week_obj = epiweeks.Week.fromdate(dt.datetime.strptime(date, "%Y-%m-%d"))
+    week_obj = epiweeks.Week.fromdate(datetime.strptime(date, "%Y-%m-%d"))
     return {"epiweek": week_obj.week, "epiyear": week_obj.year}
 
 
 newer_df = df.with_columns(
-    pl.struct(["date"])
-    .map_elements(
-        lambda x: calculate_epidate(x["date"]), return_dtype=pl.Struct
-    )
-    .alias("epi_struct")
-).unnest("epi_struct")
+    pl.col(["date"])
+    .map_elements(lambda elt: calculate_epidate(elt), return_dtype=pl.Struct)
+    .alias("epi_struct_out")
+).unnest("epi_struct_out")
 print(newer_df)
 
 
