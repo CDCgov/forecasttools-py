@@ -23,17 +23,12 @@ def trajectories_to_quantiles(
         timepoint_cols if id_cols is None else timepoint_cols + id_cols
     )
 
-    # compute quantiles
-    def compute_quantiles(values):
-        quantile_values = np.quantile(values, quantiles)
-        return quantile_values
-
     # get quantiles across epiweek for forecast
     quantile_results = trajectories.group_by(group_cols).agg(
         [
             pl.col(value_col)
             .map_elements(
-                lambda group_values: compute_quantiles(group_values),
+                lambda vals: np.quantile(vals, quantiles),
                 return_dtype=pl.List(pl.Float64),
             )
             .alias("quantile_values")
