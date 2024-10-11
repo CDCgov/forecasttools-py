@@ -18,11 +18,11 @@ def trajectories_to_quantiles(
             + [0.05 * elt for elt in range(1, 20)]
             + [0.975, 0.99]
         )
+
     # group trajectories based on timepoint_cols and id_cols
     group_cols = (
         timepoint_cols if id_cols is None else timepoint_cols + id_cols
     )
-
     # get quantiles across epiweek for forecast
     quantile_results = trajectories.group_by(group_cols).agg(
         [
