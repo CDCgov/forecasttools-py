@@ -4,13 +4,8 @@ NHSN (as of 2024-09-26) influenza
 hospitalization counts, NHSN
 (as of 2024-09-26) COVID-19
 hospitalization counts, and
-a forecasts for a single
-jurisdiction.
+an example FluSight submission.
 """
-
-import os
-
-os.environ["JAX_TRACEBACK_FILTERING"] = "off"
 
 import os
 from urllib import error, request
@@ -19,6 +14,15 @@ import polars as pl
 
 
 def check_url(url: str) -> bool:
+    """
+    Checks whether a URL is valid.
+    Used for checking the links to the
+    example FluSight submission and the
+    US 2020 Census data.
+
+    url
+        The url to be checked.
+    """
     try:
         response = request.urlopen(url)
         return response.status == 200
@@ -31,6 +35,12 @@ def check_url(url: str) -> bool:
 
 
 def check_file_save_path(file_save_path: str) -> None:
+    """
+    Checks whether a file path is valid.
+
+    file_save_path
+        The file path to be checked.
+    """
     directory = os.path.dirname(file_save_path)
     if not os.path.exists(directory):
         raise FileNotFoundError(f"Directory does not exist: {directory}")
@@ -45,12 +55,10 @@ def make_census_dataset(
 ) -> None:
     """
     Retrieves US 2020 Census data in a
-    three column polars dataframe, then
+    three column Polars dataframe, then
     saves the dataset as a csv in a given
     directory, if it does not already exist.
 
-    Parameters
-    ----------
     file_save_path
         The path for where to save the output file.
     """
@@ -91,11 +99,9 @@ def make_nshn_fitting_dataset(
     NOT use the API endpoint, and instead expects
     a CSV.
 
-    Parameters
-    ----------
     dataset
-        Name of the dataset to create. Either "COVID",
-        "flu", or "both".
+        Name of the dataset to create. Either
+        "COVID" or "flu".
     nhsn_dataset_path
         Path to the NHSN dataset (csv file).
     file_save_path
@@ -168,8 +174,8 @@ def get_and_save_flusight_submission(
     file_save_path: str,
 ) -> None:
     """
-    Parameters
-    ----------
+    Saves an example FluSight submission as a csv.
+
     file_save_path
         The path for where to save the output file.
     """
