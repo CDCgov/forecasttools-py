@@ -1,5 +1,6 @@
 """
-
+Converts daily resolution dataframes
+to epiweekly dataframes.
 """
 
 from datetime import datetime
@@ -9,6 +10,13 @@ import polars as pl
 
 
 def calculate_epidate(date: str):
+    """
+    Converts an ISO8601 formatted
+    date into an epiweek and epiyear.
+
+    date
+        An ISO8601 date.
+    """
     week_obj = epiweeks.Week.fromdate(datetime.strptime(date, "%Y-%m-%d"))
     return {"epiweek": week_obj.week, "epiyear": week_obj.year}
 
@@ -22,7 +30,37 @@ def daily_to_epiweekly(
     strict: bool = False,
 ) -> pl.DataFrame:
     """
-    Aggregate daily forecast draws to epiweekly.
+    Converts the dates column (daily resolution)
+    of a Polars dataframe of draws and dates
+    for a single jurisdiction from into
+    epiweekly and epiyearly columns.
+
+    forecast_df
+        A polars dataframe with draws and dates
+        as columns. This dataframe will likely
+        have come from an InferenceData object
+        that was passed converted using `forecast_as_df_with_dates`.
+    value_col
+        The name of the column with the fitted
+        and or forecasted quantity. Defaults
+        to "value".
+    date_col
+        The name of the column with dates.
+        Defaults to "date".
+    id_cols
+        The name(s) of the column(s) that
+        uniquely identify a single timeseries
+        (e.g. a single posterior trajectory).
+        Defaults to [".draw"].
+    weekly_value_name
+        The name to use for the output column
+        containing weekly trajectory values.
+        Defaults to "weekly_value".
+    strict
+        Whether to aggregate to epiweekly only
+        for weeks in which all seven days have
+        values. If False, then incomplete weeks
+        will be aggregated. Defaults to False.
     """
     # check intended df columns are in received df
     forecast_df_cols = forecast_df.columns

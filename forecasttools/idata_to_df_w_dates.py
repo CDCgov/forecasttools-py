@@ -1,3 +1,11 @@
+"""
+Contains functions for converting
+Arviz InferenceData objects to Polars
+dataframes with dates and draws and
+for working with conversions of
+Polars dataframes to Tidy dataframes.
+"""
+
 from datetime import datetime, timedelta
 
 import arviz as az
@@ -12,11 +20,29 @@ def forecast_as_df_with_dates(
     location: str,
 ) -> pl.DataFrame:
     """
-    Converts contents of forecast
-    idata object to polars dataframe
-    with columns draw, date, hosp,
-    and location.
+    Converts an Arviz InferenceData object
+    into a Polars dataframe contains dates
+    and draws for a given location. The
+    number of rows in the dataframe is equal
+    to the number of posterior predictive
+    samples times the duration of the time
+    series (end_date - start_date).
+
+    idata_wo_dates
+        A Arviz InferenceData object representing
+        posterior predictive samples (a forecast)
+        for a single jurisdiction.
+    start_date
+        The first date used for fitting in
+        the time series.
+    end_date
+        The final date used for fitting in
+        the time series.
+    location
+        The abbreviation for the jurisdiction
+        associated with `idata_wo_dates`.
     """
+
     # extract number of posterior predictive samples
     stacked_post_pred_samples = idata_wo_dates.posterior_predictive.stack(
         sample=("chain", "draw")
