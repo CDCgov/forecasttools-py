@@ -128,11 +128,9 @@ def make_nshn_fitting_dataset(
             "previous_day_admission_adult_covid_confirmed",
             "previous_day_admission_influenza_confirmed",
         ]
-        if len(set(required_cols).intersection(set(df_cols))) != len(
-            required_cols
-        ):
+        if not set(required_cols).issubset(set(df_cols)):
             raise ValueError(
-                f"NHSN dataset missing required columns: {set(required_cols) - set(required_cols).intersection(set(df_cols))}"
+                f"NHSN dataset missing required columns: {set(required_cols) - set(df_cols)}"
             )
         # fully load and save NHSN dataframe
         df = pl.read_csv(nhsn_dataset_path)
