@@ -27,7 +27,9 @@ def trajectories_to_quantiles(
         a single jurisdiction.
     quantiles
         A list of quantiles for the output values.
-        Defaults to None.
+        If None, defaults to [0.01, 0.025] +
+        [0.05 * elt for elt in range(1, 20)] +
+        [0.975, 0.99].
     timepoint_cols
         A list of dataframe columns that
         identifies unique timepoints. Defaults
