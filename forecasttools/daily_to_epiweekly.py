@@ -32,7 +32,7 @@ def daily_to_epiweekly(
     """
     Converts the dates column (daily resolution)
     of a Polars dataframe of draws and dates
-    for a single jurisdiction from into
+    for a single jurisdiction into
     epiweekly and epiyearly columns.
 
     forecast_df
