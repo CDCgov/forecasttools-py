@@ -17,8 +17,9 @@ def calculate_epi_week_and_year(date: str):
     date
         An ISO8601 date.
     """
-    week_obj = epiweeks.Week.fromdate(datetime.strptime(date, "%Y-%m-%d"))
-    return {"epiweek": week_obj.week, "epiyear": week_obj.year}
+    epiweek = epiweeks.Week.fromdate(datetime.strptime(date, "%Y-%m-%d"))
+    epiweek_df_struct = {"epiweek": epiweek.week, "epiyear": epiweek.year}
+    return epiweek_df_struct
 
 
 def daily_to_epiweekly(
