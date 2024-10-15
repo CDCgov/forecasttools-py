@@ -1,3 +1,9 @@
+"""
+Takes epiweekly quantilized Polars dataframe
+and performs final conversion to the FluSight
+formatted output.
+"""
+
 from datetime import datetime, timedelta
 
 import epiweeks
@@ -7,6 +13,20 @@ import polars as pl
 def get_flusight_target_end_dates(
     reference_date: str, horizons: list[str] | None = None
 ) -> pl.DataFrame:
+    """
+    Generates remaining FluSight format
+    columns from a reference date for use
+    in a epiweekly quantilized dataframe.
+
+    reference_date
+        The target forecast week, the first
+        week in (usually) a four week forecast.
+    horizons
+        The indices marking the forecast period,
+        typically -1 to 3 (including 0) corresponding
+        to one week prior to reference_date and
+        three weeks after. Defaults to None.
+    """
     # set default horizons in case of no specification
     if horizons is None:
         horizons = list(range(-1, 4))
@@ -51,6 +71,44 @@ def get_flusight_table(
     horizons=None,
     excluded_locations=None,
 ) -> pl.DataFrame:
+    """
+    Takes epiweekly quantilized Polars dataframe
+    and adds target ends dates for FluSight
+    formatted output dataframe.
+
+    quantile_forecasts
+        A Polars dataframe of quantilized
+        epiweekly forecasts for a single
+        jurisdiction.
+    reference_date
+        The target week for which to begin
+        forecasts.
+    quantile_value_name
+        The name of the column containing the
+        outputted quantile values. Defaults to
+        "quantile_value".
+    quantile_level_name
+        The name of the column containing the
+        quantiles levels. Defaults to
+        "quantile_level".
+    location_col
+        The name of the dataframe's location
+        column. Defaults to "location".
+    epiweek_col
+        The name of the column containing
+        epiweeks. Defaults to "epiweek".
+    epiweek_col
+        The name of the column containing
+        epiyears. Defaults to "epiyear".
+    horizons
+        The indices marking the forecast period,
+        typically -1 to 3 (including 0) corresponding
+        to one week prior to reference_date and
+        three weeks after. Defaults to None.
+    excluded_locations
+        A list of US location codes to ignore
+        certain locations.
+    """
     # default horizons and locations
     if horizons is None:
         horizons = list(range(-1, 4))
