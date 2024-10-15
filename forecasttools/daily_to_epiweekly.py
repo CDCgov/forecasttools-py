@@ -9,7 +9,7 @@ import epiweeks
 import polars as pl
 
 
-def calculate_epidate(date: str):
+def calculate_epi_week_and_year(date: str):
     """
     Converts an ISO8601 formatted
     date into an epiweek and epiyear.
@@ -72,7 +72,8 @@ def daily_to_epiweekly(
     forecast_df = forecast_df.with_columns(
         pl.col(["date"])
         .map_elements(
-            lambda elt: calculate_epidate(elt), return_dtype=pl.Struct
+            lambda elt: calculate_epi_week_and_year(elt),
+            return_dtype=pl.Struct,
         )
         .alias("epi_struct_out")
     ).unnest("epi_struct_out")
