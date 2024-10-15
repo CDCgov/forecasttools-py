@@ -1,0 +1,7 @@
+---
+title: Using Scoring Utils With Forecasttools
+format: gfm
+engine: jupyter
+---
+
+_This notebook demonstrates how to use `forecasttools` with `scoringutils` to score FluSight submissions and evaluate posterior predictive forecasts from Arviz `InferenceData` objects._
