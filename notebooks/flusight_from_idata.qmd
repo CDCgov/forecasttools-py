@@ -227,9 +227,9 @@ forecast_df = forecasttools.loc_abbr_to_flusight_code(
 Format to FluSight:
 
 ```{python}
-x = forecasttools.get_flusight_table(
+flusight_output = forecasttools.get_flusight_table(
     quantile_forecasts=forecast_df,
     reference_date="2023-12-15"
 )
-x
+flusight_output
 ```

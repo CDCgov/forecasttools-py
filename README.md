@@ -20,7 +20,7 @@ pip3 install git+https://github.com/CDCgov/forecasttools-py@main
 
 # Datasets
 
-By default, `forecasttools` contains several datasets. These datasets aid with experimentation or are directly necessary to some of `forecasttools` utilities.
+`forecasttools` contains several datasets. These datasets aid with experimentation or are directly necessary to some of `forecasttools` utilities.
 
 ## Location Table
 
