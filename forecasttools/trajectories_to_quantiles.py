@@ -4,7 +4,6 @@ epiweekly draws and converts to quantiles
 over specified quantile levels.
 """
 
-import numpy as np
 import polars as pl
 
 
@@ -65,31 +64,29 @@ def trajectories_to_quantiles(
         timepoint_cols if id_cols is None else timepoint_cols + id_cols
     )
     # get quantiles across epiweek for forecast
-    quantile_results = trajectories.group_by(group_cols).agg(
-        [
-            pl.col(value_col)
-            .map_elements(
-                lambda vals: np.quantile(vals, quantiles),
-                return_dtype=pl.List(pl.Float64),
-            )
-            .alias("quantile_values")
-        ]
-    )
-    # resultant quantiles into individual rows
-    quant_df = quantile_results.explode("quantile_values")
-    # aligning rows with quantile levels
-    quant_df = quant_df.with_columns(
-        [
-            pl.Series(quantiles * (len(quant_df) // len(quantiles))).alias(
-                "quantile_levels"
-            )
-        ]
+    quant_df = (
+        trajectories.group_by(group_cols)
+        .agg(
+            [
+                pl.col(value_col)
+                .quantile(x, interpolation="midpoint")
+                .alias(f"{x}")
+                for x in quantiles
+            ]
+        )
+        .unpivot(
+            index=group_cols,
+            variable_name="quantile_level",
+            value_name="quantile_values",
+        )
+        .with_columns(pl.col("quantile_level").cast(pl.Float64))
+        .sort(["epiweek", "quantile_level"])
     )
     # renaming quantile columns
     quant_df = quant_df.rename(
         {
             "quantile_values": quantile_value_name,
-            "quantile_levels": quantile_level_name,
+            "quantile_level": quantile_level_name,
         }
     )
-    return quant_df.sort(["epiyear", "epiweek", "quantile_level"])
+    return quant_df.sort(["epiweek", "quantile_level"])
