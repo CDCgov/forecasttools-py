@@ -104,10 +104,12 @@ def get_flusight_table(
         The indices marking the forecast period,
         typically -1 to 3 (including 0) corresponding
         to one week prior to reference_date and
-        three weeks after. Defaults to None.
+        three weeks after. If None, defaults to
+        list(range(-1, 4)).
     excluded_locations
         A list of US location codes to ignore
-        certain locations.
+        certain locations. If None, defaults to
+        ["60", "78"].
     """
     # default horizons and locations
     if horizons is None:
