@@ -1,0 +1,235 @@
+---
+title: Format Arviz Forecast Output For FluSight Submission
+format: gfm
+engine: jupyter
+---
+
+
+NOTE: _Blockquoted content in this tutorial is derived from an earlier tutorial for the R version of `forecasttools`, which was authored by [Dylan Morris](https://github.com/dylanhmorris)._
+
+> The FluSight Challenge uses the [`hubverse`](https://hubverse.io/) framework to accept forecast submissions from contributing teams via [GitHub pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). The submitted `model-output` files need to follow a [specified formatting schema](https://github.com/cdcepi/FluSight-forecast-hub/blob/main/model-output/README.md). `forecasttools` provides functions to automate production of FluSight submissions. This vignette will show you how to use `forecasttools` to format forecast output for submission to FluSight.
+
+Moreover, this notebook illustrates how `forecasttools` can convert an Arviz `InferenceData` object to a FluSight submission.
+
+For readers less familiar with Arviz, please refer to the following links:
+
+* [Converting NumPyro samples to Arviz `InferenceData`](https://python.arviz.org/en/stable/api/generated/arviz.from_numpyro.html)
+* [The `InferenceData` object](https://python.arviz.org/en/stable/api/generated/arviz.InferenceData.html)
+
+---
+
+## FluSight Submission Format
+
+For a given model submission, FluSight requires the user the to possess the following columns:`reference_date`, `target`, `horizon`, `target_end_date`, `location`, `output_type`, `output_type_id`, `value`.
+
+Find here an example FluSight submission (taken from [here](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv)):
+
+
+```{python}
+import polars as pl
+import forecasttools
+
+# load example FluSight submission
+submission = forecasttools.example_flusight_submission
+
+# display structure of submission
+print(submission)
+```
+
+What do these columns mean?
+
+### `reference_date`
+
+> The official "as of" date for the forecast, in [ISO8601](https://www.iso.org/iso-8601-date-and-time-format.html) `YYYY-MM-DD` format. The reference date is *not* necessarily the due date for forecast submission. For FluSight, it is instead the Saturday that ends the ["epidemiological week" or "epiweek"](https://www.cmmcp.org/mosquito-surveillance-data/pages/epi-week-calendars-2008-2023) that the forecast is due. You'll learn a bit more about the why and how of "epiweeks" later in this vignette.
+
+### `target`
+
+> The quantity being forecast in the given row. FluSight currently accepts two targets:
+>
+> * `wk inc flu hosp`: epiweekly incident hospitalizations (i.e. the total from Sunday through Saturday for each epiweek). CFA Predict teams typically submit forecasts for this target.
+* `wk flu hosp rate change`: a discrete prediction of whether the hospitalization rate is projected to be stable, increase a little, increase a lot, decrease a little, or decrease a lot. CFA Predict teams typically do *not* submit forecasts for this target.
+
+### `horizon`
+
+> The forecast "horizon" relative to the `reference_date`, here in units of weeks ahead/behind. Flusight allows the following horizons: `-1, 0, 1, 2, 3`. A horizon of `-1` represents a "nowcast" of what the ultimately reported totals for the epiweek *before* the reference week will be after all backfill is accounted for.
+
+### `target_end_date`
+
+> The Saturday ending the epiweek corresponding to the given `horizon`. So for example a horizon of `-1` from `2023-10-14` is `2023-10-07` and a horizon of `2` from `2023-10-14` is `2023-10-28`.
+
+### `location`
+
+> The geographic region for which the forecast is being made. For FluSight, this will be a US state or territory or the United States as a whole. Locations are coded not as two-letter abbreviations but rather as two-digit legacy state FIPS codes, except for the national forecast, which is coded as `US`:
+
+### `output_type`
+
+> The type of forecast value the row contains.
+>
+> For quantile forecasts, this will be `'quantile'`: each row represents the value of of a particular quantile level for a particular `reference_date`, `target`, `location`, and `horizon`.
+>
+> For trend classification forecasts, it will typically be `'pmf'`, for "probability mass function", to indicate that the row represents the probability of a given trend (e.g. the probability of a `'large increase'`.)
+
+### `output_type_id`
+
+> This column holds any needed information about what subclass of the `output type` the row contains. For `quantile`, it contains the **level of the quantile** (e.g. `0.01` for the 1st percentile, `0.5` for the median / 50th percentile, etc). For `pmf`, contains the **name of the category/event whose probability is being given** (e.g. `'stable'` or `'large decrease'`).
+
+### `value`
+
+> This column contains the actual forecast value. For a `quantile` forecast of a hospitalizations `target`, this is the number of forecast hospitalizations for the given `location` and `horizon` at the given quantile level (specified in `output_type_id`)
+
+## Example Forecast From Arviz InferenceData
+
+Suppose that a model has produced a 28 day forecast of influenza hospitalizations for Texas[^individual_forecast] using a spline regression model (fit on daily resolution NHSN hospital admissions data from `2022/08/08` to `2023/12/08`) in `numpyro`.
+
+[^individual_forecast]: While it is possible to create an `idata` object containing posterior samples for all jurisdictions, different `idata` objects allows for modularity with respect to jurisdiction-specific anomaly detection and handling. Thus, each `idata` object corresponds to forecasts for a single jurisdiction, rather than all jurisdictions.
+
+Associated with the model is an [mcmc instance](https://num.pyro.ai/en/stable/mcmc.html); the forecast is captured within the posterior [predictive](https://num.pyro.ai/en/stable/utilities.html#predictive) samples.
+
+The mcmc instance and posterior predictive samples have be passed to `arviz.from_numpyro()` to produce an `InferenceData` object.
+
+Let us examine this object.
+
+```{python}
+# | label: examine-inference-data-object
+#| echo: true
+import xarray as xr
+
+
+xr.set_options(display_expand_data=False, display_expand_attrs=False)
+
+# load example forecast(s)
+idata = forecasttools.nhsn_flu_forecast
+idata
+```
+
+
+
+The `idata` object has several groups associated with it.
+
+Let us examine the observed data group and then plot out the observations.
+
+```{python}
+# examine the observed data (dimensions, coordinates, data variables)
+idata.observed_data
+```
+
+```{python}
+# | label: examine-observed-data
+import matplotlib.pyplot as plt
+
+
+# examine the observations
+fig, ax = plt.subplots(1, 1, figsize=(8,6))
+data = idata.observed_data["obs"].to_numpy()
+ax.plot(
+    list(range(len(data))),
+    data,
+    color="black",
+    linewidth=1.0,
+    markersize=3.0,
+    marker="o"
+)
+ax.set_ylabel("Hospital Admissions")
+ax.set_xlabel("Time (Days)")
+plt.show()
+```
+
+Observation 1: By default, dates are not associated with any group. As such, either a list of dates corresponding to fitting and forecast periods must be generated from the initial and final fitting dates and then integrated into a dataframe OR dates must be added to the `idata` object itself.
+
+Observation 2: The name of the jurisdiction that the inference data object is associated with is not contained in the `idata` object.
+
+For Observation 1, if the former path is pursued, we might expect `forecasttools` to have a function as such:
+
+```python
+def forecast_as_df_with_dates(
+    idata_wo_dates: az.InferenceData,
+    start_date: str = "2022-08-08",
+    end_date: str = "2023-12-08",
+    lookahead: int = 28,
+) -> pl.DataFrame:
+    """
+    Extract observed_data and posterior_predictive
+    data from idata object. Assumes variable name is
+    "obs" in either case. Use obs_dim_0, start_date,
+    and end_date to create dates column. Convert
+    forecast to polars dataframe. Then transform
+    dataframe to a dataset of posterior draws.
+    """
+    # code to perform
+    pass
+```
+
+And if the latter path is pursued:
+
+
+```python
+def add_dates_to_idata(
+    idata_wo_dates: az.InferenceData,
+    start_date: str ="2022-08-08",
+    end_date: str ="2023-12-08",
+    lookahead: int = 28,
+) -> az.InferenceData:
+    """
+    Use obs_dim_0, start_date, and end_date
+    to create dates list. Add dates list to
+    coordinates of observed_data and
+    posterior_predictive.
+    """
+    # code to perform
+    pass
+```
+
+Presently, `forecasttools` operates via the former pattern:
+
+```{python}
+forecast_df = forecasttools.forecast_as_df_with_dates(
+    idata,
+    start_date="2022-08-08",
+    end_date="2023-12-08",
+    location="TX"
+)
+forecast_df
+```
+
+Format to epiweeks:
+
+```{python}
+
+forecast_df = forecasttools.daily_to_epiweekly(
+    forecast_df,
+    value_col = "hosp",
+    id_cols = [".draw", "location"],
+    weekly_value_name = "weekly_hosp"
+)
+forecast_df
+```
+
+Add trajectories to quantiles:
+
+```{python}
+forecast_df = forecasttools.trajectories_to_quantiles(
+    forecast_df,
+    timepoint_cols = ["epiweek", "epiyear"],
+    id_cols = ["location"],
+    value_col = "weekly_hosp"
+)
+forecast_df
+```
+
+Recode locations:
+
+
+```{python}
+forecast_df = forecasttools.loc_abbr_to_flusight_code(
+    df=forecast_df, location_col="location")
+```
+
+Format to FluSight:
+
+```{python}
+flusight_output = forecasttools.get_flusight_table(
+    quantile_forecasts=forecast_df,
+    reference_date="2023-12-15"
+)
+flusight_output
+```

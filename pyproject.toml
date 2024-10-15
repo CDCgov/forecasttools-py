@@ -6,12 +6,36 @@ authors = ["CFA"]
 license = "Apache-2.0"
 readme = "README.md"
 packages = [{include = "forecasttools"}]
+include = [
+    { path = "forecasttools/location_table.csv", format = "sdist" },
+    { path = "forecasttools/location_table.csv", format = "wheel" },
+    { path = "forecasttools/example_flusight_submission.csv", format = "sdist" },
+    { path = "forecasttools/example_flusight_submission.csv", format = "wheel" },
+    { path = "forecasttools/example_flu_forecast.nc", format = "sdist" },
+    { path = "forecasttools/example_flu_forecast.nc", format = "wheel" },
+    { path = "forecasttools/nhsn_hosp_COVID.csv", format = "sdist" },
+    { path = "forecasttools/nhsn_hosp_COVID.csv", format = "wheel" },
+    { path = "forecasttools/nhsn_hosp_flu.csv", format = "sdist" },
+    { path = "forecasttools/nhsn_hosp_flu.csv", format = "wheel" },
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pre-commit = "^3.8.0"
-polars = "^1.8.2"
 arviz = "^0.19.0"
+polars = "^1.8.2"
+xarray = "^2024.9.0"
+matplotlib = "^3.9.2"
+epiweeks = "^2.3.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.8.0"
+ipykernel = "^6.29.5"
+numpyro = "^0.15.3"
+diffrax = "^0.6.0"
+patsy = "^0.5.6"
+nbformat = "^5.10.4"
+nbclient = "^0.10.0"
 
 
 [build-system]
