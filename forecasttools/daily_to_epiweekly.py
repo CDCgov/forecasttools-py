@@ -22,7 +22,7 @@ def calculate_epi_week_and_year(date: str):
     return epiweek_df_struct
 
 
-def daily_to_epiweekly(
+def df_daily_dates_to_epiweeks(
     forecast_df: pl.DataFrame,
     value_col: str = "value",
     date_col: str = "date",

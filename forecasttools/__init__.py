@@ -3,7 +3,7 @@ import importlib.resources
 import arviz as az
 import polars as pl
 
-from .daily_to_epiweekly import daily_to_epiweekly
+from .df_daily_dates_to_epiweeks import df_daily_dates_to_epiweeks
 from .idata_to_df_w_dates import forecast_as_df_with_dates
 from .recode_locations import loc_abbr_to_flusight_code
 from .to_flusight import get_flusight_table
@@ -43,7 +43,7 @@ __all__ = [
     "nhsn_flu_forecast",
     "forecast_as_df_with_dates",
     "trajectories_to_quantiles",
-    "daily_to_epiweekly",
+    "df_daily_dates_to_epiweeks",
     "loc_abbr_to_flusight_code",
     "get_flusight_table",
 ]

@@ -195,7 +195,7 @@ Format to epiweeks:
 
 ```{python}
 
-forecast_df = forecasttools.daily_to_epiweekly(
+forecast_df = forecasttools.df_daily_dates_to_epiweeks(
     forecast_df,
     value_col = "hosp",
     id_cols = [".draw", "location"],
