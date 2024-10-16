@@ -18,6 +18,10 @@ def forecast_as_df_with_dates(
     start_date: str,
     end_date: str,
     location: str,
+    timepoint_col_name: str = "date",
+    value_col_name: str = "hosp",
+    param: str = "obs",
+    obs_param: str = "obs",
 ) -> pl.DataFrame:
     """
     Converts an Arviz InferenceData object
@@ -41,15 +45,29 @@ def forecast_as_df_with_dates(
     location
         The abbreviation for the jurisdiction
         associated with `idata_wo_dates`.
+    timepoint_col_name
+        The name of the timepoint column in the
+        outputted dataframe. Defaults to "date".
+    value_col_name
+        The name of the value column in the
+        outputted dataframe. Defaults to "hosp".
+    param
+        The InferenceData parameter to extract
+        from the posterior_predictive samples
+        group. Defaults to "obs".
+    obs_param
+        The InferenceData parameter to extract
+        from the observed_data samples
+        group. Defaults to "obs".
     """
 
     # extract number of posterior predictive samples
     stacked_post_pred_samples = idata_wo_dates.posterior_predictive.stack(
         sample=("chain", "draw")
-    )["obs"].values
+    )[param].values
     num_timesteps, num_samples = stacked_post_pred_samples.shape
     # get number of days of forecast
-    num_observed_days = idata_wo_dates.observed_data["obs"].shape[0]
+    num_observed_days = idata_wo_dates.observed_data[obs_param].shape[0]
     forecast_days = num_timesteps - num_observed_days
     # generate dates corresponding to the forecast
     end_date_dt = datetime.strptime(end_date, "%Y-%m-%d")
@@ -68,8 +86,8 @@ def forecast_as_df_with_dates(
     forecast_df = pl.DataFrame(
         {
             ".draw": draw_indices,
-            "date": dates_repeated,
-            "hosp": forecast_values,
+            timepoint_col_name: dates_repeated,
+            value_col_name: forecast_values,
             "location": [location] * len(draw_indices),
         }
     )
