@@ -62,7 +62,7 @@ def forecast_as_df_with_dates(
     )[param].values
     num_timesteps, num_samples = stacked_post_pred_samples.shape
     # get number of days of forecast
-    num_observed_days = idata_wo_dates.observed_data[param].shape[0]
+    num_observed_days = idata_wo_dates.observed_data["obs"].shape[0]
     forecast_days = num_timesteps - num_observed_days
     # generate dates corresponding to the forecast
     end_date_dt = datetime.strptime(end_date, "%Y-%m-%d")
