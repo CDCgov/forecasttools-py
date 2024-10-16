@@ -67,6 +67,8 @@ flusight_submission = forecasttools.example_flusight_submission
 flusight_submission
 ```
 
+Scoring utils requires observed data to be loaded.
+
 Once this submission is loaded, we must save it as a csv.
 
 ```{python}
