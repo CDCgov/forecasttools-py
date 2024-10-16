@@ -189,7 +189,8 @@ forecast_df = forecasttools.forecast_as_df_with_dates(
     location="TX",
     timepoint_col_name="date",
     value_col_name="hosp",
-    param="obs"
+    param="obs",
+    obs_param="obs"
 )
 forecast_df
 ```
