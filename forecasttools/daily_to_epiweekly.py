@@ -22,7 +22,7 @@ def calculate_epi_week_and_year(date: str):
     return epiweek_df_struct
 
 
-def df_daily_dates_to_epiweeks(
+def df_aggregate_to_epiweekly(
     forecast_df: pl.DataFrame,
     value_col: str = "value",
     date_col: str = "date",
@@ -31,11 +31,12 @@ def df_daily_dates_to_epiweeks(
     strict: bool = False,
 ) -> pl.DataFrame:
     """
-    Converts the dates column (daily resolution)
-    of a Polars dataframe of draws and dates
-    for a single jurisdiction into
-    epiweekly and epiyearly columns.
+    Aggregate daily values (e.g.
+    hospitalizations) to epiweekly total values
+    and add epiweek and epiyear columns.
 
+    Parameters
+    ----------
     forecast_df
         A polars dataframe with draws and dates
         as columns. This dataframe will likely
@@ -62,6 +63,12 @@ def df_daily_dates_to_epiweeks(
         for weeks in which all seven days have
         values. If False, then incomplete weeks
         will be aggregated. Defaults to False.
+
+    Returns
+    -------
+    pl.DataFrame
+        A dataframe with value_col aggregated
+        across epiweek and epiyear.
     """
     # check intended df columns are in received df
     forecast_df_cols = forecast_df.columns
