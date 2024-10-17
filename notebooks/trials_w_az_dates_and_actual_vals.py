@@ -322,4 +322,26 @@ make_forecast(
     forecast_days=28,
 )
 
-# %%
+# %% SCORING UTILS SIMPLE
+
+data = {
+    "location": ["DE", "DE", "IT", "IT"],
+    "forecast_date": ["2021-01-01", "2021-01-01", "2021-07-12", "2021-07-12"],
+    "target_end_date": [
+        "2021-01-02",
+        "2021-01-02",
+        "2021-07-24",
+        "2021-07-24",
+    ],
+    "target_type": ["Cases", "Deaths", "Deaths", "Deaths"],
+    "model": [None, None, "epiforecasts-EpiNow2", "epiforecasts-EpiNow2"],
+    "horizon": [None, None, 2, 2],
+    "quantile_level": [None, None, 0.975, 0.990],
+    "predicted": [None, None, 611, 719],
+    "observed": [127300, 4534, 78, 78],
+}
+
+df = pl.DataFrame(data)
+
+# save to parquet
+print(df)
