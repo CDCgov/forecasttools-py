@@ -40,18 +40,18 @@ check_and_install_r_packages <- function(packages) {
     }
   }
 }
-check_and_install_r_packages(c("dplyr", "ggplot2", "readr", "here", "scoringutils"))
+check_and_install_r_packages(c("dplyr", "ggplot2", "readr", "arrow", "scoringutils"))
 
 # if one just wants to install scoringutils
 # one can use
 # install.packages("scoringutils")
 ```
 
-
 # Scoring A FluSight Submission
 
-_This section explores using `scoringutils` for scoring the quantile forecasts made in a FluSight Hub submission_
+_This section explores using `scoringutils` for scoring the quantile forecasts made in a FluSight Hub submission._
 
+While `forecasttools` has an example FluSight submission (in hubverse format) available, `scoringutils` requires observed data
 
 We must first load a FluSight submission (in hubverse format). For this, `forecasttools` contains an example submission, which we can load in the following manner:
 
@@ -97,6 +97,16 @@ setwd(dirname(file_path))
 forecast_df <- readr::read_csv(
     "flusight_forecast_to_store.csv",
     show_col_types = FALSE)
+
+
+# read parquet file
+df <- read_parquet("forecasts_for_scoringutils.parquet")
+forecast_quantile <- df |>
+  as_forecast_quantile(
+    forecast_unit = c(
+      "location", "forecast_date", "target_end_date", "target_type", "model", "horizon"
+    )
+  )
 ```
 
 And then score it using `scoringutils`.
