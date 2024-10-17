@@ -316,7 +316,7 @@ def make_forecast(
 
 make_forecast(
     nhsn_dataset_path="../forecasttools/nhsn_hosp_flu.csv",
-    juris_subset=["TX", "NY", "CA", "AZ", "FL"],
+    juris_subset=["AZ", "FL", "VT"],
     start_date="2023-08-08",
     end_date="2024-02-15",
     forecast_days=28,

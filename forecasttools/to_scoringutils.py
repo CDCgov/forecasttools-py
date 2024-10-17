@@ -1,7 +1,11 @@
 """
 Takes differently formatted forecast objects
 and converts them into a format ready for R's
-`scoringutils`.
+`scoringutils`. A FluSight submission has all
+necessary content already present save for
+the observation (both for the fitting and
+forecast period). An InferenceData object can
+have the observations available
 """
 
 import arviz as az
@@ -11,6 +15,8 @@ import polars as pl
 def from_flusight_to_scoringutils(
     submission: pl.DataFrame, observations: list[float]
 ) -> None:
+    """ """
+
     pass
 
 
