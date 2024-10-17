@@ -31,9 +31,9 @@ def df_aggregate_to_epiweekly(
     strict: bool = False,
 ) -> pl.DataFrame:
     """
-    Aggregates daily values (e.g.,
-    hospitalizations) to epiweekly total values.
-    Add epiweek and epiyear columns.
+    Aggregate daily values (e.g.
+    hospitalizations) to epiweekly total values
+    and add epiweek and epiyear columns.
 
     Parameters
     ----------
