@@ -31,12 +31,9 @@ def df_aggregate_to_epiweekly(
     strict: bool = False,
 ) -> pl.DataFrame:
     """
-    Converts the dates column (daily resolution)
-    of a Polars dataframe of draws and dates
-    for a single jurisdiction into
-    epiweekly and epiyearly columns. This entails
-    aggregating and replacing the date_col, not
-    just adding the epiweek and epiyear columns.
+    Aggregates daily values (e.g.,
+    hospitalizations) to epiweekly total values.
+    Add epiweek and epiyear columns.
 
     Parameters
     ----------
@@ -70,8 +67,8 @@ def df_aggregate_to_epiweekly(
     Returns
     -------
     pl.DataFrame
-        A dataframe with date_col replaced by
-        epiweek and epiyear columns.
+        A dataframe with value_col aggregated
+        across epiweek and epiyear.
     """
     # check intended df columns are in received df
     forecast_df_cols = forecast_df.columns
