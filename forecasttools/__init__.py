@@ -10,23 +10,29 @@ from .to_flusight import get_flusight_table
 from .trajectories_to_quantiles import trajectories_to_quantiles
 
 # location table (from Census data)
-with importlib.resources.path(__package__, "location_table.csv") as data_path:
-    location_table = pl.read_csv(data_path)
+with importlib.resources.path(
+    __package__, "location_table.parquet"
+) as data_path:
+    location_table = pl.read_parquet(data_path)
 
 # load example flusight submission
 with importlib.resources.path(
-    __package__, "example_flusight_submission.csv"
+    __package__, "example_flusight_submission.parquet"
 ) as data_path:
     dtypes_d = {"location": pl.Utf8}
-    example_flusight_submission = pl.read_csv(data_path, dtypes=dtypes_d)
+    example_flusight_submission = pl.read_parquet(data_path)
 
 # load example fitting data for COVID (NHSN, as of 2024-09-26)
-with importlib.resources.path(__package__, "nhsn_hosp_COVID.csv") as data_path:
-    nhsn_hosp_COVID = pl.read_csv(data_path)
+with importlib.resources.path(
+    __package__, "nhsn_hosp_COVID.parquet"
+) as data_path:
+    nhsn_hosp_COVID = pl.read_parquet(data_path)
 
 # load example fitting data for influenza (NHSN, as of 2024-09-26)
-with importlib.resources.path(__package__, "nhsn_hosp_flu.csv") as data_path:
-    nhsn_hosp_flu = pl.read_csv(data_path)
+with importlib.resources.path(
+    __package__, "nhsn_hosp_flu.parquet"
+) as data_path:
+    nhsn_hosp_flu = pl.read_parquet(data_path)
 
 # load light idata NHSN influenza forecast (NHSN, as of 2024-09-26)
 with importlib.resources.path(
