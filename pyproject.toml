@@ -7,16 +7,16 @@ license = "Apache-2.0"
 readme = "README.md"
 packages = [{include = "forecasttools"}]
 include = [
-    { path = "forecasttools/location_table.csv", format = "sdist" },
-    { path = "forecasttools/location_table.csv", format = "wheel" },
-    { path = "forecasttools/example_flusight_submission.csv", format = "sdist" },
-    { path = "forecasttools/example_flusight_submission.csv", format = "wheel" },
+    { path = "forecasttools/location_table.parquet", format = "sdist" },
+    { path = "forecasttools/location_table.parquet", format = "wheel" },
+    { path = "forecasttools/example_flusight_submission.parquet", format = "sdist" },
+    { path = "forecasttools/example_flusight_submission.parquet", format = "wheel" },
     { path = "forecasttools/example_flu_forecast.nc", format = "sdist" },
     { path = "forecasttools/example_flu_forecast.nc", format = "wheel" },
-    { path = "forecasttools/nhsn_hosp_COVID.csv", format = "sdist" },
-    { path = "forecasttools/nhsn_hosp_COVID.csv", format = "wheel" },
-    { path = "forecasttools/nhsn_hosp_flu.csv", format = "sdist" },
-    { path = "forecasttools/nhsn_hosp_flu.csv", format = "wheel" },
+    { path = "forecasttools/nhsn_hosp_COVID.parquet", format = "sdist" },
+    { path = "forecasttools/nhsn_hosp_COVID.parquet", format = "wheel" },
+    { path = "forecasttools/nhsn_hosp_flu.parquet", format = "sdist" },
+    { path = "forecasttools/nhsn_hosp_flu.parquet", format = "wheel" },
 ]
 
 
