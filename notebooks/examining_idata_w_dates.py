@@ -163,7 +163,11 @@ def add_dates_to_idata_object(
     idata: az.InferenceData,
     start_date: str,
 ) -> az.InferenceData:
-    """ """
+    """
+    Takes an InferenceData object w/
+    observed_data and posterior_predictive
+    groups and adds date indexing
+    """
     pass
 
 
@@ -184,33 +188,6 @@ def make_forecast(
     """
     Generates a forecast for specified
     dates using a spline regression model.
-
-    Parameters
-    ----------
-    nhsn_data
-        The nhsn data.
-    save_path
-        The path to where the outputted
-        parquet file should be saved.
-        Defaults to current directory.
-    start_date
-        Where to begin data fitting.
-    end_date
-        Where to end data fitting.
-    forecast_days
-        The number of years to forecast.
-    show_plot
-        Whether to show the forecast.
-        Defaults to True.
-    save_idata
-        Whether to actually save the output.
-        Defaults to True.
-
-    Returns
-    -------
-    tuple
-        A plotted forecast and or a
-        NetCDF Arviz object.
     """
     # check dataset path
     check_file_save_path(save_path)
@@ -325,6 +302,8 @@ make_forecast(
     end_date="2022-12-08",
     juris_subset=["TX"],
     forecast_days=28,
+    save_path="../forecasttools/example_flu_forecast_w_dates.nc",
+    save_idata=False,
     use_log=True,
 )
 
