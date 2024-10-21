@@ -20,6 +20,8 @@ include = [
 ]
 
 
+
+
 [tool.poetry.dependencies]
 python = "^3.12"
 arviz = "^0.19.0"
@@ -27,6 +29,12 @@ polars = "^1.8.2"
 xarray = "^2024.9.0"
 matplotlib = "^3.9.2"
 epiweeks = "^2.3.0"
+
+
+[tool.poetry.group.dev]
+optional = true
+
+
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"
@@ -37,6 +45,13 @@ patsy = "^0.5.6"
 nbformat = "^5.10.4"
 nbclient = "^0.10.0"
 
+
+[tool.poetry.group.test]
+optional = true
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.3"
 
 [build-system]
 requires = ["poetry-core"]
