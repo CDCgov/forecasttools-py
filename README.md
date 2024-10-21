@@ -198,7 +198,7 @@ The forecast was generated following the creation of `nhsn_hosp_flu.csv` (see pr
 ```python
 make_nhsn_fitted_forecast_idata(
     nhsn_dataset_path="nhsn_hosp_flu.csv",
-    file_save_path=os.path.join(os.getcwd(), "example_flu_forecast.nc"),
+    file_save_path=os.path.join(os.getcwd(), "example_flu_forecast_wo_dates.nc"),
     start_date"2022/08/08",
     end_date="2023/12/08",
     forecast_days=28,

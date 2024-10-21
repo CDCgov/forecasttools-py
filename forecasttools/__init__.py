@@ -36,7 +36,7 @@ with importlib.resources.path(
 
 # load light idata NHSN influenza forecast (NHSN, as of 2024-09-26)
 with importlib.resources.path(
-    __package__, "example_flu_forecast.nc"
+    __package__, "example_flu_forecast_wo_dates.nc"
 ) as data_path:
     nhsn_flu_forecast = az.from_netcdf(data_path)
 
