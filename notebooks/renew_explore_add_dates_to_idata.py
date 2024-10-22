@@ -42,12 +42,28 @@ obs_length = idata.observed_data.sizes[dim_name]
 # idata.observed_data.dims gets one:
 # FrozenMappingWarningOnValuesAccess({'obs_dim_0': 488})
 
+# ONE OPTION
+# obs_dates = (
+#     pl.DataFrame()
+#     .select(
+#         pl.date_range(
+#             start=start_date_as_dt,
+#             end=start_date_as_dt + dt.timedelta(days=obs_length - 1),
+#             interval="1d",
+#             closed="both",
+#         )
+#     )
+#     .to_series()
+#     .to_numpy()
+# )
+
+# ANOTHER OPTION
 obs_dates = (
     pl.DataFrame()
     .select(
         pl.date_range(
             start=start_date_as_dt,
-            end=start_date_as_dt + dt.timedelta(days=obs_length - 1),
+            end=start_date_as_dt + pl.duration(days=obs_length - 1),
             interval="1d",
             closed="both",
         )
@@ -55,7 +71,6 @@ obs_dates = (
     .to_series()
     .to_numpy()
 )
-
 
 # %% DATE CALCULATIONS FOR POSTERIOR PREDICTIVE
 
