@@ -1,7 +1,7 @@
 # %% LOADING IDATA
 import datetime as dt
 
-import numpy as np
+import polars as pl
 import xarray as xr
 
 import forecasttools
@@ -28,24 +28,52 @@ print(idata)
 
 # %% DATE CALCULATIONS FOR OBSERVED DATA
 
+
 # the length of the observed data becomes its date array
-obs_length = idata.observed_data["obs_dim_0"].size
-obs_dates = np.array(
-    [
-        (start_date_as_dt + dt.timedelta(days=i)).strftime("%Y-%m-%d")
-        for i in range(obs_length)
-    ]
+dim_name = "obs_dim_0"
+obs_length = idata.observed_data.sizes[dim_name]
+
+# suggested idata.observed_data.sizes["obs_dim_0"]
+# over idata.observed_data["obs_dim_0"].size
+
+# idata.observed_data.sizes
+# Frozen({'obs_dim_0': 488})
+
+# idata.observed_data.dims gets one:
+# FrozenMappingWarningOnValuesAccess({'obs_dim_0': 488})
+
+obs_dates = (
+    pl.DataFrame()
+    .select(
+        pl.date_range(
+            start=start_date_as_dt,
+            end=start_date_as_dt + dt.timedelta(days=obs_length - 1),
+            interval="1d",
+            closed="both",
+        )
+    )
+    .to_series()
+    .to_numpy()
 )
+
 
 # %% DATE CALCULATIONS FOR POSTERIOR PREDICTIVE
 
 # the length of the posterior predictive data becomes its date array
-postp_length = idata.posterior_predictive["obs_dim_0"].size
-postp_dates = np.array(
-    [
-        (start_date_as_dt + dt.timedelta(days=i)).strftime("%Y-%m-%d")
-        for i in range(postp_length)
-    ]
+dim_name = "obs_dim_0"
+postp_length = idata.posterior_predictive.sizes[dim_name]
+postp_dates = (
+    pl.DataFrame()
+    .select(
+        pl.date_range(
+            start=start_date_as_dt,
+            end=start_date_as_dt + dt.timedelta(days=postp_length - 1),
+            interval="1d",
+            closed="both",
+        )
+    )
+    .to_series()
+    .to_numpy()
 )
 
 
