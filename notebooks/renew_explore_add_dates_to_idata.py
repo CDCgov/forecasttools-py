@@ -97,6 +97,9 @@ postp_dates = (
 # modify the idata group observed data with new dates
 idata.observed_data = idata.observed_data.assign_coords(obs_dim_0=obs_dates)
 
+# as mapping for coord for individual variables OR coords
+# DB concerned groups afford little value
+
 # modify the idata group posterior predictive with new dates
 idata.posterior_predictive = idata.posterior_predictive.assign_coords(
     obs_dim_0=postp_dates
@@ -115,5 +118,44 @@ print(
     f"PostP size should be greater than obs group:\nPostP: {len(postp_dates_out)} v. Obs: {len(obs_dates_out)}, Diff: {len(postp_dates_out) - len(obs_dates_out)}"
 )
 
+# Absolutely the case that something that is handling dates that have already been handed to idata objects should not assume intervals, ordered, as agnostic as possible (only knowledge: "of type date")
+# A function for daily data.
+#
+# Task: creating idata obj w/ dates --> demo func in forecastools
+# TPM make case for dates as coords or as group
+# show w/ plot_ts()
+# Task: more general add dates to idata wo data
+
+# %% ADDING DATES GROUP TO IDATA
+
+idata_w_dates = idata.copy()
+
+obs_dates_da = xr.DataArray(
+    obs_dates,
+    dims=["obs_dim_0"],  # name might need to change
+    coords={"obs_dim_0": obs_dates},
+    name="obs_dates",
+)
+
+postp_dates_da = xr.DataArray(
+    postp_dates,
+    dims=["obs_dim_0"],  # name might need to change
+    coords={"obs_dim_0": postp_dates},  # name might need to change
+    name="postp_dates",
+)
+
+idata_w_dates.add_groups(
+    date_info={"obs_dates": obs_dates_da, "postp_dates": postp_dates_da}
+)
+
+# what happens when you get rid of a date?
+
+# %% EXAMINING IDATA WITH DATES GROUP
+
+print(idata_w_dates)
+
+print(idata_w_dates.date_info)
+
+print(idata_w_dates.date_info.obs_dates.to_numpy())
 
 # %%
