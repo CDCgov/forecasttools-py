@@ -13,6 +13,8 @@ include = [
     { path = "forecasttools/example_flusight_submission.csv", format = "wheel" },
     { path = "forecasttools/example_flu_forecast_wo_dates.nc", format = "sdist" },
     { path = "forecasttools/example_flu_forecast_wo_dates.nc", format = "wheel" },
+    { path = "forecasttools/example_flu_forecast_w_dates.nc", format = "sdist" },
+    { path = "forecasttools/example_flu_forecast_w_dates.nc", format = "wheel" },
     { path = "forecasttools/nhsn_hosp_COVID.csv", format = "sdist" },
     { path = "forecasttools/nhsn_hosp_COVID.csv", format = "wheel" },
     { path = "forecasttools/nhsn_hosp_flu.csv", format = "sdist" },

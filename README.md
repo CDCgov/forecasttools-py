@@ -171,7 +171,7 @@ make_nshn_fitting_dataset(
 
 ## Influenza Hospitalizations Forecast(s)
 
-Two example forecasts stored in an Arviz `InferenceData` object are included for vignettes and user experimentation. Both are 28 day influenza hospital admissions forecasts for Texas made using a spline regression model fitted to NHSN data between 2022-08-08 and 2022-12-08. The only difference between the forecasts is that `example_flu_forecast_w_dates.nc` has dates as its coordinates. The `idata` objects which includes the observed data and posterior predictive samples is given below:
+Two example forecasts stored in Arviz `InferenceData` objects are included for vignettes and user experimentation. Both are 28 day influenza hospital admissions forecasts for Texas made using a spline regression model fitted to NHSN data between 2022-08-08 and 2022-12-08. The only difference between the forecasts is that `example_flu_forecast_w_dates.nc` has dates as its coordinates. The `idata` objects which includes the observed data and posterior predictive samples is given below:
 
 ```
 Inference data with groups:
