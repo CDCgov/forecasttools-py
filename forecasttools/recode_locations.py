@@ -17,12 +17,20 @@ def loc_abbr_to_flusight_code(
     dataframe and recodes it to FluSight
     location codes.
 
+
+    Parameters
+    ----------
     df
         A Polars dataframe with a location
         column.
     location_col
         The name of the dataframe's location
         column.
+
+    Returns
+    -------
+    pl.DataFrame
+        A recoded locations dataframe.
     """
     # get location table
     loc_table = forecasttools.location_table

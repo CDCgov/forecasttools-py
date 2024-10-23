@@ -22,6 +22,8 @@ def trajectories_to_quantiles(
     to quantile values over specified quantile
     levels.
 
+    Parameters
+    ----------
     trajectories
         A polars dataframe of epiweekly draws for
         a single jurisdiction.
@@ -52,6 +54,11 @@ def trajectories_to_quantiles(
         levels. For example, if there are multiple
         locations present, one might group by
         ["location"]. Defaults to None.
+
+    Returns
+    -------
+    pl.DataFrame
+        Quantilized forecast dataframe.
     """
     # set default quantiles
     if quantiles is None:

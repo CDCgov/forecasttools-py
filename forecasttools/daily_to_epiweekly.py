@@ -41,7 +41,7 @@ def df_aggregate_to_epiweekly(
         A polars dataframe with draws and dates
         as columns. This dataframe will likely
         have come from an InferenceData object
-        that was passed converted using `forecast_as_df_with_dates`.
+        that was passed converted using `idata_to_df_w_dates`.
     value_col
         The name of the column with the fitted
         and or forecasted quantity. Defaults

@@ -141,7 +141,7 @@ Observation 2: The name of the jurisdiction that the inference data object is as
 For Observation 1, if the former path is pursued, we might expect `forecasttools` to have a function as such:
 
 ```python
-def forecast_as_df_with_dates(
+def idata_to_df_w_dates(
     idata_wo_dates: az.InferenceData,
     start_date: str = "2022-08-08",
     end_date: str = "2023-12-08",
@@ -182,7 +182,7 @@ def add_dates_to_idata(
 Presently, `forecasttools` operates via the former pattern:
 
 ```{python}
-forecast_df = forecasttools.forecast_as_df_with_dates(
+forecast_df = forecasttools.idata_to_df_w_dates(
     idata,
     start_date="2022-08-08",
     end_date="2023-12-08",

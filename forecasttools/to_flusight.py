@@ -18,6 +18,8 @@ def get_flusight_target_end_dates(
     columns from a reference date for use
     in a epiweekly quantilized dataframe.
 
+    Parameters
+    ----------
     reference_date
         The target forecast week, the first
         week in (usually) a four week forecast.
@@ -26,6 +28,12 @@ def get_flusight_target_end_dates(
         typically -1 to 3 (including 0) corresponding
         to one week prior to reference_date and
         three weeks after. Defaults to None.
+
+    Returns
+    -------
+    pl.DataFrame
+        A dataframe of columns necessary for
+        the FluSight submission.
     """
     # set default horizons in case of no specification
     if horizons is None:
@@ -76,6 +84,8 @@ def get_flusight_table(
     and adds target ends dates for FluSight
     formatted output dataframe.
 
+    Parameters
+    ----------
     quantile_forecasts
         A Polars dataframe of quantilized
         epiweekly forecasts for a single
@@ -110,6 +120,11 @@ def get_flusight_table(
         A list of US location codes to ignore
         certain locations. If None, defaults to
         ["60", "78"].
+
+    Returns
+    -------
+    pl.DataFrame
+        A flusight formatted dataframe.
     """
     # default horizons and locations
     if horizons is None:
