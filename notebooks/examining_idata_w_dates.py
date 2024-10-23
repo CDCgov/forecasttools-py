@@ -1,7 +1,7 @@
 """
 Creating a new idata object with
 dates to change the functionality
-of idata_to_df_w_dates.
+of idata_w_dates_to_df.
 """
 
 # %% IMPORTS
@@ -26,7 +26,9 @@ import forecasttools
 # %% CHECK FILE PATH
 
 
-def check_file_save_path(file_save_path: str) -> None:
+def check_file_save_path(
+    file_save_path: str,
+) -> None:
     """
     Checks whether a file path is valid.
 
@@ -35,11 +37,17 @@ def check_file_save_path(file_save_path: str) -> None:
     """
     directory = os.path.dirname(file_save_path)
     if not os.path.exists(directory):
-        raise FileNotFoundError(f"Directory does not exist: {directory}")
+        raise FileNotFoundError(
+            f"Directory does not exist: {directory}"
+        )
     if not os.access(directory, os.W_OK):
-        raise PermissionError(f"Directory is not writable: {directory}")
+        raise PermissionError(
+            f"Directory is not writable: {directory}"
+        )
     if os.path.exists(file_save_path):
-        raise FileExistsError(f"File already exists at: {file_save_path}")
+        raise FileExistsError(
+            f"File already exists at: {file_save_path}"
+        )
 
 
 # %% SPLINE REGRESSION MODEL
@@ -47,15 +55,28 @@ def check_file_save_path(file_save_path: str) -> None:
 
 def model(basis_matrix, y=None):
     # priors
-    shift = numpyro.sample("shift", dist.Normal(0.0, 2.0))
-    beta_coeffs = numpyro.sample(
-        "beta_coeffs", dist.Normal(jnp.zeros(basis_matrix.shape[1]), 2.0)
+    shift = numpyro.sample(
+        "shift", dist.Normal(0.0, 2.0)
     )
-    shift_mu = jnp.dot(basis_matrix, beta_coeffs) + shift
+    beta_coeffs = numpyro.sample(
+        "beta_coeffs",
+        dist.Normal(
+            jnp.zeros(basis_matrix.shape[1]), 2.0
+        ),
+    )
+    shift_mu = (
+        jnp.dot(basis_matrix, beta_coeffs) + shift
+    )
     mu_exp = jnp.exp(shift_mu)
-    alpha = numpyro.sample("alpha", dist.Exponential(1.0))
+    alpha = numpyro.sample(
+        "alpha", dist.Exponential(1.0)
+    )
     # likelihood
-    numpyro.sample("obs", dist.NegativeBinomial2(mu_exp, alpha), obs=y)
+    numpyro.sample(
+        "obs",
+        dist.NegativeBinomial2(mu_exp, alpha),
+        obs=y,
+    )
 
 
 # %% CREATE DATES ARRAY
@@ -67,16 +88,23 @@ def create_inf_obj_date_array(
     start_date_iso: str,
 ) -> NDArray:
     # convert received start date to datetime
-    start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
+    start_date_as_dt = datetime.strptime(
+        start_date_iso, "%Y-%m-%d"
+    )
     # get interval size from InferenceData group
-    interval_size = idata_group.sizes[idata_group_dim_name]
+    interval_size = idata_group.sizes[
+        idata_group_dim_name
+    ]
     # create date array
     interval_dates = (
         pl.DataFrame()
         .select(
             pl.date_range(
                 start=start_date_as_dt,
-                end=start_date_as_dt + pl.duration(days=interval_size - 1),
+                end=start_date_as_dt
+                + pl.duration(
+                    days=interval_size - 1
+                ),
                 interval="1d",
                 closed="both",
             )
@@ -91,7 +119,9 @@ def create_inf_obj_date_array(
 # %% SPLINE BASIS MATRIX
 
 
-def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
+def spline_basis(
+    X, degree: int = 4, df: int = 8
+) -> NDArray:
     basis = patsy.dmatrix(
         "bs(x, df=df, degree=degree, include_intercept=True) - 1",
         {"x": X, "df": df, "degree": degree},
@@ -120,7 +150,9 @@ def plot_and_or_save_forecast(
     Includes hard-coded variables. For the
     author's testing and no more.
     """
-    x_data = idata.posterior_predictive["obs_dim_0"]
+    x_data = idata.posterior_predictive[
+        "obs_dim_0"
+    ]
     y_data = idata.posterior_predictive["obs"]
     fig, axes = plt.subplots(1, 1, figsize=(8, 6))
     az.plot_hdi(
@@ -129,7 +161,10 @@ def plot_and_or_save_forecast(
         hdi_prob=0.95,
         color="skyblue",
         smooth=False,
-        fill_kwargs={"alpha": 0.2, "label": "95% Credible"},
+        fill_kwargs={
+            "alpha": 0.2,
+            "label": "95% Credible",
+        },
         ax=axes,
     )
     az.plot_hdi(
@@ -138,7 +173,10 @@ def plot_and_or_save_forecast(
         hdi_prob=0.75,
         color="skyblue",
         smooth=False,
-        fill_kwargs={"alpha": 0.4, "label": "75% Credible"},
+        fill_kwargs={
+            "alpha": 0.4,
+            "label": "75% Credible",
+        },
         ax=axes,
     )
     az.plot_hdi(
@@ -147,7 +185,10 @@ def plot_and_or_save_forecast(
         hdi_prob=0.5,
         color="C0",
         smooth=False,
-        fill_kwargs={"alpha": 0.6, "label": "50% Credible"},
+        fill_kwargs={
+            "alpha": 0.6,
+            "label": "50% Credible",
+        },
         ax=axes,
     )
     axes.plot(
@@ -159,7 +200,9 @@ def plot_and_or_save_forecast(
         markersize=3.0,
         label="Observed",
     )
-    if (X_act is not None) and (y_act is not None):
+    if (X_act is not None) and (
+        y_act is not None
+    ):
         axes.plot(
             X_act,
             y_act,
@@ -171,13 +214,27 @@ def plot_and_or_save_forecast(
         )
     if use_log:
         axes.set_yscale("log")
-        axes.set_ylabel("(Log) Hospital Admissions", fontsize=17.5)
+        axes.set_ylabel(
+            "(Log) Hospital Admissions",
+            fontsize=17.5,
+        )
     if not use_log:
-        axes.set_ylabel("Hospital Admissions", fontsize=17.5)
-    median_ts = y_data.median(dim=["chain", "draw"])
-    axes.plot(x_data, median_ts, color="blue", label="Median")
+        axes.set_ylabel(
+            "Hospital Admissions", fontsize=17.5
+        )
+    median_ts = y_data.median(
+        dim=["chain", "draw"]
+    )
+    axes.plot(
+        x_data,
+        median_ts,
+        color="blue",
+        label="Median",
+    )
     axes.legend()
-    axes.axvline(last_fit, color="black", linestyle="--")
+    axes.axvline(
+        last_fit, color="black", linestyle="--"
+    )
     axes.set_title(
         f"{title}",
         fontsize=20,
@@ -196,7 +253,9 @@ def make_forecast(
     end_date: str,
     juris_subset: list[str],
     forecast_days: int,
-    save_path: str = os.path.join(os.getcwd(), "forecast.nc"),
+    save_path: str = os.path.join(
+        os.getcwd(), "forecast.nc"
+    ),
     show_plot: bool = True,
     save_idata: bool = False,
     use_log: bool = False,
@@ -210,16 +269,25 @@ def make_forecast(
     # clean data and organize data, cleaning null values
     nhsn_data = nhsn_data.with_columns(
         pl.col("hosp").cast(pl.Int64),
-        pl.col("date").str.strptime(pl.Date, "%Y-%m-%d"),
-    ).filter(pl.col("hosp").is_not_null(), pl.col("state").is_in(juris_subset))
+        pl.col("date").str.strptime(
+            pl.Date, "%Y-%m-%d"
+        ),
+    ).filter(
+        pl.col("hosp").is_not_null(),
+        pl.col("state").is_in(juris_subset),
+    )
     nhsn_data_ready = nhsn_data.filter(
         (
             pl.col("date")
-            >= pl.lit(start_date).str.strptime(pl.Date, "%Y-%m-%d")
+            >= pl.lit(start_date).str.strptime(
+                pl.Date, "%Y-%m-%d"
+            )
         )
         & (
             pl.col("date")
-            <= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d")
+            <= pl.lit(end_date).str.strptime(
+                pl.Date, "%Y-%m-%d"
+            )
         )
     )
     # get the actual values, if they exist
@@ -230,13 +298,20 @@ def make_forecast(
         nhsn_data_actual = nhsn_data.filter(
             (
                 pl.col("date")
-                >= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d")
+                >= pl.lit(end_date).str.strptime(
+                    pl.Date, "%Y-%m-%d"
+                )
             )
-            & (pl.col("date") <= pl.lit(forecast_end_date))
+            & (
+                pl.col("date")
+                <= pl.lit(forecast_end_date)
+            )
         )
     except Exception as e:
         nhsn_data_actual = None
-        print(f"The following error occurred: {e}")
+        print(
+            f"The following error occurred: {e}"
+        )
     # define some shared inference values
     random_seed = 2134312
     num_samples = 1000
@@ -244,7 +319,9 @@ def make_forecast(
     # get posterior samples and make forecasts for each selected state
     for state in juris_subset:
         # get the state data
-        state_nhsn = nhsn_data_ready.filter(pl.col("state") == state)
+        state_nhsn = nhsn_data_ready.filter(
+            pl.col("state") == state
+        )
         # get observation (fitting) data y, X
         y = state_nhsn["hosp"].to_numpy()
         X = state_nhsn["date"]
@@ -256,29 +333,46 @@ def make_forecast(
             init_strategy=numpyro.infer.init_to_uniform(),
         )
         mcmc = numpyro.infer.MCMC(
-            kernel, num_warmup=num_warmup, num_samples=num_samples
+            kernel,
+            num_warmup=num_warmup,
+            num_samples=num_samples,
         )
         # create spline basis for obs period and forecast period
         last = X[-1]
         X_vals = np.arange(y.shape[0])
         last_val = X_vals[-1]
         X_future_vals = np.hstack(
-            (X_vals, np.arange(last_val + 1, last_val + 1 + forecast_days))
+            (
+                X_vals,
+                np.arange(
+                    last_val + 1,
+                    last_val + 1 + forecast_days,
+                ),
+            )
         )
         sbm = spline_basis(X_future_vals)
         # get posterior samples
         mcmc.run(
-            rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X_vals)], y=y
+            rng_key=jr.key(random_seed),
+            basis_matrix=sbm[: len(X_vals)],
+            y=y,
         )
         posterior_samples = mcmc.get_samples()
         # get prior predictive
-        prior_pred = numpyro.infer.Predictive(model, num_samples=num_samples)(
-            rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X_vals)]
+        prior_pred = numpyro.infer.Predictive(
+            model, num_samples=num_samples
+        )(
+            rng_key=jr.key(random_seed),
+            basis_matrix=sbm[: len(X_vals)],
         )
         # get posterior predictive forecast
         posterior_pred_for = numpyro.infer.Predictive(
-            model, posterior_samples=posterior_samples
-        )(rng_key=jr.key(random_seed), basis_matrix=sbm)
+            model,
+            posterior_samples=posterior_samples,
+        )(
+            rng_key=jr.key(random_seed),
+            basis_matrix=sbm,
+        )
         # create initial inference data object(s) and store
         idata = az.from_numpyro(
             posterior=mcmc,
@@ -291,8 +385,10 @@ def make_forecast(
             idata_group_dim_name="obs_dim_0",
             start_date_iso=start_date,
         )
-        idata.observed_data = idata.observed_data.assign_coords(
-            obs_dim_0=obs_dates
+        idata.observed_data = (
+            idata.observed_data.assign_coords(
+                obs_dim_0=obs_dates
+            )
         )
         postp_dates = create_inf_obj_date_array(
             idata_group=idata.posterior_predictive,
@@ -307,15 +403,23 @@ def make_forecast(
             idata_group_dim_name="obs_dim_0",
             start_date_iso=start_date,
         )
-        idata.prior_predictive = idata.prior_predictive.assign_coords(
-            obs_dim_0=priorp_dates
+        idata.prior_predictive = (
+            idata.prior_predictive.assign_coords(
+                obs_dim_0=priorp_dates
+            )
         )
         # get actual data, if it exists
-        if isinstance(nhsn_data_actual, pl.DataFrame):
-            actual_data = nhsn_data_actual.filter(pl.col("state") == state)
+        if isinstance(
+            nhsn_data_actual, pl.DataFrame
+        ):
+            actual_data = nhsn_data_actual.filter(
+                pl.col("state") == state
+            )
             y_act = actual_data["hosp"].to_numpy()
             X_act = actual_data["date"]
-        if not isinstance(nhsn_data_actual, pl.DataFrame):
+        if not isinstance(
+            nhsn_data_actual, pl.DataFrame
+        ):
             y_act = None
             X_act = None
         # save idata object(s)
