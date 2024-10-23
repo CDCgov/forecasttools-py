@@ -34,7 +34,9 @@ def check_url(url: str) -> bool:
         return False
 
 
-def check_file_save_path(file_save_path: str) -> None:
+def check_file_save_path(
+    file_save_path: str,
+) -> None:
     """
     Checks whether a file path is valid.
 
@@ -43,11 +45,17 @@ def check_file_save_path(file_save_path: str) -> None:
     """
     directory = os.path.dirname(file_save_path)
     if not os.path.exists(directory):
-        raise FileNotFoundError(f"Directory does not exist: {directory}")
+        raise FileNotFoundError(
+            f"Directory does not exist: {directory}"
+        )
     if not os.access(directory, os.W_OK):
-        raise PermissionError(f"Directory is not writable: {directory}")
+        raise PermissionError(
+            f"Directory is not writable: {directory}"
+        )
     if os.path.exists(file_save_path):
-        raise FileExistsError(f"File already exists at: {file_save_path}")
+        raise FileExistsError(
+            f"File already exists at: {file_save_path}"
+        )
 
 
 def make_census_dataset(
@@ -75,16 +83,24 @@ def make_census_dataset(
             "long_name": ["United States"],
         }
     )
-    jurisdictions = pl.read_csv(url, separator="|").select(
+    jurisdictions = pl.read_csv(
+        url, separator="|"
+    ).select(
         [
-            pl.col("STATE").alias("location_code").cast(pl.Utf8),
+            pl.col("STATE")
+            .alias("location_code")
+            .cast(pl.Utf8),
             pl.col("STUSAB").alias("short_name"),
-            pl.col("STATE_NAME").alias("long_name"),
+            pl.col("STATE_NAME").alias(
+                "long_name"
+            ),
         ]
     )
     location_table = nation.vstack(jurisdictions)
     location_table.write_csv(file_save_path)
-    print(f"The file {file_save_path} has been saved.")
+    print(
+        f"The file {file_save_path} has been saved."
+    )
 
 
 def make_nshn_fitting_dataset(
@@ -121,21 +137,27 @@ def make_nshn_fitting_dataset(
         )
     else:
         # check that the loaded CSV has the needed columns
-        df_cols = pl.scan_csv(nhsn_dataset_path).columns
+        df_cols = pl.scan_csv(
+            nhsn_dataset_path
+        ).columns
         required_cols = [
             "state",
             "date",
             "previous_day_admission_adult_covid_confirmed",
             "previous_day_admission_influenza_confirmed",
         ]
-        if not set(required_cols).issubset(set(df_cols)):
+        if not set(required_cols).issubset(
+            set(df_cols)
+        ):
             raise ValueError(
                 f"NHSN dataset missing required columns: {set(required_cols) - set(df_cols)}"
             )
         # fully load and save NHSN dataframe
         df = pl.read_csv(nhsn_dataset_path)
         # change date formatting to ISO8601
-        df = df.with_columns(df["date"].str.replace_all("/", "-"))
+        df = df.with_columns(
+            df["date"].str.replace_all("/", "-")
+        )
         # pathogen specific df saving
         if dataset == "COVID":
             df_covid = (
@@ -147,7 +169,9 @@ def make_nshn_fitting_dataset(
                     ]
                 )
                 .rename(
-                    {"previous_day_admission_adult_covid_confirmed": "hosp"}
+                    {
+                        "previous_day_admission_adult_covid_confirmed": "hosp"
+                    }
                 )
                 .sort(["state", "date"])
             )
@@ -161,11 +185,17 @@ def make_nshn_fitting_dataset(
                         "previous_day_admission_influenza_confirmed",
                     ]
                 )
-                .rename({"previous_day_admission_influenza_confirmed": "hosp"})
+                .rename(
+                    {
+                        "previous_day_admission_influenza_confirmed": "hosp"
+                    }
+                )
                 .sort(["state", "date"])
             )
             df_flu.write_csv(file_save_path)
-        print(f"The file {file_save_path} has been created.")
+        print(
+            f"The file {file_save_path} has been created."
+        )
 
 
 def get_and_save_flusight_submission(
@@ -183,7 +213,11 @@ def get_and_save_flusight_submission(
     url = "https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv"
     check_url(url)
     # read csv from URL, convert to polars
-    submission_df = pl.read_csv(url, infer_schema_length=7500)
+    submission_df = pl.read_csv(
+        url, infer_schema_length=7500
+    )
     # save the dataframe
     submission_df.write_csv(file_save_path)
-    print(f"The file {file_save_path} has been saved.")
+    print(
+        f"The file {file_save_path} has been saved."
+    )

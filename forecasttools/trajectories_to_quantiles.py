@@ -70,7 +70,9 @@ def trajectories_to_quantiles(
 
     # group trajectories based on timepoint_cols and id_cols
     group_cols = (
-        timepoint_cols if id_cols is None else timepoint_cols + id_cols
+        timepoint_cols
+        if id_cols is None
+        else timepoint_cols + id_cols
     )
     # get quantiles across epiweek for forecast
     quant_df = (
@@ -78,7 +80,9 @@ def trajectories_to_quantiles(
         .agg(
             [
                 pl.col(value_col)
-                .quantile(x, interpolation="midpoint")
+                .quantile(
+                    x, interpolation="midpoint"
+                )
                 .alias(f"{x}")
                 for x in quantiles
             ]
@@ -88,7 +92,11 @@ def trajectories_to_quantiles(
             variable_name="quantile_level",
             value_name="quantile_values",
         )
-        .with_columns(pl.col("quantile_level").cast(pl.Float64))
+        .with_columns(
+            pl.col("quantile_level").cast(
+                pl.Float64
+            )
+        )
         .sort(["epiweek", "quantile_level"])
     )
     # renaming quantile columns
@@ -98,4 +106,6 @@ def trajectories_to_quantiles(
             "quantile_level": quantile_level_name,
         }
     )
-    return quant_df.sort(["epiweek", "quantile_level"])
+    return quant_df.sort(
+        ["epiweek", "quantile_level"]
+    )

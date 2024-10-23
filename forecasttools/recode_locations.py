@@ -37,7 +37,8 @@ def loc_abbr_to_flusight_code(
     # recode and replaced existing loc abbrs with loc codes
     loc_recoded_df = df.with_columns(
         location=pl.col("location").replace(
-            old=loc_table["short_name"], new=loc_table["location_code"]
+            old=loc_table["short_name"],
+            new=loc_table["location_code"],
         )
     )
     return loc_recoded_df
