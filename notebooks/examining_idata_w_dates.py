@@ -18,6 +18,7 @@ import numpyro
 import numpyro.distributions as dist
 import patsy
 import polars as pl
+import xarray as xr
 from numpy.typing import NDArray
 
 import forecasttools
@@ -57,6 +58,36 @@ def model(basis_matrix, y=None):
     numpyro.sample("obs", dist.NegativeBinomial2(mu_exp, alpha), obs=y)
 
 
+# %% CREATE DATES ARRAY
+
+
+def create_inf_obj_date_array(
+    idata_group: xr.Dataset,
+    idata_group_dim_name: str,
+    start_date_iso: str,
+) -> NDArray:
+    # convert received start date to datetime
+    start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
+    # get interval size from InferenceData group
+    interval_size = idata_group.sizes[idata_group_dim_name]
+    # create date array
+    interval_dates = (
+        pl.DataFrame()
+        .select(
+            pl.date_range(
+                start=start_date_as_dt,
+                end=start_date_as_dt + pl.duration(days=interval_size - 1),
+                interval="1d",
+                closed="both",
+            )
+        )
+        .to_series()
+        .to_numpy()
+        .astype("datetime64[ns]")
+    )
+    return interval_dates
+
+
 # %% SPLINE BASIS MATRIX
 
 
@@ -79,7 +110,7 @@ def plot_and_or_save_forecast(
     title: str,
     start_date: str,
     end_date: str,
-    last_fit: int,
+    last_fit: datetime,
     X_act: NDArray,
     y_act: NDArray,
     save_to_pdf: bool = False,
@@ -156,21 +187,6 @@ def plot_and_or_save_forecast(
     plt.show()
 
 
-# %% ADD DATES TO AN INFERENCE DATA OBJECT
-
-
-def add_dates_to_idata_object(
-    idata: az.InferenceData,
-    start_date: str,
-) -> az.InferenceData:
-    """
-    Takes an InferenceData object w/
-    observed_data and posterior_predictive
-    groups and adds date indexing
-    """
-    pass
-
-
 # %% MAKE A FORECAST
 
 
@@ -231,7 +247,7 @@ def make_forecast(
         state_nhsn = nhsn_data_ready.filter(pl.col("state") == state)
         # get observation (fitting) data y, X
         y = state_nhsn["hosp"].to_numpy()
-        X = np.arange(y.shape[0])
+        X = state_nhsn["date"]
         # set up inference, NUTS/MCMC
         kernel = numpyro.infer.NUTS(
             model=model,
@@ -244,16 +260,20 @@ def make_forecast(
         )
         # create spline basis for obs period and forecast period
         last = X[-1]
-        X_future = np.hstack(
-            (X, np.arange(last + 1, last + 1 + forecast_days))
+        X_vals = np.arange(y.shape[0])
+        last_val = X_vals[-1]
+        X_future_vals = np.hstack(
+            (X_vals, np.arange(last_val + 1, last_val + 1 + forecast_days))
         )
-        sbm = spline_basis(X_future)
+        sbm = spline_basis(X_future_vals)
         # get posterior samples
-        mcmc.run(rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X)], y=y)
+        mcmc.run(
+            rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X_vals)], y=y
+        )
         posterior_samples = mcmc.get_samples()
         # get prior predictive
         prior_pred = numpyro.infer.Predictive(model, num_samples=num_samples)(
-            rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X)]
+            rng_key=jr.key(random_seed), basis_matrix=sbm[: len(X_vals)]
         )
         # get posterior predictive forecast
         posterior_pred_for = numpyro.infer.Predictive(
@@ -265,16 +285,39 @@ def make_forecast(
             posterior_predictive=posterior_pred_for,
             prior=prior_pred,
         )
+        # add dates to idata object (via assign coords method)
+        obs_dates = create_inf_obj_date_array(
+            idata_group=idata.observed_data,
+            idata_group_dim_name="obs_dim_0",
+            start_date_iso=start_date,
+        )
+        idata.observed_data = idata.observed_data.assign_coords(
+            obs_dim_0=obs_dates
+        )
+        postp_dates = create_inf_obj_date_array(
+            idata_group=idata.posterior_predictive,
+            idata_group_dim_name="obs_dim_0",
+            start_date_iso=start_date,
+        )
+        idata.posterior_predictive = idata.posterior_predictive.assign_coords(
+            obs_dim_0=postp_dates
+        )
+        priorp_dates = create_inf_obj_date_array(
+            idata_group=idata.prior_predictive,
+            idata_group_dim_name="obs_dim_0",
+            start_date_iso=start_date,
+        )
+        idata.prior_predictive = idata.prior_predictive.assign_coords(
+            obs_dim_0=priorp_dates
+        )
         # get actual data, if it exists
         if isinstance(nhsn_data_actual, pl.DataFrame):
             actual_data = nhsn_data_actual.filter(pl.col("state") == state)
             y_act = actual_data["hosp"].to_numpy()
-            X_act = np.arange(last - 1, last + forecast_days)
+            X_act = actual_data["date"]
         if not isinstance(nhsn_data_actual, pl.DataFrame):
             y_act = None
             X_act = None
-        # add dates to idata object
-
         # save idata object(s)
         if save_idata:
             idata.to_netcdf(save_path)
@@ -304,9 +347,7 @@ make_forecast(
     forecast_days=28,
     save_path="../forecasttools/example_flu_forecast_w_dates.nc",
     save_idata=False,
-    use_log=True,
+    use_log=False,
 )
 
 # %%
-
-# )
