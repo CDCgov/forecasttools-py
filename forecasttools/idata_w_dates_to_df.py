@@ -90,9 +90,6 @@ def add_dates_as_coords_to_idata(
                 group_name,
                 idata_group_with_dates,
             )
-            # idata_w_dates[group_name] = idata_group.assign_coords(
-            #     {dim_name: interval_dates}
-            # )
         else:
             print(
                 f"Warning: Group '{group_name}' not found in idata."
@@ -100,9 +97,8 @@ def add_dates_as_coords_to_idata(
     return idata_w_dates
 
 
-def idata_w_dates_to_df(
+def idata_forecast_w_dates_to_df(
     idata_w_dates: az.InferenceData,
-    start_date_iso: str,
     location: str,
     postp_val_name: str,
     postp_dim_name: str,
@@ -124,10 +120,6 @@ def idata_w_dates_to_df(
             postp_dim_name
         ].values
     )
-    # # convert received ISO8601 date to datetime date
-    # start_date_as_dt = datetime.datetime(
-    #     start_date_iso, "%Y-%m-%d"
-    # )
     # stack posterior predictive samples by chain and draw
     stacked_post_pred_samples = (
         idata_w_dates.posterior_predictive.stack(
@@ -152,23 +144,7 @@ def idata_w_dates_to_df(
             draw=pl.col("variable")
             .rank("dense")
             .cast(pl.Int64),
-            location=pl.lit("location"),
+            location=pl.lit(location),
         )
     )
-
-    # # get the number of dates
-    # n_dates = forecast_df_wide.height - 1
-    # # create a date column
-    # forecast_df_wide = forecast_df_wide.with_columns(
-    #     date=pl.date_range(
-    #         start=start_date_as_dt, end=start_date_as_dt + pl.duration(days=n_dates)
-    #     ).cast(pl.Utf8)
-    # )
-    # unpivoted dataframe (keep draws ungrouped by uniqueness)
-    # forecast_df_unpivoted = forecast_df_wide.unpivot(
-    #     index="date"
-    # ).with_columns(
-    #     draw=pl.col("variable").rank("dense").cast(pl.Int64),
-    #     location=pl.lit("location"),
-    # )
     return forecast_df_unpivoted

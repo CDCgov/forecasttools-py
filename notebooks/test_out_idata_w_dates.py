@@ -50,7 +50,7 @@ idata_w_dates = (
 print(idata_w_dates)
 
 print(
-    idata_wo_dates.observed_data[
+    idata_w_dates.observed_data[
         "obs_dim_0"
     ].values[:10]
 )
@@ -61,3 +61,17 @@ print(
 #     idata_wo_dates.observed_data["obs_dim_0"].values[0], unit="D")
 
 # %% CONVERT DATES IDATA TO DATAFRAME
+
+df_from_idata_w_dates = (
+    forecasttools.idata_forecast_w_dates_to_df(
+        idata_w_dates=idata_w_dates,
+        location="TX",
+        postp_val_name="obs",
+        postp_dim_name="obs_dim_0",
+        timepoint_col_name="date",
+        value_col_name="hosp",
+    )
+)
+df_from_idata_w_dates
+
+# %%

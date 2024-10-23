@@ -8,7 +8,7 @@ from .daily_to_epiweekly import (
 )
 from .idata_w_dates_to_df import (
     add_dates_as_coords_to_idata,
-    idata_w_dates_to_df,
+    idata_forecast_w_dates_to_df,
 )
 from .recode_locations import (
     loc_abbr_to_flusight_code,
@@ -71,7 +71,7 @@ __all__ = [
     "nhsn_hosp_flu",
     "nhsn_flu_forecast_wo_dates",
     "nhsn_flu_forecast_w_dates",
-    "idata_w_dates_to_df",
+    "idata_forecast_w_dates_to_df",
     "add_dates_as_coords_to_idata",
     "trajectories_to_quantiles",
     "df_aggregate_to_epiweekly",
