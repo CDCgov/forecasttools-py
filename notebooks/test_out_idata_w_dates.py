@@ -43,10 +43,8 @@ print(idata_w_dates)
 
 print(idata_w_dates.observed_data["obs_dim_0"].values[:10])
 
+print(type(idata_w_dates.observed_data["obs_dim_0"].values[0]))
 
-# np.datetime is the type rather than just datetime
-# start_date_iso = np.datetime_as_string(
-#     idata_wo_dates.observed_data["obs_dim_0"].values[0], unit="D")
 
 # %% CONVERT DATES IDATA TO DATAFRAME
 

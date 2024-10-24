@@ -18,7 +18,6 @@ import numpyro
 import numpyro.distributions as dist
 import patsy
 import polars as pl
-import xarray as xr
 from numpy.typing import NDArray
 
 import forecasttools
@@ -67,32 +66,33 @@ def model(basis_matrix, y=None):
 
 # %% CREATE DATES ARRAY
 
-
-def create_inf_obj_date_array(
-    idata_group: xr.Dataset,
-    idata_group_dim_name: str,
-    start_date_iso: str,
-) -> NDArray:
-    # convert received start date to datetime
-    start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
-    # get interval size from InferenceData group
-    interval_size = idata_group.sizes[idata_group_dim_name]
-    # create date array
-    interval_dates = (
-        pl.DataFrame()
-        .select(
-            pl.date_range(
-                start=start_date_as_dt,
-                end=start_date_as_dt + pl.duration(days=interval_size - 1),
-                interval="1d",
-                closed="both",
-            )
-        )
-        .to_series()
-        .to_numpy()
-        .astype("datetime64[ns]")
-    )
-    return interval_dates
+# NO LONGER NEEDED GIVEN THAT THIS
+# UTILITY IS IN FORECASTTOOLS NOW
+# def create_inf_obj_date_array(
+#     idata_group: xr.Dataset,
+#     idata_group_dim_name: str,
+#     start_date_iso: str,
+# ) -> NDArray:
+#     # convert received start date to datetime
+#     start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
+#     # get interval size from InferenceData group
+#     interval_size = idata_group.sizes[idata_group_dim_name]
+#     # create date array
+#     interval_dates = (
+#         pl.DataFrame()
+#         .select(
+#             pl.date_range(
+#                 start=start_date_as_dt,
+#                 end=start_date_as_dt + pl.duration(days=interval_size - 1),
+#                 interval="1d",
+#                 closed="both",
+#             )
+#         )
+#         .to_series()
+#         .to_numpy()
+#         .astype("datetime64[ns]")
+#     )
+#     return interval_dates
 
 
 # %% SPLINE BASIS MATRIX
@@ -328,30 +328,42 @@ def make_forecast(
             prior=prior_pred,
         )
         # add dates to idata object (via assign coords method)
-        obs_dates = create_inf_obj_date_array(
-            idata_group=idata.observed_data,
-            idata_group_dim_name="obs_dim_0",
+        idata_w_dates = forecasttools.add_dates_as_coords_to_idata(
+            idata_wo_dates=idata,
+            group_dim_dict={
+                "posterior_predictive": "obs_dim_0",
+                "observed_data": "obs_dim_0",
+                "prior_predictive": "obs_dim_0",
+            },
             start_date_iso=start_date,
         )
-        idata.observed_data = idata.observed_data.assign_coords(
-            obs_dim_0=obs_dates
-        )
-        postp_dates = create_inf_obj_date_array(
-            idata_group=idata.posterior_predictive,
-            idata_group_dim_name="obs_dim_0",
-            start_date_iso=start_date,
-        )
-        idata.posterior_predictive = idata.posterior_predictive.assign_coords(
-            obs_dim_0=postp_dates
-        )
-        priorp_dates = create_inf_obj_date_array(
-            idata_group=idata.prior_predictive,
-            idata_group_dim_name="obs_dim_0",
-            start_date_iso=start_date,
-        )
-        idata.prior_predictive = idata.prior_predictive.assign_coords(
-            obs_dim_0=priorp_dates
-        )
+        # NO LONGER NEEDED GIVEN UTILITY IS
+        # IN FORECASTTOOLS
+        # obs_dates = create_inf_obj_date_array(
+        #     idata_group=idata.observed_data,
+        #     idata_group_dim_name="obs_dim_0",
+        #     start_date_iso=start_date,
+        # )
+        # idata.observed_data = idata.observed_data.assign_coords(
+        #     obs_dim_0=obs_dates
+        # )
+        # postp_dates = create_inf_obj_date_array(
+        #     idata_group=idata.posterior_predictive,
+        #     idata_group_dim_name="obs_dim_0",
+        #     start_date_iso=start_date,
+        # )
+        # idata.posterior_predictive = idata.posterior_predictive.assign_coords(
+        #     obs_dim_0=postp_dates
+        # )
+        # priorp_dates = create_inf_obj_date_array(
+        #     idata_group=idata.prior_predictive,
+        #     idata_group_dim_name="obs_dim_0",
+        #     start_date_iso=start_date,
+        # )
+        # idata.prior_predictive = idata.prior_predictive.assign_coords(
+        #     obs_dim_0=priorp_dates
+        # )
+
         # get actual data, if it exists
         if isinstance(nhsn_data_actual, pl.DataFrame):
             actual_data = nhsn_data_actual.filter(pl.col("state") == state)
@@ -360,13 +372,13 @@ def make_forecast(
         if not isinstance(nhsn_data_actual, pl.DataFrame):
             y_act = None
             X_act = None
-        # save idata object(s)
+        # save idata object(s) with dates
         if save_idata:
-            idata.to_netcdf(save_path)
+            idata_w_dates.to_netcdf(save_path)
         # plot forecast (if desired) from idata light
         if show_plot:
             plot_and_or_save_forecast(
-                idata=idata,
+                idata=idata_w_dates,
                 X=X,
                 y=y,
                 title=f"Hospital Admissions ({state}, {start_date}-{end_date})",
@@ -388,7 +400,7 @@ make_forecast(
     juris_subset=["TX"],
     forecast_days=28,
     save_path="../forecasttools/example_flu_forecast_w_dates.nc",
-    save_idata=False,
+    save_idata=True,
     use_log=False,
 )
 

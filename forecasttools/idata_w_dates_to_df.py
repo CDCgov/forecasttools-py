@@ -9,6 +9,7 @@ Polars dataframes to Tidy dataframes.
 from datetime import datetime
 
 import arviz as az
+import numpy as np
 import polars as pl
 
 
@@ -104,6 +105,8 @@ def idata_forecast_w_dates_to_df(
     """
     # get dates from InferenceData's posterior_predictive group
     dates = idata_w_dates.posterior_predictive.coords[postp_dim_name].values
+    # convert the dates to ISO8601 strings
+    iso8601_dates = np.datetime_as_string(dates, unit="D")
     # stack posterior predictive samples by chain and draw
     stacked_post_pred_samples = idata_w_dates.posterior_predictive.stack(
         sample=("chain", "draw")
@@ -111,7 +114,7 @@ def idata_forecast_w_dates_to_df(
     # forecast dateframe wide (chain, draws) as cols
     forecast_df_wide = pl.from_pandas(stacked_post_pred_samples)
     forecast_df_wide = forecast_df_wide.with_columns(
-        pl.Series(timepoint_col_name, dates).cast(pl.Utf8)
+        pl.Series(timepoint_col_name, iso8601_dates).cast(pl.Utf8)
     )
     forecast_df_unpivoted = forecast_df_wide.unpivot(
         index=timepoint_col_name
