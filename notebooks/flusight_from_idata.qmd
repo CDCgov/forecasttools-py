@@ -98,7 +98,7 @@ import xarray as xr
 xr.set_options(display_expand_data=False, display_expand_attrs=False)
 
 # load example forecast(s)
-idata = forecasttools.nhsn_flu_forecast
+idata = forecasttools.nhsn_flu_forecast_w_dates
 idata
 ```
 
@@ -141,7 +141,7 @@ Observation 2: The name of the jurisdiction that the inference data object is as
 For Observation 1, if the former path is pursued, we might expect `forecasttools` to have a function as such:
 
 ```python
-def forecast_as_df_with_dates(
+def idata_w_dates_to_df(
     idata_wo_dates: az.InferenceData,
     start_date: str = "2022-08-08",
     end_date: str = "2023-12-08",
@@ -182,15 +182,13 @@ def add_dates_to_idata(
 Presently, `forecasttools` operates via the former pattern:
 
 ```{python}
-forecast_df = forecasttools.forecast_as_df_with_dates(
-    idata,
-    start_date="2022-08-08",
-    end_date="2023-12-08",
+forecast_df = forecasttools.idata_forecast_w_dates_to_df(
+    idata_w_dates=idata,
     location="TX",
+    postp_val_name="obs",
+    postp_dim_name="obs_dim_0",
     timepoint_col_name="date",
     value_col_name="hosp",
-    param="obs",
-    obs_param="obs"
 )
 forecast_df
 ```
@@ -202,7 +200,8 @@ Format to epiweeks:
 forecast_df = forecasttools.df_aggregate_to_epiweekly(
     forecast_df,
     value_col = "hosp",
-    id_cols = [".draw", "location"],
+    date_col = "date",
+    id_cols = ["draw", "location"],
     weekly_value_name = "weekly_hosp"
 )
 forecast_df
@@ -215,7 +214,7 @@ forecast_df = forecasttools.trajectories_to_quantiles(
     forecast_df,
     timepoint_cols = ["epiweek", "epiyear"],
     id_cols = ["location"],
-    value_col = "weekly_hosp"
+    value_col_name = "weekly_hosp"
 )
 forecast_df
 ```
@@ -224,16 +223,22 @@ Recode locations:
 
 
 ```{python}
-forecast_df = forecasttools.loc_abbr_to_flusight_code(
+forecast_df_recoded = forecasttools.loc_abbr_to_flusight_code(
     df=forecast_df, location_col="location")
+forecast_df_recoded
 ```
 
 Format to FluSight:
 
 ```{python}
 flusight_output = forecasttools.get_flusight_table(
-    quantile_forecasts=forecast_df,
-    reference_date="2023-12-15"
+    quantile_forecasts=forecast_df_recoded,
+    quantile_value_col="quantile_value",
+    quantile_level_col="quantile_level",
+    reference_date="2022-12-15",
+    location_col="location",
+    epiweek_col="epiweek",
+    epiyear_col="epiyear",
 )
 flusight_output
 ```

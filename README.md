@@ -169,9 +169,9 @@ make_nshn_fitting_dataset(
 )
 ```
 
-## Influenza Hospitalizations Forecast
+## Influenza Hospitalizations Forecast(s)
 
-An example forecast stored in an Arviz `InferenceData` object is included for vignettes and user experimentation. This 28 day forecast for Texas was made using a spline regression model fitted to NHSN influenza data between 2022-08-08 and 2022-12-08. The `idata` object which includes the observed data and posterior predictive samples is given below:
+Two example forecasts stored in Arviz `InferenceData` objects are included for vignettes and user experimentation. Both are 28 day influenza hospital admissions forecasts for Texas made using a spline regression model fitted to NHSN data between 2022-08-08 and 2022-12-08. The only difference between the forecasts is that `example_flu_forecast_w_dates.nc` has dates as its coordinates. The `idata` objects which includes the observed data and posterior predictive samples is given below:
 
 ```
 Inference data with groups:
@@ -184,30 +184,37 @@ Inference data with groups:
 	> observed_data
 ```
 
-The forecast `idata` is accessed via:
+The forecast `idata`s are accessed via:
 
 ```python
 import forecasttools
 
 
-idata = forecasttools.nhsn_flu_forecast
+# idata with dates as coordinates
+idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
+
+# idata without dates as coordinates
+idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
 ```
 
 The forecast was generated following the creation of `nhsn_hosp_flu.csv` (see previous section) by running `data.py` with the following added:
 
 ```python
-make_nhsn_fitted_forecast_idata(
-    nhsn_dataset_path="nhsn_hosp_flu.csv",
-    file_save_path=os.path.join(os.getcwd(), "example_flu_forecast.nc"),
-    start_date"2022/08/08",
-    end_date="2023/12/08",
-    forecast_days=28,
+make_forecast(
+    nhsn_data=forecasttools.nhsn_hosp_flu,
+    start_date="2022-08-08",
+    end_date="2022-12-08",
     juris_subset=["TX"],
-    create_save_directory=False,
-    show_plot=True,
-    save_idata=True
+    forecast_days=28,
+    save_path="../forecasttools/example_flu_forecast_w_dates.nc",
+    save_idata=True,
+    use_log=False,
 )
 ```
+
+The forecast looks like:
+
+![Example NHSN-based Influenza forecast](./assets/example_forecast_w_dates.png){ width=75% }
 
 ---
 

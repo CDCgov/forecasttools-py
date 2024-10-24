@@ -34,7 +34,9 @@ def check_url(url: str) -> bool:
         return False
 
 
-def check_file_save_path(file_save_path: str) -> None:
+def check_file_save_path(
+    file_save_path: str,
+) -> None:
     """
     Checks whether a file path is valid.
 
