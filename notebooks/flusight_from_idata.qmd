@@ -214,7 +214,7 @@ forecast_df = forecasttools.trajectories_to_quantiles(
     forecast_df,
     timepoint_cols = ["epiweek", "epiyear"],
     id_cols = ["location"],
-    value_col = "weekly_hosp"
+    value_col_name = "weekly_hosp"
 )
 forecast_df
 ```
@@ -235,7 +235,7 @@ flusight_output = forecasttools.get_flusight_table(
     quantile_forecasts=forecast_df_recoded,
     quantile_value_col="quantile_value",
     quantile_level_col="quantile_level",
-    reference_date="2023-12-15",
+    reference_date="2022-12-15",
     location_col="location",
     epiweek_col="epiweek",
     epiyear_col="epiyear",
