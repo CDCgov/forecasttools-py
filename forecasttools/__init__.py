@@ -3,20 +3,14 @@ import importlib.resources
 import arviz as az
 import polars as pl
 
-from .daily_to_epiweekly import (
-    df_aggregate_to_epiweekly,
-)
+from .daily_to_epiweekly import df_aggregate_to_epiweekly
 from .idata_w_dates_to_df import (
     add_dates_as_coords_to_idata,
     idata_forecast_w_dates_to_df,
 )
-from .recode_locations import (
-    loc_abbr_to_flusight_code,
-)
+from .recode_locations import loc_abbr_to_flusight_code
 from .to_flusight import get_flusight_table
-from .trajectories_to_quantiles import (
-    trajectories_to_quantiles,
-)
+from .trajectories_to_quantiles import trajectories_to_quantiles
 
 # location table (from Census data)
 with importlib.resources.path(
@@ -30,9 +24,7 @@ with importlib.resources.path(
     "example_flusight_submission.parquet",
 ) as data_path:
     dtypes_d = {"location": pl.Utf8}
-    example_flusight_submission = pl.read_parquet(
-        data_path
-    )
+    example_flusight_submission = pl.read_parquet(data_path)
 
 # load example fitting data for COVID (NHSN, as of 2024-09-26)
 with importlib.resources.path(
@@ -51,17 +43,13 @@ with importlib.resources.path(
     __package__,
     "example_flu_forecast_wo_dates.nc",
 ) as data_path:
-    nhsn_flu_forecast_wo_dates = az.from_netcdf(
-        data_path
-    )
+    nhsn_flu_forecast_wo_dates = az.from_netcdf(data_path)
 
 # load light idata NHSN influenza forecast w dates (NHSN, as of 2024-09-26)
 with importlib.resources.path(
     __package__, "example_flu_forecast_w_dates.nc"
 ) as data_path:
-    nhsn_flu_forecast_w_dates = az.from_netcdf(
-        data_path
-    )
+    nhsn_flu_forecast_w_dates = az.from_netcdf(data_path)
 
 
 __all__ = [

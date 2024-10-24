@@ -24,9 +24,7 @@ xr.set_options(
 
 # received by function is a str ISO8601 start date
 start_date_iso = "2022-08-01"
-start_date_as_dt = dt.datetime.strptime(
-    start_date_iso, "%Y-%m-%d"
-)
+start_date_as_dt = dt.datetime.strptime(start_date_iso, "%Y-%m-%d")
 
 # and an inference data object (built az.from_numpyro())
 idata = forecasttools.nhsn_flu_forecast
@@ -38,9 +36,7 @@ print(idata)
 
 # the length of the observed data becomes its date array
 obs_dim_name = "obs_dim_0"
-obs_length = idata.observed_data.sizes[
-    obs_dim_name
-]
+obs_length = idata.observed_data.sizes[obs_dim_name]
 
 # creates dates array
 obs_dates = (
@@ -48,8 +44,7 @@ obs_dates = (
     .select(
         pl.date_range(
             start=start_date_as_dt,
-            end=start_date_as_dt
-            + pl.duration(days=obs_length - 1),
+            end=start_date_as_dt + pl.duration(days=obs_length - 1),
             interval="1d",
             closed="both",
         )
@@ -64,16 +59,13 @@ obs_dates = (
 # same as with observed_data group but not for
 # posterior predictive group
 postp_dim_name = "obs_dim_0"
-postp_length = idata.posterior_predictive.sizes[
-    postp_dim_name
-]
+postp_length = idata.posterior_predictive.sizes[postp_dim_name]
 postp_dates = (
     pl.DataFrame()
     .select(
         pl.date_range(
             start=start_date_as_dt,
-            end=start_date_as_dt
-            + dt.timedelta(days=postp_length - 1),
+            end=start_date_as_dt + dt.timedelta(days=postp_length - 1),
             interval="1d",
             closed="both",
         )
@@ -91,21 +83,15 @@ idata_w_dates = idata.copy()
 
 obs_dates_da = xr.DataArray(
     obs_dates,
-    dims=[
-        obs_dim_name
-    ],  # name might need to change
+    dims=[obs_dim_name],  # name might need to change
     coords={obs_dim_name: obs_dates},
     name="obs_dates",
 )
 
 postp_dates_da = xr.DataArray(
     postp_dates,
-    dims=[
-        postp_dim_name
-    ],  # name might need to change
-    coords={
-        postp_dim_name: postp_dates
-    },  # name might need to change
+    dims=[postp_dim_name],  # name might need to change
+    coords={postp_dim_name: postp_dates},  # name might need to change
     name="postp_dates",
 )
 

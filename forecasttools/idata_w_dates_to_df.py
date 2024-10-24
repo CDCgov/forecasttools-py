@@ -46,9 +46,7 @@ def add_dates_as_coords_to_idata(
     # start date
 
     # convert received start date string to datetime object
-    start_date_as_dt = datetime.strptime(
-        start_date_iso, "%Y-%m-%d"
-    )
+    start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
     # copy idata object to avoid modifying the original
     idata_w_dates = idata_wo_dates.copy()
     # modify indices of each selected group to dates
@@ -56,22 +54,16 @@ def add_dates_as_coords_to_idata(
         group_name,
         dim_name,
     ) in group_dim_dict.items():
-        idata_group = getattr(
-            idata_w_dates, group_name, None
-        )
+        idata_group = getattr(idata_w_dates, group_name, None)
         if idata_group is not None:
-            interval_size = idata_group.sizes[
-                dim_name
-            ]
+            interval_size = idata_group.sizes[dim_name]
             interval_dates = (
                 pl.DataFrame()
                 .select(
                     pl.date_range(
                         start=start_date_as_dt,
                         end=start_date_as_dt
-                        + pl.duration(
-                            days=interval_size - 1
-                        ),
+                        + pl.duration(days=interval_size - 1),
                         interval="1d",
                         closed="both",
                     )
@@ -80,10 +72,8 @@ def add_dates_as_coords_to_idata(
                 .to_numpy()
                 .astype("datetime64[ns]")
             )
-            idata_group_with_dates = (
-                idata_group.assign_coords(
-                    {dim_name: interval_dates}
-                )
+            idata_group_with_dates = idata_group.assign_coords(
+                {dim_name: interval_dates}
             )
             setattr(
                 idata_w_dates,
@@ -91,9 +81,7 @@ def add_dates_as_coords_to_idata(
                 idata_group_with_dates,
             )
         else:
-            print(
-                f"Warning: Group '{group_name}' not found in idata."
-            )
+            print(f"Warning: Group '{group_name}' not found in idata.")
     return idata_w_dates
 
 
@@ -115,36 +103,20 @@ def idata_forecast_w_dates_to_df(
     series (end_date - start_date).
     """
     # get dates from InferenceData's posterior_predictive group
-    dates = (
-        idata_w_dates.posterior_predictive.coords[
-            postp_dim_name
-        ].values
-    )
+    dates = idata_w_dates.posterior_predictive.coords[postp_dim_name].values
     # stack posterior predictive samples by chain and draw
-    stacked_post_pred_samples = (
-        idata_w_dates.posterior_predictive.stack(
-            sample=("chain", "draw")
-        )[postp_val_name].to_pandas()
-    )
+    stacked_post_pred_samples = idata_w_dates.posterior_predictive.stack(
+        sample=("chain", "draw")
+    )[postp_val_name].to_pandas()
     # forecast dateframe wide (chain, draws) as cols
-    forecast_df_wide = pl.from_pandas(
-        stacked_post_pred_samples
+    forecast_df_wide = pl.from_pandas(stacked_post_pred_samples)
+    forecast_df_wide = forecast_df_wide.with_columns(
+        pl.Series(timepoint_col_name, dates).cast(pl.Utf8)
     )
-    forecast_df_wide = (
-        forecast_df_wide.with_columns(
-            pl.Series(
-                timepoint_col_name, dates
-            ).cast(pl.Utf8)
-        )
-    )
-    forecast_df_unpivoted = (
-        forecast_df_wide.unpivot(
-            index=timepoint_col_name
-        ).with_columns(
-            draw=pl.col("variable")
-            .rank("dense")
-            .cast(pl.Int64),
-            location=pl.lit(location),
-        )
+    forecast_df_unpivoted = forecast_df_wide.unpivot(
+        index=timepoint_col_name
+    ).with_columns(
+        draw=pl.col("variable").rank("dense").cast(pl.Int64),
+        location=pl.lit(location),
     )
     return forecast_df_unpivoted

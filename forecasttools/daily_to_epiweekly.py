@@ -17,9 +17,7 @@ def calculate_epi_week_and_year(date: str):
     date
         An ISO8601 date.
     """
-    epiweek = epiweeks.Week.fromdate(
-        datetime.strptime(date, "%Y-%m-%d")
-    )
+    epiweek = epiweeks.Week.fromdate(datetime.strptime(date, "%Y-%m-%d"))
     epiweek_df_struct = {
         "epiweek": epiweek.week,
         "epiyear": epiweek.year,
@@ -88,9 +86,7 @@ def df_aggregate_to_epiweekly(
     forecast_df = forecast_df.with_columns(
         pl.col(["date"])
         .map_elements(
-            lambda elt: calculate_epi_week_and_year(
-                elt
-            ),
+            lambda elt: calculate_epi_week_and_year(elt),
             return_dtype=pl.Struct,
         )
         .alias("epi_struct_out")
@@ -99,32 +95,21 @@ def df_aggregate_to_epiweekly(
     group_cols = ["epiweek", "epiyear"] + id_cols
     grouped_df = forecast_df.group_by(group_cols)
     # number of elements per group
-    n_elements = grouped_df.agg(
-        pl.count().alias("n_elements")
-    )
-    problematic_trajectories = n_elements.filter(
-        pl.col("n_elements") > 7
-    )
+    n_elements = grouped_df.agg(pl.count().alias("n_elements"))
+    problematic_trajectories = n_elements.filter(pl.col("n_elements") > 7)
     if not problematic_trajectories.is_empty():
         message = f"Problematic trajectories with more than 7 values per epiweek per year: {problematic_trajectories}"
         raise ValueError(
             f"At least one trajectory has more than 7 values for a given epiweek of a given year.\n{message}"
         )
     # check if any week has more than 7 dates
-    if (
-        not n_elements["n_elements"]
-        .to_numpy()
-        .max()
-        <= 7
-    ):
+    if not n_elements["n_elements"].to_numpy().max() <= 7:
         raise ValueError(
             "At least one trajectory has more than 7 values for a given epiweek of a given year."
         )
     # if strict, filter out groups that do not have exactly 7 contributing dates
     if strict:
-        valid_groups = n_elements.filter(
-            pl.col("n_elements") == 7
-        )
+        valid_groups = n_elements.filter(pl.col("n_elements") == 7)
         forecast_df = forecast_df.join(
             valid_groups.select(group_cols),
             on=group_cols,
@@ -133,11 +118,7 @@ def df_aggregate_to_epiweekly(
     # aggregate; sum values in the specified value_col
     df = (
         forecast_df.group_by(group_cols)
-        .agg(
-            pl.col(value_col)
-            .sum()
-            .alias(weekly_value_name)
-        )
+        .agg(pl.col(value_col).sum().alias(weekly_value_name))
         .sort(["epiyear", "epiweek", ".draw"])
     )
     return df
