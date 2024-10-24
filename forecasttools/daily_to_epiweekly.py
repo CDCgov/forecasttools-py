@@ -29,7 +29,7 @@ def df_aggregate_to_epiweekly(
     forecast_df: pl.DataFrame,
     value_col: str = "value",
     date_col: str = "date",
-    id_cols: list[str] = [".draw"],
+    id_cols: list[str] = ["draw"],
     weekly_value_name: str = "weekly_value",
     strict: bool = False,
 ) -> pl.DataFrame:
@@ -73,15 +73,6 @@ def df_aggregate_to_epiweekly(
         A dataframe with value_col aggregated
         across epiweek and epiyear.
     """
-    # check intended df columns are in received df
-    forecast_df_cols = forecast_df.columns
-    required_cols = [
-        value_col,
-        date_col,
-    ] + id_cols
-    assert set(required_cols).issubset(
-        set(forecast_df_cols)
-    ), f"Column mismatch between require columns {required_cols} and forecast dateframe columns {forecast_df_cols}."
     # add epiweek and epiyear columns
     forecast_df = forecast_df.with_columns(
         pl.col(["date"])
@@ -119,6 +110,6 @@ def df_aggregate_to_epiweekly(
     df = (
         forecast_df.group_by(group_cols)
         .agg(pl.col(value_col).sum().alias(weekly_value_name))
-        .sort(["epiyear", "epiweek", ".draw"])
+        .sort(["epiyear", "epiweek", "draw"])
     )
     return df

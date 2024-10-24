@@ -116,10 +116,12 @@ def idata_forecast_w_dates_to_df(
     forecast_df_wide = forecast_df_wide.with_columns(
         pl.Series(timepoint_col_name, iso8601_dates).cast(pl.Utf8)
     )
-    forecast_df_unpivoted = forecast_df_wide.unpivot(
-        index=timepoint_col_name
-    ).with_columns(
-        draw=pl.col("variable").rank("dense").cast(pl.Int64),
-        location=pl.lit(location),
+    forecast_df_unpivoted = (
+        forecast_df_wide.unpivot(index=timepoint_col_name)
+        .with_columns(
+            draw=pl.col("variable").rank("dense").cast(pl.Int64),
+            location=pl.lit(location),
+        )
+        .rename({"value": value_col_name})
     )
     return forecast_df_unpivoted

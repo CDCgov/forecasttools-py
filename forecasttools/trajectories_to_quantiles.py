@@ -11,7 +11,7 @@ def trajectories_to_quantiles(
     trajectories: pl.DataFrame,
     quantiles: list[float] = None,
     timepoint_cols: list[str] = ["timepoint"],
-    value_col: str = "value",
+    value_col_name: str = "value",
     quantile_value_name: str = "quantile_value",
     quantile_level_name: str = "quantile_level",
     id_cols: list[str] = None,
@@ -36,7 +36,7 @@ def trajectories_to_quantiles(
         A list of dataframe columns that
         identifies unique timepoints. Defaults
         to ["timepoint"].
-    value_col
+    value_col_name
         The name of the column with the
         trajectory values. For example, "hosp",
         "cases", "values". Defaults to "value".
@@ -50,7 +50,7 @@ def trajectories_to_quantiles(
         "quantile_level".
     id_cols
         Dataframe columns to aggregate before
-        the value_col is mapped to quantile
+        the value_col_name is mapped to quantile
         levels. For example, if there are multiple
         locations present, one might group by
         ["location"]. Defaults to None.
@@ -77,7 +77,7 @@ def trajectories_to_quantiles(
         trajectories.group_by(group_cols)
         .agg(
             [
-                pl.col(value_col)
+                pl.col(value_col_name)
                 .quantile(x, interpolation="midpoint")
                 .alias(f"{x}")
                 for x in quantiles
