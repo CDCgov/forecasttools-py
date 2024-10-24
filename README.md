@@ -214,7 +214,7 @@ make_forecast(
 
 The forecast looks like:
 
-![Example NHSN-based Influenza forecast](./assets/example_forecast_w_dates.png)
+![Example NHSN-based Influenza forecast](./assets/example_forecast_w_dates.png){ width=75% }
 
 ---
 
