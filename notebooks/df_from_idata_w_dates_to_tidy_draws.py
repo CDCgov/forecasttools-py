@@ -97,4 +97,34 @@ if os.path.exists("output_tidy_draws.parquet"):
     subprocess.run(["rm", "output_tidy_draws.parquet"])
 
 
-# %%
+# %% WHAT THE OUTPUT LOOKS LIKE
+
+# [1] TRUE
+# Rows: 516,000
+# Columns: 4
+# $ date     <chr> "2022-08-08", "2022-08-09", "2022-08-10", "2022-08-11", "2022…
+# $ hosp     <int> 14, 18, 27, 16, 18, 13, 13, 19, 16, 12, 15, 15, 10, 10, 4, 7,…
+# $ draw     <int> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+# $ location <chr> "TX", "TX", "TX", "TX", "TX", "TX", "TX", "TX", "TX", "TX", "…
+# # A tibble: 516,000 × 5
+#     draw location date        hosp     n
+#    <int> <chr>    <chr>      <int> <int>
+#  1     1 TX       2022-08-08    14     1
+#  2     1 TX       2022-08-09    18     1
+#  3     1 TX       2022-08-10    27     1
+#  4     1 TX       2022-08-11    16     1
+#  5     1 TX       2022-08-12    18     1
+#  6     1 TX       2022-08-13    13     1
+#  7     1 TX       2022-08-14    13     1
+#  8     1 TX       2022-08-15    19     1
+#  9     1 TX       2022-08-16    16     1
+# 10     1 TX       2022-08-17    12     1
+# # ℹ 515,990 more rows
+# [1] "Missing values?"
+#      date                hosp             draw          location
+#  Length:516000      Min.   :  0.00   Min.   :   1.0   Length:516000
+#  Class :character   1st Qu.: 14.00   1st Qu.: 250.8   Class :character
+#  Mode  :character   Median : 24.00   Median : 500.5   Mode  :character
+#                     Mean   : 54.55   Mean   : 500.5
+#                     3rd Qu.: 70.00   3rd Qu.: 750.2
+#                     Max.   :472.00   Max.   :1000.0
