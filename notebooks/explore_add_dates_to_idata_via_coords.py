@@ -41,16 +41,13 @@ obs_length = idata.observed_data.sizes[obs_dim_name]
 
 # creates dates array
 obs_dates = (
-    pl.DataFrame()
-    .select(
-        pl.date_range(
-            start=start_date_as_dt,
-            end=start_date_as_dt + pl.duration(days=obs_length - 1),
-            interval="1d",
-            closed="both",
-        )
+    pl.date_range(
+        start=start_date_as_dt,
+        end=start_date_as_dt + pl.duration(days=obs_length - 1),
+        interval="1d",
+        closed="both",
+        eager=True,
     )
-    .to_series()
     .to_numpy()
     .astype("datetime64[ns]")
 )
@@ -63,16 +60,13 @@ obs_dates = (
 postp_dim_name = "obs_dim_0"
 postp_length = idata.posterior_predictive.sizes[postp_dim_name]
 postp_dates = (
-    pl.DataFrame()
-    .select(
-        pl.date_range(
-            start=start_date_as_dt,
-            end=start_date_as_dt + pl.duration(days=postp_length - 1),
-            interval="1d",
-            closed="both",
-        )
+    pl.date_range(
+        start=start_date_as_dt,
+        end=start_date_as_dt + pl.duration(days=postp_length - 1),
+        interval="1d",
+        closed="both",
+        eager=True,
     )
-    .to_series()
     .to_numpy()
     .astype("datetime64[ns]")
 )
