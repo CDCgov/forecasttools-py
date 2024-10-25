@@ -3,7 +3,8 @@ Contains functions for converting
 Arviz InferenceData objects to Polars
 dataframes with dates and draws and
 for working with conversions of
-Polars dataframes to Tidy dataframes.
+Polars dataframes to hubverse ready and
+scoringutils ready dataframes
 """
 
 from datetime import datetime
