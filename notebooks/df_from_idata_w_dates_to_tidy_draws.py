@@ -76,6 +76,9 @@ dplyr::count(tidy_draws_df, draw, location, date, hosp)
 # missing values?
 print("Missing values?")
 print(summary(tidy_draws_df))
+
+# write out
+arrow::write_parquet(tidy_draws_df, "tidy_draws_df.parquet")
 """
 
 # %% RUN R CODE
@@ -95,7 +98,8 @@ finally:
 
 if os.path.exists("output_tidy_draws.parquet"):
     subprocess.run(["rm", "output_tidy_draws.parquet"])
-
+if os.path.exists("tidy_draws_df.parquet"):
+    subprocess.run(["rm", "tidy_draws_df.parquet"])
 
 # %% WHAT THE OUTPUT LOOKS LIKE
 
