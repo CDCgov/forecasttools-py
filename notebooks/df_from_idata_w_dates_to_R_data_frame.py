@@ -53,6 +53,12 @@ df_from_idata_w_dates = forecasttools.idata_forecast_w_dates_to_df(
 ).drop("variable")
 df_from_idata_w_dates
 
+# desired workflow
+# idata_w_dates (scalers, coord w/ indexes, coord w/ dates) --> tidy_data (data.frame) chain iteration draw col, every variable is in
+# its own column (tidy_draws) (unpivoted) rows are chain iteration, chain iteration --> draw, one row per draw
+
+# idata_forecast_w_dates_to_df is special instance of desired utility
+
 
 # %% SAVE OUTPUT TO PARQUET
 
