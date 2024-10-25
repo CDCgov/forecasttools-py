@@ -230,7 +230,7 @@ def make_forecast(
     dates using a spline regression model.
     """
     # check dataset path
-    check_file_save_path(save_path)
+    # check_file_save_path(save_path)
     # clean data and organize data, cleaning null values
     nhsn_data = nhsn_data.with_columns(
         pl.col("hosp").cast(pl.Int64),
@@ -400,7 +400,7 @@ make_forecast(
     juris_subset=["TX"],
     forecast_days=28,
     save_path="../forecasttools/example_flu_forecast_w_dates.nc",
-    save_idata=True,
+    save_idata=False,
     use_log=False,
 )
 
