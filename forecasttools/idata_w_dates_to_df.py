@@ -59,20 +59,32 @@ def add_dates_as_coords_to_idata(
         if idata_group is not None:
             interval_size = idata_group.sizes[dim_name]
             interval_dates = (
-                pl.DataFrame()
-                .select(
-                    pl.date_range(
-                        start=start_date_as_dt,
-                        end=start_date_as_dt
-                        + pl.duration(days=interval_size - 1),
-                        interval="1d",
-                        closed="both",
-                    )
+                pl.date_range(
+                    start=start_date_as_dt,
+                    end=start_date_as_dt + pl.duration(days=interval_size - 1),
+                    interval="1d",
+                    closed="both",
+                    eager=True,
                 )
-                .to_series()
                 .to_numpy()
                 .astype("datetime64[ns]")
             )
+            # interval_size = idata_group.sizes[dim_name]
+            # interval_dates = (
+            #     pl.DataFrame()
+            #     .select(
+            #         pl.date_range(
+            #             start=start_date_as_dt,
+            #             end=start_date_as_dt
+            #             + pl.duration(days=interval_size - 1),
+            #             interval="1d",
+            #             closed="both",
+            #         )
+            #     )
+            #     .to_series()
+            #     .to_numpy()
+            #     .astype("datetime64[ns]")
+            # )
             idata_group_with_dates = idata_group.assign_coords(
                 {dim_name: interval_dates}
             )
