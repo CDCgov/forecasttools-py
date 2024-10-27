@@ -11,8 +11,10 @@ include = [
     { path = "forecasttools/location_table.csv", format = "wheel" },
     { path = "forecasttools/example_flusight_submission.csv", format = "sdist" },
     { path = "forecasttools/example_flusight_submission.csv", format = "wheel" },
-    { path = "forecasttools/example_flu_forecast.nc", format = "sdist" },
-    { path = "forecasttools/example_flu_forecast.nc", format = "wheel" },
+    { path = "forecasttools/example_flu_forecast_wo_dates.nc", format = "sdist" },
+    { path = "forecasttools/example_flu_forecast_wo_dates.nc", format = "wheel" },
+    { path = "forecasttools/example_flu_forecast_w_dates.nc", format = "sdist" },
+    { path = "forecasttools/example_flu_forecast_w_dates.nc", format = "wheel" },
     { path = "forecasttools/nhsn_hosp_COVID.csv", format = "sdist" },
     { path = "forecasttools/nhsn_hosp_COVID.csv", format = "wheel" },
     { path = "forecasttools/nhsn_hosp_flu.csv", format = "sdist" },
@@ -22,7 +24,7 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.12"
-arviz = "^0.19.0"
+arviz = "^0.20.0"
 polars = "^1.8.2"
 xarray = "^2024.9.0"
 matplotlib = "^3.9.2"
@@ -36,6 +38,7 @@ diffrax = "^0.6.0"
 patsy = "^0.5.6"
 nbformat = "^5.10.4"
 nbclient = "^0.10.0"
+jupyter = "^1.1.1"
 
 
 [build-system]
