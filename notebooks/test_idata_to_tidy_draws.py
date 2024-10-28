@@ -1,5 +1,6 @@
 """
 Experiment file for testing
-group agnostic transformation
-of idata into a tidy_draws format.
+general representation of timepoints
+in idata object (intervals not just
+1D).
 """
