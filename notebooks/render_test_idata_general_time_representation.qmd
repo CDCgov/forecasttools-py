@@ -20,6 +20,11 @@ import numpyro
 import numpyro.distributions as dist
 import polars as pl
 import pytest
+import forecasttools
+import warnings
+
+# suppress warnings
+warnings.filterwarnings("ignore")
 ```
 
 ```{python}
@@ -117,6 +122,12 @@ def generate_daily_data(rng_key_int: int):
 weekly_data = generate_weekly_data(rng_key_int=47)
 biweekly_data = generate_biweekly_data(rng_key_int=47)
 daily_data = generate_daily_data(rng_key_int=47)
+
+
+# print example date for rendering sake
+print(weekly_data)
+print(biweekly_data)
+print(daily_data)
 ```
 
 ```{python}
@@ -149,23 +160,17 @@ idata_daily = get_idata_object(
     model=daily_hospitalizations, mcmc=mcmc_daily, rng_key_int=67
 )
 
-# print(idata_biweekly.posterior_predictive.dims)
-# print(idata_weekly.posterior_predictive.dims)
-# print(idata_daily.posterior_predictive.dims)
-# FrozenMappingWarningOnValuesAccess({'chain': 3, 'draw': 500, 'obs_dim_0': 10})
-# FrozenMappingWarningOnValuesAccess({'chain': 2, 'draw': 500, 'y_dim_0': 12})
-# FrozenMappingWarningOnValuesAccess({'chain': 4, 'draw': 500, 'observations_dim_0': 28})
+# for rendering's sakes
+print(idata_biweekly.posterior_predictive.dims)
+print(idata_weekly.posterior_predictive.dims)
+print(idata_daily.posterior_predictive.dims)
+print(idata_biweekly.posterior_predictive)
+print(idata_weekly.posterior_predictive)
+print(idata_daily.posterior_predictive)
 ```
 
 ```{python}
 # %% GET OPTION 3
-
-import forecasttools
-
-idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
-
-print(idata_wo_dates["observed_data"]["obs_dim_0"])
-
 
 # copied from test_idata_general_time_representation
 # will replace with forecasttools iteration once
@@ -226,6 +231,13 @@ def option_3_add_dates_as_coords_to_idata(
     return idata_w_dates
 
 
+# get example inference data
+idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
+print(idata_wo_dates["observed_data"])
+print(idata_wo_dates["posterior_predictive"])
+
+
+# run example usage of option 3
 option_3_idata_w_dates = option_3_add_dates_as_coords_to_idata(
     idata_wo_dates=idata_wo_dates,
     group_date_mapping={
@@ -237,7 +249,6 @@ option_3_idata_w_dates = option_3_add_dates_as_coords_to_idata(
         ),
     },
 )
-
 print(option_3_idata_w_dates["observed_data"])
 print(option_3_idata_w_dates["posterior_predictive"])
 ```
