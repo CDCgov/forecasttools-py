@@ -48,7 +48,7 @@ def option_1_add_dates_as_coords_to_idata(
         if idata_group is not None and dim_name in idata_group.dims:
             # convert start date to a datetime object
             start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
-            # calculate the interval size for this dimension
+            # get the interval size for dimension
             interval_size = idata_group.sizes[dim_name]
             # generate date range using the specified group time_step
             # otherwise use 1d; currently not type str.
@@ -163,3 +163,79 @@ option_2_idata_w_dates = option_2_add_dates_as_coords_to_idata(
 )
 print(option_2_idata_w_dates["observed_data"])
 print(option_2_idata_w_dates["posterior_predictive"])
+
+
+# %% OPTION 3 FOR ADDING DATES
+
+
+def option_3_add_dates_as_coords_to_idata(
+    idata_wo_dates: az.InferenceData,
+    group_date_mapping: dict[str, tuple[str, timedelta, str]],
+) -> az.InferenceData:
+    """
+    Modifies an InferenceData object by
+    assigning date arrays to selected
+    groups.
+    """
+    # create initial idata object from received object
+    idata_w_dates = idata_wo_dates.copy()
+
+    # iterate over selected groups
+    # NOTE: policy not decided for non-selected groups
+    for group_name, (
+        start_date_iso,
+        time_step,
+        dim_name,
+    ) in group_date_mapping.items():
+        # get idata group
+        idata_group = getattr(idata_w_dates, group_name, None)
+        # skip if group or dim_name is not located
+        if idata_group is None:
+            print(f"Warning: Group '{group_name}' not found in idata.")
+            continue
+        if dim_name not in idata_group.dims:
+            print(
+                f"Warning: Dimension '{dim_name}' not found in group '{group_name}'."
+            )
+            continue
+        # convert start date to a datetime object
+        start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
+        # get the interval size for this dimension
+        interval_size = idata_group.sizes[dim_name]
+        # generate date range using the specified group time_step
+        # otherwise use 1d; currently not type str.
+        interval_dates = (
+            pl.date_range(
+                start=start_date_as_dt,
+                end=start_date_as_dt + (interval_size - 1) * time_step,
+                interval=f"{time_step.days}d" if time_step.days else "1d",
+                closed="both",
+                eager=True,
+            )
+            .to_numpy()
+            .astype("datetime64[ns]")
+        )
+        # update coordinates of group for specified dimension
+        idata_group_with_dates = idata_group.assign_coords(
+            {dim_name: interval_dates}
+        )
+        # set the modified group back to the idata object
+        setattr(idata_w_dates, group_name, idata_group_with_dates)
+    return idata_w_dates
+
+
+option_3_idata_w_dates = option_3_add_dates_as_coords_to_idata(
+    idata_wo_dates=idata_wo_dates,
+    group_date_mapping={
+        "observed_data": ("2022-08-08", timedelta(days=1), "obs_dim_0"),
+        "posterior_predictive": (
+            "2022-08-08",
+            timedelta(weeks=1),
+            "obs_dim_0",
+        ),
+    },
+)
+
+print(option_3_idata_w_dates["observed_data"])
+print(option_3_idata_w_dates["posterior_predictive"])
+# %%
