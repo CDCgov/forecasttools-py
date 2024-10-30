@@ -70,7 +70,7 @@ dplyr::glimpse(example_draws)
 
 light_r_runner(r_code_load)
 
-# %% OPTION 1 FOR IDATA TO TIDY DRAWS
+# %% OPTION 1 FOR IDATA TO TIDY_DRAWS
 
 
 def option_1_convert_idata_to_tidy_draws(
@@ -110,6 +110,76 @@ def option_1_convert_idata_to_tidy_draws(
 
 option_1_convert_idata_to_tidy_draws(idata_w_dates)
 
+# %% OPTION 2 FOR IDATA TO TIDY_DRAWS
+
+
+def option_2_convert_idata_to_tidy_draws(
+    idata: az.InferenceData, idata_group_name: str
+) -> pl.DataFrame:
+    """
+    Converts a specified group within an ArviZ
+    InferenceData object into a tidy_draws-compatible
+    Polars DataFrame. Dimensions "chain" and "draw"
+    must be present.
+    """
+    # retrieve specified idata group
+    group = getattr(idata, idata_group_name, None)
+    if group is None:
+        raise ValueError(
+            f"Group '{idata_group_name}' not found in idata object."
+        )
+    # make sure required dims are present
+    try:
+        required_dims = {"chain", "draw"}
+        missing_dims = required_dims - set(group.dims)
+        assert not missing_dims, f"Missing required dimensions: {missing_dims}"
+        # stack sample dimensions (chain, draw) to get a long df
+        df = (
+            group.stack(sample=("chain", "draw"), create_index=False)
+            .to_dataframe()
+            .reset_index()
+        )
+    except AssertionError as e:
+        print(f"Assertion failed: {e}")
+        df = group.to_dataframe().reset_index()  # correct procedure?
+    # convert back to Polars DataFrame, drop sample from stacking if present
+    df = pl.from_pandas(df)
+    if "sample" in df.columns:
+        df = df.drop("sample")
+    # create .chain, .iteration, and .draw columns
+    df = df.with_columns(
+        [
+            (pl.col("chain") + 1).alias(".chain"),  # add 1 for conversion to R
+            (pl.col("draw") + 1).alias(
+                ".iteration"
+            ),  # add 1 for conversion to R
+            (
+                (pl.col("chain") * df["draw"].n_unique()) + pl.col("draw") + 1
+            ).alias(
+                ".draw"
+            ),  # add 1 for conversion to R; shift draw range to unique
+        ]
+    ).drop(
+        ["chain", "draw"]
+    )  # drop original chain, draw
+    # NOTE: anything needed for cleaning for R col names?
+    # pivot to long format to have variables in a single column
+
+    # need to correct this further...
+    tidy_df = df.unpivot(
+        index=[".chain", ".iteration", ".draw"],
+        value_name="value",  # change?
+        variable_name="name",
+    )
+    return tidy_df
+
+
+print(idata_w_dates.posterior_predictive)
+postp_tidy_df = option_2_convert_idata_to_tidy_draws(
+    idata=idata_w_dates, idata_group_name="posterior_predictive"
+)
+print(postp_tidy_df)
+
 
 # DAMON'S R CODE FOR THIS DATA (FROM IDATA CSV)
 
@@ -137,3 +207,5 @@ option_1_convert_idata_to_tidy_draws(idata_w_dates)
 # ) |>
 # arviz_split() |>
 # map(\(x) pivot_wider(x, names_from = name) |> tidy_draws())
+
+# %%
