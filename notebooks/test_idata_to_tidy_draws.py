@@ -10,6 +10,8 @@ import os
 import subprocess
 import tempfile
 
+import arviz as az
+import polars as pl
 import xarray as xr
 
 import forecasttools
@@ -64,34 +66,52 @@ is(example_draws, "data.frame")
 
 print("Structure of example_draws.")
 dplyr::glimpse(example_draws)
-
-print("Using spread_draws.")
-after_spread_draws <- example_draws %>%
-  tidybayes::spread_draws(mu, sigma)
-
-print("Spread draws structure:")
-dplyr::glimpse(after_spread_draws)
 """
 
 light_r_runner(r_code_load)
 
-
-# %% INTERMEDIATE REPRESENTATIONS
-
-
-print(idata_w_dates.groups)
-
-for group_name in idata_w_dates.groups():
-    print(idata_w_dates[group_name])
+# %% OPTION 1 FOR IDATA TO TIDY DRAWS
 
 
-# %% FINAL REPRESENTATION
+def option_1_convert_idata_to_tidy_draws(
+    idata: az.InferenceData,
+) -> pl.DataFrame:
+    """
+    Converts ENTIRE ArviZ InferenceData object into
+    a tidy_draws-compatible Polars DataFrame, ready
+    for parquet export and use in R tidybayes.
+    """
+    # iterate over idata groups, stacking & extracting
+    dfs = []
+    for group_name in idata._groups_all:
+        print(group_name.upper())  # DISPLAY TO USER
+        group = getattr(idata, group_name, None)
+        if group is not None:
+            # stack non-chain, non-draw dims
+            stacked_group_df = (
+                group.stack(sample=("chain", "draw"), create_index=False)
+                .to_dataframe()
+                .reset_index()
+            )
+            print(stacked_group_df)  # DISPLAY TO USER
+            # rename draw and chain if existing
+            stacked_group_df = stacked_group_df.rename(
+                columns={"draw": "draw_idx", "chain": "chain_idx"}
+            )
+            # add identifier (e.g. posterior) as repeated col to group
+            stacked_group_df["group"] = group_name
+            print(stacked_group_df)  # DISPLAY TO USER
+            # extract stacked group to list for future concatenation
+            dfs.append(pl.from_pandas(stacked_group_df))
+    # vertically concatenate all groups
+    # NOTE: failure to do this given different group column sizes
+    # tidy_df = pl.concat(dfs, how="diagonal")
 
 
-# %% FUNCTION TO BRING IT ALL TOGETHER
+option_1_convert_idata_to_tidy_draws(idata_w_dates)
 
 
-# COLLEAGUES R CODE FOR THIS DATA (FROM IDATA CSV)
+# DAMON'S R CODE FOR THIS DATA (FROM IDATA CSV)
 
 # arviz_split <- function(x) {
 # x %>%
