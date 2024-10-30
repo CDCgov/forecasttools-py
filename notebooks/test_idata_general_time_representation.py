@@ -25,6 +25,7 @@ print(idata_wo_dates["observed_data"]["obs_dim_0"])
 
 print(idata_wo_dates["posterior_predictive"])
 
+
 # NOTE: assumptions about different chains
 # ought to be taken into account, not currently
 # taken into account; might matter.
@@ -168,8 +169,6 @@ option_2_idata_w_dates = option_2_add_dates_as_coords_to_idata(
 )
 print(option_2_idata_w_dates["observed_data"])
 print(option_2_idata_w_dates["posterior_predictive"])
-
-print(idata_wo_dates["posterior_predictive"])
 
 # %% OPTION 3 FOR ADDING DATES
 
@@ -320,9 +319,8 @@ def option_4_add_dates_as_coords_to_idata(
                 .astype("datetime64[ns]")
             )
             # update the variable's coordinates with the generated date range
-            idata_group[variable_name] = idata_group[
-                variable_name
-            ].assign_coords({dim_name: interval_dates})
+            idata_group = idata_group.assign_coords({dim_name: interval_dates})
+        setattr(idata_w_dates, group_name, idata_group)
     return idata_w_dates
 
 
@@ -385,17 +383,17 @@ posterior_pred_samples = numpyro.infer.Predictive(
     model, posterior_samples=posterior_samples
 )(rng_key=rng_key)
 
-idata_wo_dates = az.from_numpyro(
+idata_wo_dates_new = az.from_numpyro(
     posterior=mcmc, posterior_predictive=posterior_pred_samples
 )
 
-# %% ENSURE OPTION 4 WORKS AS INTENDED (MODEL RUNNING)
+print(idata_wo_dates_new["posterior_predictive"])
 
-print(idata_wo_dates["posterior_predictive"])
+# %% ENSURE OPTION 4 WORKS AS INTENDED (MODEL RUNNING)
 
 
 option_4_idata_w_dates = option_4_add_dates_as_coords_to_idata(
-    idata_wo_dates=idata_wo_dates,
+    idata_wo_dates=idata_wo_dates_new,
     group_variable_date_mapping={
         "observed_data": {
             "obs": (
@@ -416,12 +414,19 @@ option_4_idata_w_dates = option_4_add_dates_as_coords_to_idata(
                 "obs2_dim_0",
             ),
             "rt": (
-                "2022-08-08",
+                "2022-08-01",
                 timedelta(weeks=1),
                 "rt_dim_0",
             ),
         },
     },
 )
+
+
+# %% EXAMINE EACH VAR
+
+print(option_4_idata_w_dates["posterior_predictive"]["obs2"].coords)
+print(option_4_idata_w_dates["posterior_predictive"]["obs"].coords)
+print(option_4_idata_w_dates["posterior_predictive"]["rt"].coords)
 
 # %%
