@@ -10,6 +10,9 @@ in idata object (intervals not just
 from datetime import datetime, timedelta
 
 import arviz as az
+import jax.random as jr
+import numpyro
+import numpyro.distributions as dist
 import polars as pl
 
 import forecasttools
@@ -323,6 +326,74 @@ def option_4_add_dates_as_coords_to_idata(
     return idata_w_dates
 
 
+# %% ENSURE OPTION 4 WORKS AS INTENDED (MODEL SETUP)
+
+
+# NOTE: reusing some items from test_general_add_dates
+
+rng_key = jr.key(213123)
+
+
+def model(obs=None, obs2=None, rt=None):
+    """
+    Simple Numpyro model for multi-variable
+    posterior_predictive group in idata
+    """
+    # priors (sample names and values chosen somewhat arbitrarily)
+    lambda_obs = numpyro.sample(
+        "lambda_obs", dist.Exponential(1.0).expand([28])
+    )
+    lambda_obs2 = numpyro.sample(
+        "lambda_obs2", dist.Exponential(1.5).expand([10])
+    )
+    lambda_rt = numpyro.sample("lambda_rt", dist.Exponential(2.0).expand([12]))
+    # likelihoods
+    numpyro.sample("obs", dist.Poisson(lambda_obs), obs=obs)
+    numpyro.sample("obs2", dist.Poisson(lambda_obs2), obs=obs2)
+    numpyro.sample("rt", dist.Normal(lambda_rt, 0.1), obs=rt)
+
+
+def generate_weekly_data(rng_key_int: int):
+    with numpyro.handlers.seed(rng_seed=rng_key_int):
+        return numpyro.sample("weekly_data", dist.Poisson(4.5).expand([12]))
+
+
+def generate_biweekly_data(rng_key_int: int):
+    with numpyro.handlers.seed(rng_seed=rng_key_int):
+        return numpyro.sample("biweekly_data", dist.Poisson(6.0).expand([10]))
+
+
+def generate_daily_data(rng_key_int: int):
+    with numpyro.handlers.seed(rng_seed=rng_key_int):
+        return numpyro.sample("daily_data", dist.Poisson(8.0).expand([28]))
+
+
+rt_weekly_data = generate_weekly_data(rng_key_int=47)
+obs2_biweekly_data = generate_biweekly_data(rng_key_int=47)
+obs_daily_data = generate_daily_data(rng_key_int=47)
+
+kernel = numpyro.infer.NUTS(model)
+mcmc = numpyro.infer.MCMC(kernel, num_samples=1000, num_warmup=500)
+mcmc.run(
+    rng_key, obs=obs_daily_data, obs2=obs2_biweekly_data, rt=rt_weekly_data
+)
+
+
+posterior_samples = mcmc.get_samples()
+
+posterior_pred_samples = numpyro.infer.Predictive(
+    model, posterior_samples=posterior_samples
+)(rng_key=rng_key)
+
+idata_wo_dates = az.from_numpyro(
+    posterior=mcmc, posterior_predictive=posterior_pred_samples
+)
+
+# %% ENSURE OPTION 4 WORKS AS INTENDED (MODEL RUNNING)
+
+print(idata_wo_dates["posterior_predictive"])
+
+
 option_4_idata_w_dates = option_4_add_dates_as_coords_to_idata(
     idata_wo_dates=idata_wo_dates,
     group_variable_date_mapping={
@@ -331,24 +402,26 @@ option_4_idata_w_dates = option_4_add_dates_as_coords_to_idata(
                 "2022-08-08",
                 timedelta(days=14),
                 "obs_dim_0",
-            ),  # bi-weekly intervals
+            ),
         },
         "posterior_predictive": {
             "obs": (
                 "2022-08-08",
-                timedelta(weeks=2),
-                "obs_dim_0",
-            ),  # bi-weekly intervals
+                timedelta(days=7),
+                "obs_dim_0",  # change to f"{var_name}_dim_0"?
+            ),
             "obs2": (
                 "2022-08-08",
-                timedelta(days=7),
+                timedelta(weeks=2),
                 "obs2_dim_0",
-            ),  # weekly intervals
+            ),
             "rt": (
                 "2022-08-08",
                 timedelta(weeks=1),
                 "rt_dim_0",
-            ),  # weekly intervals
+            ),
         },
     },
 )
+
+# %%
