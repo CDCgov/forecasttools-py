@@ -20,6 +20,8 @@ idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
 
 print(idata_wo_dates["observed_data"]["obs_dim_0"])
 
+print(idata_wo_dates["posterior_predictive"])
+
 # NOTE: assumptions about different chains
 # ought to be taken into account, not currently
 # taken into account; might matter.
@@ -164,6 +166,7 @@ option_2_idata_w_dates = option_2_add_dates_as_coords_to_idata(
 print(option_2_idata_w_dates["observed_data"])
 print(option_2_idata_w_dates["posterior_predictive"])
 
+print(idata_wo_dates["posterior_predictive"])
 
 # %% OPTION 3 FOR ADDING DATES
 
@@ -238,4 +241,114 @@ option_3_idata_w_dates = option_3_add_dates_as_coords_to_idata(
 
 print(option_3_idata_w_dates["observed_data"])
 print(option_3_idata_w_dates["posterior_predictive"])
-# %%
+
+# %% OPTION 4 FOR ADDING DATES (MODIFIED OPTION 3)
+
+# NOTE: thinking about how to make this rely less
+# on for-looping but it represents a first attempt
+# (hastily done) to address comments in the PR
+
+
+# NOTE: as of 4:20PM EST this is untested because
+# I need to create an idata object  that actually
+# has the variables below in posterior predictive
+# I think the logic of the below should roughly be
+# correct though
+
+
+def option_4_add_dates_as_coords_to_idata(
+    idata_wo_dates: az.InferenceData,
+    group_variable_date_mapping: dict[
+        str, dict[str, tuple[str, timedelta, str]]
+    ],
+) -> az.InferenceData:
+    """
+    Modifies an InferenceData object by
+    assigning date arrays to selected
+    variables within specified groups.
+    Allows different variables within the same group
+    to have separate date intervals.
+    """
+    # copy the idata object to avoid modifying the original
+    idata_w_dates = idata_wo_dates.copy()
+    # iterate over each group in the mapping
+    for (
+        group_name,
+        variable_date_mapping,
+    ) in group_variable_date_mapping.items():
+        # get the group from the idata object
+        idata_group = getattr(idata_w_dates, group_name, None)
+        if idata_group is None:
+            print(f"Warning: Group '{group_name}' not found in idata.")
+            continue
+        # iterate over each variable in the group's variable mapping
+        for variable_name, (
+            start_date_iso,
+            time_step,
+            dim_name,
+        ) in variable_date_mapping.items():
+            # check if the variable exists in the group
+            if variable_name not in idata_group.data_vars:
+                print(
+                    f"Warning: Variable '{variable_name}' not found in group '{group_name}'."
+                )
+                continue
+            # check if the specified dimension exists in the variable's dimensions
+            variable_dims = idata_group[variable_name].dims
+            if dim_name not in variable_dims:
+                print(
+                    f"Warning: Dimension '{dim_name}' not found in variable '{variable_name}' within group '{group_name}'."
+                )
+                continue
+            # convert start date to a datetime object
+            start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
+            # determine the size of the specified dimension
+            interval_size = idata_group[variable_name].sizes[dim_name]
+            # generate date range using the specified time_step and interval size
+            interval_dates = (
+                pl.date_range(
+                    start=start_date_as_dt,
+                    end=start_date_as_dt + (interval_size - 1) * time_step,
+                    interval=f"{time_step.days}d" if time_step.days else "1d",
+                    closed="both",
+                    eager=True,
+                )
+                .to_numpy()
+                .astype("datetime64[ns]")
+            )
+            # update the variable's coordinates with the generated date range
+            idata_group[variable_name] = idata_group[
+                variable_name
+            ].assign_coords({dim_name: interval_dates})
+    return idata_w_dates
+
+
+option_4_idata_w_dates = option_4_add_dates_as_coords_to_idata(
+    idata_wo_dates=idata_wo_dates,
+    group_variable_date_mapping={
+        "observed_data": {
+            "obs": (
+                "2022-08-08",
+                timedelta(days=14),
+                "obs_dim_0",
+            ),  # bi-weekly intervals
+        },
+        "posterior_predictive": {
+            "obs": (
+                "2022-08-08",
+                timedelta(weeks=2),
+                "obs_dim_0",
+            ),  # bi-weekly intervals
+            "obs2": (
+                "2022-08-08",
+                timedelta(days=7),
+                "obs2_dim_0",
+            ),  # weekly intervals
+            "rt": (
+                "2022-08-08",
+                timedelta(weeks=1),
+                "rt_dim_0",
+            ),  # weekly intervals
+        },
+    },
+)
