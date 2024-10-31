@@ -60,7 +60,7 @@ def add_time_coords_to_idata_variable(
         in ISO format (e.g., "2022-08-08").
     time_step : timedelta
         The time interval between each coordinate
-        (e.g., `timedelta(days=7)` for weekly intervals).
+        (e.g., `timedelta(days=1)` for daily intervals).
 
     Returns
     -------
@@ -138,4 +138,100 @@ testing_copy_idata_wo_dates = add_time_coords_to_idata_variable(
 # examine coords before adding dates
 print(testing_copy_idata_wo_dates["posterior_predictive"]["obs"].coords)
 
-# %% FUNCTION FOR MODIFYING SINGLE GROUP'S VARIABLES
+# %% FUNCTION FOR MODIFYING SINGLE GROUP'S VARIABLE(S)
+
+# NOTE: each tuple is expected to have the same
+# time coordinates (with the only difference
+# being the length of the coordinates)
+
+
+def add_time_coords_to_idata_variables(
+    idata: az.InferenceData,
+    group_var_dim_tuples: list[tuple[str, str, str]],
+    start_date_iso: str,
+    time_step: timedelta,
+) -> az.InferenceData:
+    """
+    Adds time-based coordinates to multiple
+    (group, variable, dim) tuples within an
+    InferenceData object. Each tuple will
+    receive the same date range based on the
+    provided start date and time step, with
+    the only difference possibly being the
+    length of the coordinates by variable.
+
+    Parameters
+    ----------
+    idata : az.InferenceData
+        The InferenceData object to modify.
+    group_var_dim_tuples : list of tuples
+        A list of (group, variable, dim) tuples
+        specifying the groups, variables, and
+        dimensions to modify.
+    start_date_iso : str
+        The start date in ISO format (YYYY-MM-DD)
+        from which to begin the date range.
+    time_step : timedelta
+        The time interval between consecutive
+        dates.
+
+    Returns
+    -------
+    az.InferenceData
+        The modified InferenceData object with
+        updated time coordinates for the specified tuples.
+    """
+    # iterate over each (group, variable, dimension) tuple
+    # and apply the date range using the helper function
+    for group, variable, dim in group_var_dim_tuples:
+        try:
+            # call helper function to assign date coordinates
+            # to each specified variable
+            idata = add_time_coords_to_idata_variable(
+                idata=idata,
+                group=group,
+                variable=variable,
+                dimensions=[dim],  # pass dim as a single-item list
+                start_date_iso=start_date_iso,
+                time_step=time_step,
+            )
+        except ValueError as e:
+            print(
+                f"Error for (group={group}, variable={variable}, dim={dim}): {e}"
+            )
+    return idata
+
+
+# %% USAGE OF (FUNCTION FOR MODIFYING SINGLE GROUP'S VARIABLES)
+
+# create idata copy for testing
+testing_copy_idata_wo_dates_v2 = idata_wo_dates.copy()
+
+# examine coords before adding dates
+print(f"{'observed_data coordinates (before):'.upper()}")
+print(testing_copy_idata_wo_dates_v2["observed_data"]["obs"].coords)
+print(f"{'posterior_predictive coordinates (before):'.upper()}")
+print(testing_copy_idata_wo_dates_v2["posterior_predictive"]["obs"].coords)
+
+# call the function to apply the same date range to all specified tuples
+# NOTE: length of coordinates different between groups here
+testing_copy_idata_wo_dates_v2 = add_time_coords_to_idata_variables(
+    idata=testing_copy_idata_wo_dates,
+    group_var_dim_tuples=[
+        ("posterior_predictive", "obs", "obs_dim_0"),
+        ("observed_data", "obs", "obs_dim_0"),
+    ],
+    start_date_iso="2022-08-08",
+    time_step=timedelta(weeks=1),
+)
+
+# examine coords before adding dates
+print(f"{'observed_data coordinates (after):'.upper()}")
+print(testing_copy_idata_wo_dates_v2["observed_data"]["obs"].coords)
+print(f"{'posterior_predictive coordinates (after):'.upper()}")
+print(testing_copy_idata_wo_dates_v2["posterior_predictive"]["obs"].coords)
+
+# examine size of coordinates
+print(testing_copy_idata_wo_dates_v2["observed_data"]["obs_dim_0"].size)
+print(testing_copy_idata_wo_dates_v2["posterior_predictive"]["obs_dim_0"].size)
+# %%
