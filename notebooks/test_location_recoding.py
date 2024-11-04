@@ -59,4 +59,12 @@ matching_loc_cols_df_03 = forecasttools.location_lookup(
 )
 print(matching_loc_cols_df_03)
 
+# %% LOCATION LOOKUP (ITER 4), FAILURE CHECK
+
+matching_loc_cols_df_03 = forecasttools.location_lookup(
+    location_vector=["US", "Alabama", "Mississippi", "New Hampshire"],
+    location_format="failed_name",
+)
+print(matching_loc_cols_df_03)
+
 # %%
