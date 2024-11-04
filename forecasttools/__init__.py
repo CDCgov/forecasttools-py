@@ -8,7 +8,12 @@ from .idata_w_dates_to_df import (
     add_dates_as_coords_to_idata,
     idata_forecast_w_dates_to_df,
 )
-from .recode_locations import loc_abbr_to_flusight_code
+from .recode_locations import (
+    loc_abbr_to_flusight_code,
+    loc_flusight_code_to_abbr,
+    location_lookup,
+    to_location_table_column,
+)
 from .to_flusight import get_flusight_table
 from .trajectories_to_quantiles import trajectories_to_quantiles
 
@@ -64,5 +69,8 @@ __all__ = [
     "trajectories_to_quantiles",
     "df_aggregate_to_epiweekly",
     "loc_abbr_to_flusight_code",
+    "loc_flusight_code_to_abbr",
+    "to_location_table_column",
+    "location_lookup",
     "get_flusight_table",
 ]
