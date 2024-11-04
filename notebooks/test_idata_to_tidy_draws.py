@@ -29,7 +29,7 @@ print(idata_w_dates)
 
 print(idata_w_dates.observed_data)
 
-# %% PLAYING AROUND WITH TIDY_DRAWS
+# %% FUNCTION FOR RUNNING R CODE VIA TEMPORARY FILES
 
 
 def light_r_runner(r_code: str) -> None:
@@ -47,28 +47,37 @@ def light_r_runner(r_code: str) -> None:
         os.remove(temp_r_file_path)
 
 
-r_code_load = """
+# %% PLAYING AROUND WITH TIDY_DRAWS
+
+
+r_code_spread_draws = """
 library(magrittr)
 
 
-print("Create example tidy_draws dataframe.")
-set.seed(213412312)
-example_draws <- dplyr::tibble(
-  .chain = rep(1, 100),
-  .iteration = rep(1:100),
-  .draw = 1:100,
-  mu = stats::rnorm(100, 0, 1),
-  sigma = stats::rnorm(100, 1, 0.5)
+# example posterior samples
+posterior_samples <- dplyr::tibble(
+  .chain = c(1, 1, 1, 2, 2, 2),
+  .iteration = c(1, 2, 3, 1, 2, 3),
+  .draw = c(1, 2, 3, 4, 5, 6),
+  alpha = c(1.1, 1.3, 1.2, 1.4, 1.5, 1.6),
+  beta = c(2.2, 2.3, 2.1, 2.5, 2.6, 2.4)
 )
 
-print("Check if the example_draws is data.frame.")
-is(example_draws, "data.frame")
+# load into tidy data
+tidy_data <- tidybayes::tidy_draws(
+  posterior_samples)
 
-print("Structure of example_draws.")
-dplyr::glimpse(example_draws)
+# examine tidy data
+dplyr::glimpse(tidy_data)
+
+# spread draws for all variables
+spread_vars <- posterior_samples %>%
+  tidybayes::spread_draws(alpha, beta)
+dplyr::glimpse(spread_vars)
 """
 
-light_r_runner(r_code_load)
+
+light_r_runner(r_code_spread_draws)
 
 # %% OPTION 1 FOR IDATA TO TIDY_DRAWS
 
