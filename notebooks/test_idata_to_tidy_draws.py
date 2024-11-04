@@ -47,11 +47,32 @@ def light_r_runner(r_code: str) -> None:
         os.remove(temp_r_file_path)
 
 
-# %% PLAYING AROUND WITH TIDY_DRAWS
+# %% EXAMPLE TIDY_DRAWS (1)
 
 
-r_code_spread_draws = """
+# see: https://www.rdocumentation.org/packages/tidybayes/versions/3.0.7/topics/tidy_draws
+r_code_example_from_docs = """
 library(magrittr)
+
+
+# load example dataset called line
+data(line, package = "coda")
+print(line)
+
+# use tidy_draws() on line
+tidy_data <- line %>%
+  tidybayes::tidy_draws()
+print(tidy_data)
+"""
+
+light_r_runner(r_code_example_from_docs)
+
+# %% EXAMPLE TIDY_DRAWS (2)
+
+
+#
+r_code_spread_draws = """
+
 
 
 # example posterior samples
@@ -68,7 +89,7 @@ tidy_data <- tidybayes::tidy_draws(
   posterior_samples)
 
 # examine tidy data
-dplyr::glimpse(tidy_data)
+print(tidy_data)
 
 # spread draws for all variables
 spread_vars <- posterior_samples %>%
@@ -76,8 +97,6 @@ spread_vars <- posterior_samples %>%
 dplyr::glimpse(spread_vars)
 """
 
-
-light_r_runner(r_code_spread_draws)
 
 # %% OPTION 1 FOR IDATA TO TIDY_DRAWS
 
