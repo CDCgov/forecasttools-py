@@ -109,12 +109,12 @@ def to_location_table_column(location_format: str) -> str:
         Returns the corresponding column name
         from the location table.
     """
-    col_keys = {
+    col_dict = {
         "abbr": "short_name",
         "flusight": "location_code",
         "long_name": "long_name",
     }
-    col = col_keys[location_format]
+    col = col_dict.get(location_format)
     if col is None:
         raise ValueError(
             f"Unknown location format {location_format}. Expected 'abbr', 'flusight', or 'long_name'."
