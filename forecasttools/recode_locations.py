@@ -116,7 +116,7 @@ def to_location_table_column(location_format: str) -> str:
     }
     col = col_dict.get(location_format)
     if col is None:
-        raise ValueError(
+        raise KeyError(
             f"Unknown location format {location_format}. Expected 'abbr', 'flusight', or 'long_name'."
         )
     return col
