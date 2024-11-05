@@ -81,7 +81,7 @@ def make_census_dataset(
         url, separator="|", schema_overrides={"STATE": pl.Utf8}
     ).select(
         [
-            pl.col("STATE").alias("location_code").cast(pl.Utf8),
+            pl.col("STATE").alias("location_code"),
             pl.col("STUSAB").alias("short_name"),
             pl.col("STATE_NAME").alias("long_name"),
         ]
