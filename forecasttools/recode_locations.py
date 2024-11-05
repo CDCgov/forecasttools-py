@@ -158,15 +158,11 @@ def location_lookup(
         the location vector, with repeats
         possible.
     """
-    # convert location vector to string format
-    location_vector = [str(loc) for loc in location_vector]
-    # get the join key based on the location
-    # format
+    # get the join key based on the location format
     join_key = forecasttools.to_location_table_column(location_format)
-    # create a DataFrame for the location
-    # vector and rename the column to the
-    # join key
-    locs_df = pl.DataFrame({join_key: location_vector})
-    # inner join with the location_table
+    # create a DataFrame for the location vector with the column cast as string
+    locs_df = pl.DataFrame({join_key: [str(loc) for loc in location_vector]})
+    # inner join with the location_table based on the join key
     locs = locs_df.join(forecasttools.location_table, on=join_key, how="inner")
+
     return locs
