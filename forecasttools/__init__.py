@@ -3,19 +3,19 @@ import importlib.resources
 import arviz as az
 import polars as pl
 
-from .daily_to_epiweekly import df_aggregate_to_epiweekly
-from .idata_w_dates_to_df import (
+from forecasttools.daily_to_epiweekly import df_aggregate_to_epiweekly
+from forecasttools.idata_w_dates_to_df import (
     add_dates_as_coords_to_idata,
     idata_forecast_w_dates_to_df,
 )
-from .recode_locations import (
+from forecasttools.recode_locations import (
     loc_abbr_to_flusight_code,
     loc_flusight_code_to_abbr,
     location_lookup,
     to_location_table_column,
 )
-from .to_flusight import get_flusight_table
-from .trajectories_to_quantiles import trajectories_to_quantiles
+from forecasttools.to_flusight import get_flusight_table
+from forecasttools.trajectories_to_quantiles import trajectories_to_quantiles
 
 # location table (from Census data)
 with importlib.resources.path(
