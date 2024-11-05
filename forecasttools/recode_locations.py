@@ -9,14 +9,14 @@ import polars as pl
 import forecasttools
 
 
-def loc_abbr_to_flusight_code(
+def loc_abbr_to_hubverse_code(
     df: pl.DataFrame, location_col: str
 ) -> pl.DataFrame:
     """
     Takes the location columns of a Polars
     dataframe (formatted as US two-letter
     jurisdictional abbreviations) and recodes
-    it to FluSight location codes using
+    it to hubverse location codes using
     location_table, which is a Polars
     dataframe contained in forecasttools.
 
@@ -34,7 +34,7 @@ def loc_abbr_to_flusight_code(
     -------
     pl.DataFrame
         A Polars dataframe with the location
-        column formatted as FluSight location
+        column formatted as hubverse location
         codes.
     """
     # get location table
@@ -50,12 +50,12 @@ def loc_abbr_to_flusight_code(
     return loc_recoded_df
 
 
-def loc_flusight_code_to_abbr(
+def loc_hubverse_code_to_abbr(
     df: pl.DataFrame, location_col: str
 ) -> pl.DataFrame:
     """
     Takes the location columns of a Polars
-    dataframe (formatted as FluSight codes for
+    dataframe (formatted as hubverse codes for
     US two-letter jurisdictions) and recodes
     it to US jurisdictional abbreviations,
     using location_table, which is a Polars
@@ -66,7 +66,7 @@ def loc_flusight_code_to_abbr(
     df
         A Polars dataframe with a location
         column consisting of US
-        jurisdictional FluSight codes.
+        jurisdictional hubverse codes.
     location_col
         The name of the dataframe's location
         column.
@@ -93,7 +93,7 @@ def to_location_table_column(location_format: str) -> str:
     """
     Maps a location format string to the
     corresponding column name in the hubserve
-    location table. For example, "flusight"
+    location table. For example, "hubverse"
     maps to "location_code" in forecasttool's
     location_table.
 
@@ -101,7 +101,7 @@ def to_location_table_column(location_format: str) -> str:
     ----------
     location_format
         The format string ("abbr",
-        "flusight", or "long_name").
+        "hubverse", or "long_name").
 
     Returns
     -------
@@ -111,7 +111,7 @@ def to_location_table_column(location_format: str) -> str:
     """
     col_dict = {
         "abbr": "short_name",
-        "flusight": "location_code",
+        "hubverse": "location_code",
         "long_name": "long_name",
     }
     col = col_dict.get(location_format)
@@ -126,7 +126,7 @@ def location_lookup(
     location_vector: list[str], location_format: str
 ) -> pl.DataFrame:
     """
-    Look up rows of the FluSight location
+    Look up rows of the hubverse location
     table corresponding to the entries
     of a given location vector and format.
     Retrieves the rows from location_table
@@ -145,7 +145,7 @@ def location_lookup(
         vector is coded. Permitted formats
         are: 'abbr', US two-letter
         jurisdictional abbreviation;
-        'flusight', legacy 2-digit FIPS code
+        'hubverse', legacy 2-digit FIPS code
         for states and territories; 'US' for
         the USA as a whole; 'long_name',
         full English name for the
@@ -160,9 +160,11 @@ def location_lookup(
     """
     # get the join key based on the location format
     join_key = forecasttools.to_location_table_column(location_format)
-    # create a DataFrame for the location vector with the column cast as string
+    # create a dataframe for the location vector
+    # with the column cast as string
     locs_df = pl.DataFrame({join_key: [str(loc) for loc in location_vector]})
-    # inner join with the location_table based on the join key
+    # inner join with the location_table
+    # based on the join key
     locs = locs_df.join(forecasttools.location_table, on=join_key, how="inner")
 
     return locs
