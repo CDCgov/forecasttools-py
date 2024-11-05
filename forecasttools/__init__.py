@@ -28,7 +28,6 @@ with importlib.resources.path(
     __package__,
     "example_flusight_submission.parquet",
 ) as data_path:
-    dtypes_d = {"location": pl.Utf8}
     example_flusight_submission = pl.read_parquet(data_path)
 
 # load example fitting data for COVID (NHSN, as of 2024-09-26)

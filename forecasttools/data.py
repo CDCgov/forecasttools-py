@@ -77,18 +77,16 @@ def make_census_dataset(
             "long_name": ["United States"],
         }
     )
-    jurisdictions = pl.read_csv(url, separator="|").select(
+    jurisdictions = pl.read_csv(
+        url, separator="|", schema_overrides={"STATE": pl.Utf8}
+    ).select(
         [
             pl.col("STATE").alias("location_code").cast(pl.Utf8),
             pl.col("STUSAB").alias("short_name"),
             pl.col("STATE_NAME").alias("long_name"),
         ]
     )
-    location_table = nation.vstack(jurisdictions).with_columns(
-        pl.col("location_code").map_elements(
-            lambda x: f"0{x}" if len(x) == 1 else x, return_dtype=pl.Utf8
-        )
-    )
+    location_table = nation.vstack(jurisdictions)
     location_table.write_parquet(file_save_path)
     print(f"The file {file_save_path} has been saved.")
 
