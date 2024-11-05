@@ -13,27 +13,27 @@ import forecasttools
 xr.set_options(display_expand_data=False, display_expand_attrs=False)
 
 
-# %% LOAD FLUSIGHT LOCATION TABLE
+# %% LOAD hubverse LOCATION TABLE
 
 location_table = forecasttools.location_table
 print(location_table["location_code"])
 
 
-# %% LOAD FLUSIGHT SUBMISSION
+# %% LOAD hubverse SUBMISSION
 
-flusight_submission = forecasttools.example_flusight_submission
-print(flusight_submission)
+hubverse_submission = forecasttools.example_hubverse_submission
+print(hubverse_submission)
 
 
-# %% SHOW LOCATION COLUMN OF FLUSIGHT SUBMISSION
+# %% SHOW LOCATION COLUMN OF hubverse SUBMISSION
 
-loc_col = flusight_submission["location"]
+loc_col = hubverse_submission["location"]
 print(loc_col)
 
 # %% RECODE LOCATION COLUMN TO US ABBREVIATION
 
-df_code_to_abbr = forecasttools.loc_flusight_code_to_abbr(
-    df=flusight_submission, location_col="location"
+df_code_to_abbr = forecasttools.loc_hubverse_code_to_abbr(
+    df=hubverse_submission, location_col="location"
 )
 new_loc_col = df_code_to_abbr["location"]
 print(new_loc_col)
@@ -47,7 +47,7 @@ print(matching_loc_cols_df_01)
 # %% LOCATION LOOKUP (ITER 2)
 
 matching_loc_cols_df_02 = forecasttools.location_lookup(
-    location_vector=["US", "01", "65"], location_format="flusight"
+    location_vector=["US", "01", "65"], location_format="hubverse"
 )
 print(matching_loc_cols_df_02)
 
