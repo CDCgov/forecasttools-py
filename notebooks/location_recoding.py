@@ -21,7 +21,7 @@ print(location_table["location_code"])
 
 # %% LOAD hubverse SUBMISSION
 
-hubverse_submission = forecasttools.example_hubverse_submission
+hubverse_submission = forecasttools.example_flusight_submission
 print(hubverse_submission)
 
 
