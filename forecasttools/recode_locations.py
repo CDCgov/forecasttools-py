@@ -37,8 +37,30 @@ def loc_abbr_to_hubverse_code(
         column formatted as hubverse location
         codes.
     """
+    # check input types
+    if not isinstance(df, pl.DataFrame):
+        raise TypeError(f"Expected a Polars DataFrame; got {type(df)}.")
+    if not isinstance(location_col, str):
+        raise TypeError(
+            f"Expected a string for location_col; got {type(location_col)}."
+        )
+    # check if the location column exists
+    # in the inputted dataframe
+    if location_col not in df.columns:
+        raise ValueError(
+            f"Column '{location_col}' not found in the dataframe."
+        )
     # get location table
     loc_table = forecasttools.location_table
+    # check if values in location_col are a
+    # subset of short_name in the location table
+    location_values = set(df[location_col].to_list())
+    valid_values = set(loc_table["short_name"].to_list())
+    difference = location_values.difference(valid_values)
+    if difference:
+        raise ValueError(
+            f"Some values {difference} in '{location_col}' are not valid jurisdictional abbreviations."
+        )
     # recode and replaced existing loc abbrs
     # with loc codes
     loc_recoded_df = df.with_columns(
@@ -78,8 +100,30 @@ def loc_hubverse_code_to_abbr(
         column formatted as US two-letter
         jurisdictional abbreviations.
     """
-    # get forecasttools location table
+    # check input types
+    if not isinstance(df, pl.DataFrame):
+        raise TypeError(f"Expected a Polars DataFrame; got {type(df)}.")
+    if not isinstance(location_col, str):
+        raise TypeError(
+            f"Expected a string for location_col; got {type(location_col)}."
+        )
+    # check if the location column exists
+    # in the inputted dataframe
+    if location_col not in df.columns:
+        raise ValueError(
+            f"Column '{location_col}' not found in the dataframe."
+        )
+    # get location table
     loc_table = forecasttools.location_table
+    # check if values in location_col are a
+    # subset of short_name in the location table
+    location_values = set(df[location_col].to_list())
+    valid_values = set(loc_table["location_code"].to_list())
+    difference = location_values.difference(valid_values)
+    if difference:
+        raise ValueError(
+            f"Some values {difference} in '{location_col}' are not valid jurisdictional codes."
+        )
     # recode location codes to location abbreviations
     loc_recoded_df = df.with_columns(
         pl.col(location_col).replace(
@@ -109,6 +153,11 @@ def to_location_table_column(location_format: str) -> str:
         Returns the corresponding column name
         from the location table.
     """
+    # check input type
+    assert isinstance(
+        location_format, str
+    ), f"Expected a string; got {type(location_format)}."
+    # return proper column name from input format
     col_dict = {
         "abbr": "short_name",
         "hubverse": "location_code",
@@ -158,6 +207,21 @@ def location_lookup(
         the location vector, with repeats
         possible.
     """
+    # check inputted types
+    assert isinstance(
+        location_vector, list
+    ), f"Expected a list; got {type(location_vector)}."
+    assert all(
+        isinstance(loc, str) for loc in location_vector
+    ), "All elements in location_vector must be of type str."
+    assert isinstance(
+        location_format, str
+    ), f"Expected a string; got {type(location_format)}."
+    assert location_format in [
+        "abbr",
+        "hubverse",
+        "long_name",
+    ], f"Invalid location format '{location_format}'. Expected one of: ['abbr', 'hubverse', 'long_name']"
     # get the join key based on the location format
     join_key = forecasttools.to_location_table_column(location_format)
     # create a dataframe for the location vector
@@ -166,5 +230,4 @@ def location_lookup(
     # inner join with the location_table
     # based on the join key
     locs = locs_df.join(forecasttools.location_table, on=join_key, how="inner")
-
     return locs
