@@ -44,6 +44,8 @@ def loc_abbr_to_hubverse_code(
         raise TypeError(
             f"Expected a string for location_col; got {type(location_col)}."
         )
+    if df.is_empty():
+        raise ValueError(f"The dataframe {df} is empty.")
     # check if the location column exists
     # in the inputted dataframe
     if location_col not in df.columns:
@@ -100,13 +102,15 @@ def loc_hubverse_code_to_abbr(
         column formatted as US two-letter
         jurisdictional abbreviations.
     """
-    # check input types
+    # check input types and empty df
     if not isinstance(df, pl.DataFrame):
         raise TypeError(f"Expected a Polars DataFrame; got {type(df)}.")
     if not isinstance(location_col, str):
         raise TypeError(
             f"Expected a string for location_col; got {type(location_col)}."
         )
+    if df.is_empty():
+        raise ValueError(f"The dataframe {df} is empty.")
     # check if the location column exists
     # in the inputted dataframe
     if location_col not in df.columns:
@@ -208,20 +212,20 @@ def location_lookup(
         possible.
     """
     # check inputted types
-    assert isinstance(
-        location_vector, list
-    ), f"Expected a list; got {type(location_vector)}."
-    assert all(
-        isinstance(loc, str) for loc in location_vector
-    ), "All elements in location_vector must be of type str."
-    assert isinstance(
-        location_format, str
-    ), f"Expected a string; got {type(location_format)}."
-    assert location_format in [
-        "abbr",
-        "hubverse",
-        "long_name",
-    ], f"Invalid location format '{location_format}'. Expected one of: ['abbr', 'hubverse', 'long_name']"
+    if not isinstance(location_vector, list):
+        raise TypeError(f"Expected a list; got {type(location_vector)}.")
+    if not all(isinstance(loc, str) for loc in location_vector):
+        raise TypeError("All elements in location_vector must be of type str.")
+    if not isinstance(location_format, str):
+        raise TypeError(f"Expected a string; got {type(location_format)}.")
+    valid_formats = ["abbr", "hubverse", "long_name"]
+    if location_format not in valid_formats:
+        raise ValueError(
+            f"Invalid location format '{location_format}'. Expected one of: {valid_formats}"
+        )
+    # check location vector not empty
+    if not location_vector:
+        raise ValueError("The location_vector is empty.")
     # get the join key based on the location format
     join_key = forecasttools.to_location_table_column(location_format)
     # create a dataframe for the location vector
