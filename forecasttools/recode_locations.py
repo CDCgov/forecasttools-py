@@ -59,7 +59,7 @@ def loc_abbr_to_hubverse_code(
     difference = location_values.difference(valid_values)
     if difference:
         raise ValueError(
-            f"Some values {difference} in '{location_col}' are not valid jurisdictional abbreviations."
+            f"Some values in {difference} (in col '{location_col}') are not valid jurisdictional codes."
         )
     # recode and replaced existing loc abbrs
     # with loc codes
@@ -122,7 +122,7 @@ def loc_hubverse_code_to_abbr(
     difference = location_values.difference(valid_values)
     if difference:
         raise ValueError(
-            f"Some values {difference} in '{location_col}' are not valid jurisdictional codes."
+            f"Some values in {difference} (in col '{location_col}') are not valid jurisdictional codes."
         )
     # recode location codes to location abbreviations
     loc_recoded_df = df.with_columns(

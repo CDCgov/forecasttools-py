@@ -64,36 +64,60 @@ def test_recode_valid_locations(function, df, location_col, expected_output):
 
 
 @pytest.mark.parametrize(
-    "function, df, location_col, invalid_location, expected_output",
+    "function, df, location_col, expected_exception",
     [
         (
             forecasttools.loc_abbr_to_hubverse_code,
-            SAMPLE_ABBR_LOC_DF,
+            "not_a_dataframe",  # not a dataframe type error
+            "location_col",
+            TypeError,
+        ),
+        (
+            forecasttools.loc_abbr_to_hubverse_code,
+            pl.DataFrame({"location": ["AL", "AK"]}),
+            123,  # location column type failure
+            TypeError,
+        ),
+        (
+            forecasttools.loc_abbr_to_hubverse_code,
+            pl.DataFrame({"location": ["AL", "AK"]}),
+            "non_existent_col",  # location column name failure
+            ValueError,
+        ),
+        (
+            forecasttools.loc_abbr_to_hubverse_code,
+            pl.DataFrame({"location": ["XX"]}),  # abbr value failure
             "location",
-            "XX",
-            EXPECTED_CODES,
+            ValueError,
         ),
         (
             forecasttools.loc_hubverse_code_to_abbr,
-            SAMPLE_CODE_LOC_DF,
+            "not_a_dataframe",  # not a dataframe type error
+            "location_col",
+            TypeError,
+        ),
+        (
+            forecasttools.loc_hubverse_code_to_abbr,
+            pl.DataFrame({"location": ["01", "02"]}),
+            123,  # location column type failure
+            TypeError,
+        ),
+        (
+            forecasttools.loc_hubverse_code_to_abbr,
+            pl.DataFrame({"location": ["01", "02"]}),
+            "non_existent_col",  # location column name failure
+            ValueError,
+        ),
+        (
+            forecasttools.loc_hubverse_code_to_abbr,
+            pl.DataFrame({"location": ["99"]}),  # code value failure
             "location",
-            "99",
-            EXPECTED_ABBRS,
+            ValueError,
         ),
     ],
 )
-def test_recode_invalid_location(
-    function, df, location_col, invalid_location, expected_output
+def test_invalid_input_handling(
+    function, df, location_col, expected_exception
 ):
-    """
-    Test recode functions with invalid locations
-    and ensure they are handled gracefully.
-    """
-    df_with_invalid = df.with_columns(
-        pl.lit(invalid_location).alias(location_col)
-    )
-    df_w_loc_recoded = function(df=df_with_invalid, location_col=location_col)
-    loc_output = df_w_loc_recoded["location"].to_list()
-    print(loc_output)
-    # assert loc_output == expected_output, \
-    #     f"Expected {expected_output}, Got: {loc_output}"
+    with pytest.raises(expected_exception):
+        function(df, location_col)
