@@ -1,7 +1,7 @@
 """
-Functions to work with recoding columns
-containing US jurisdiction location codes
-and abbreviations.
+Functions to work with recoding location
+columns containing US jurisdiction location
+codes or two-letter abbreviations.
 """
 
 import polars as pl
@@ -13,7 +13,7 @@ def loc_abbr_to_hubverse_code(
     df: pl.DataFrame, location_col: str
 ) -> pl.DataFrame:
     """
-    Takes the location columns of a Polars
+    Takes the location column of a Polars
     dataframe (formatted as US two-letter
     jurisdictional abbreviations) and recodes
     it to hubverse location codes using
@@ -37,25 +37,26 @@ def loc_abbr_to_hubverse_code(
         column formatted as hubverse location
         codes.
     """
-    # check input types
+    # check inputted variable types
     if not isinstance(df, pl.DataFrame):
         raise TypeError(f"Expected a Polars DataFrame; got {type(df)}.")
     if not isinstance(location_col, str):
         raise TypeError(
             f"Expected a string for location_col; got {type(location_col)}."
         )
+    # check if dataframe entered is empty
     if df.is_empty():
         raise ValueError(f"The dataframe {df} is empty.")
     # check if the location column exists
     # in the inputted dataframe
     if location_col not in df.columns:
         raise ValueError(
-            f"Column '{location_col}' not found in the dataframe."
+            f"Column '{location_col}' not found in the dataframe; got {df.columns}."
         )
-    # get location table
+    # get location table from forecasttools
     loc_table = forecasttools.location_table
     # check if values in location_col are a
-    # subset of short_name in the location table
+    # subset of short_name in location table
     location_values = set(df[location_col].to_list())
     valid_values = set(loc_table["short_name"].to_list())
     difference = location_values.difference(valid_values)
@@ -63,8 +64,8 @@ def loc_abbr_to_hubverse_code(
         raise ValueError(
             f"Some values in {difference} (in col '{location_col}') are not valid jurisdictional codes."
         )
-    # recode and replaced existing loc abbrs
-    # with loc codes
+    # recode existing location abbreviations
+    # with location codes
     loc_recoded_df = df.with_columns(
         pl.col(location_col).replace(
             old=loc_table["short_name"],
@@ -102,25 +103,26 @@ def loc_hubverse_code_to_abbr(
         column formatted as US two-letter
         jurisdictional abbreviations.
     """
-    # check input types and empty df
+    # check inputted variable types
     if not isinstance(df, pl.DataFrame):
         raise TypeError(f"Expected a Polars DataFrame; got {type(df)}.")
     if not isinstance(location_col, str):
         raise TypeError(
             f"Expected a string for location_col; got {type(location_col)}."
         )
+    # check if dataframe entered is empty
     if df.is_empty():
         raise ValueError(f"The dataframe {df} is empty.")
     # check if the location column exists
     # in the inputted dataframe
     if location_col not in df.columns:
         raise ValueError(
-            f"Column '{location_col}' not found in the dataframe."
+            f"Column '{location_col}' not found in the dataframe; got {df.columns}."
         )
-    # get location table
+    # get location table from forecasttools
     loc_table = forecasttools.location_table
     # check if values in location_col are a
-    # subset of short_name in the location table
+    # subset of location_code in location table
     location_values = set(df[location_col].to_list())
     valid_values = set(loc_table["location_code"].to_list())
     difference = location_values.difference(valid_values)
@@ -128,7 +130,8 @@ def loc_hubverse_code_to_abbr(
         raise ValueError(
             f"Some values in {difference} (in col '{location_col}') are not valid jurisdictional codes."
         )
-    # recode location codes to location abbreviations
+    # recode existing location codes with
+    # with location abbreviations
     loc_recoded_df = df.with_columns(
         pl.col(location_col).replace(
             old=loc_table["location_code"], new=loc_table["short_name"]
@@ -157,7 +160,7 @@ def to_location_table_column(location_format: str) -> str:
         Returns the corresponding column name
         from the location table.
     """
-    # check input type
+    # check inputted variable type
     assert isinstance(
         location_format, str
     ), f"Expected a string; got {type(location_format)}."
@@ -211,7 +214,7 @@ def location_lookup(
         the location vector, with repeats
         possible.
     """
-    # check inputted types
+    # check inputted variable types
     if not isinstance(location_vector, list):
         raise TypeError(f"Expected a list; got {type(location_vector)}.")
     if not all(isinstance(loc, str) for loc in location_vector):
@@ -221,15 +224,15 @@ def location_lookup(
     valid_formats = ["abbr", "hubverse", "long_name"]
     if location_format not in valid_formats:
         raise ValueError(
-            f"Invalid location format '{location_format}'. Expected one of: {valid_formats}"
+            f"Invalid location format '{location_format}'. Expected one of: {valid_formats}."
         )
-    # check location vector not empty
+    # check that location vector not empty
     if not location_vector:
         raise ValueError("The location_vector is empty.")
     # get the join key based on the location format
     join_key = forecasttools.to_location_table_column(location_format)
-    # create a dataframe for the location vector
-    # with the column cast as string
+    # create a dataframe for the location
+    # vector with the column cast as string
     locs_df = pl.DataFrame({join_key: [str(loc) for loc in location_vector]})
     # inner join with the location_table
     # based on the join key
