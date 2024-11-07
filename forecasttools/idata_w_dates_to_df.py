@@ -7,80 +7,138 @@ Polars dataframes to hubverse ready and
 scoringutils ready dataframes
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import arviz as az
 import numpy as np
 import polars as pl
 
 
-def add_dates_as_coords_to_idata(
-    idata_wo_dates: az.InferenceData,
-    group_dim_dict: dict[str, str],
-    start_date_iso: str,
+def add_time_coords_to_idata_variable(
+    idata: az.InferenceData,
+    group: str,
+    variable: str,
+    dimension: str,
+    start_date_iso: str | datetime,
+    time_step: timedelta,
 ) -> az.InferenceData:
     """
-    Modifies the provided idata object by assigning
-    date arrays to each group specified in group_dim_dict.
+    Adds time coordinates to a specified
+    variable within a group in an ArviZ
+    InferenceData object. This function
+    assigns a range of time coordinates
+    to a specified dimension in a variable
+    within a group in an InferenceData object.
 
     Parameters
     ----------
-    idata
-        The InferenceData object that contains
-        multiple groups (e.g., observed_data,
-        posterior_predictive).
-    group_dim_dict
-        A dictionary that maps InferenceData group
-        names (e.g., "observed_data", "posterior_predictive"
-        ) to dimension names (e.g., "obs_dim_0").
-    start_date_iso
-        The start date in ISO format (YYYY-MM-DD) from
-        which to begin the date range for the dimension.
+    idata : az.InferenceData
+        The InferenceData object containing
+        the group and variable to modify.
+    group : str
+        The name of the group within the
+        InferenceData object (e.g.,
+        "posterior_predictive").
+    variable : str
+        The name of the variable within the
+        specified group to assign time
+        coordinates to.
+    dimension : str
+        The dimension name to which time
+        coordinates should be assigned.
+    start_date_iso : str | datetime
+        The start date for the time
+        coordinates as a str in ISO format
+        (e.g., "2022-08-20") or as a
+        datetime object.
+    time_step : timedelta
+        The time interval between each
+        coordinate (e.g., `timedelta(days=1)`
+        for daily intervals).
+
 
     Returns
     -------
-    idata
-        The modified InferenceData object with
-        date coordinates assigned to each group.
+    az.InferenceData
+        The InferenceData object with updated
+        time coordinates for the specified
+        group, variable, and dimension.
     """
-
-    # NOTE: failure mode is if groups don't have the same
-    # start date
-
-    # convert received start date string to datetime object
-    start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
-    # copy idata object to avoid modifying the original
-    idata_w_dates = idata_wo_dates.copy()
-    # modify indices of each selected group to dates
-    for (
-        group_name,
-        dim_name,
-    ) in group_dim_dict.items():
-        idata_group = getattr(idata_w_dates, group_name, None)
-        if idata_group is not None:
-            interval_size = idata_group.sizes[dim_name]
-            interval_dates = (
-                pl.date_range(
-                    start=start_date_as_dt,
-                    end=start_date_as_dt + pl.duration(days=interval_size - 1),
-                    interval="1d",
-                    closed="both",
-                    eager=True,
-                )
-                .to_numpy()
-                .astype("datetime64[ns]")
+    # checking of inputted variables
+    if not isinstance(idata, az.InferenceData):
+        raise TypeError(
+            f"Parameter 'idata' must be of type 'az.InferenceData'; got {type(idata)}"
+        )
+    if not isinstance(group, str):
+        raise TypeError(
+            f"Parameter 'group' must be of type 'str'; got {type(group)}"
+        )
+    if not isinstance(variable, str):
+        raise TypeError(
+            f"Parameter 'variable' must be of type 'str'; got {type(variable)}"
+        )
+    if not isinstance(dimension, str):
+        raise TypeError(
+            f"Parameter 'dimension' must be of type 'str'; got {dimension}."
+        )
+    if isinstance(start_date_iso, str):
+        try:
+            start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(
+                f"Parameter 'start_date_iso' must be in the format 'YYYY-MM-DD' if provided as a string; got {start_date_iso}"
             )
-            idata_group_with_dates = idata_group.assign_coords(
-                {dim_name: interval_dates}
-            )
-            setattr(
-                idata_w_dates,
-                group_name,
-                idata_group_with_dates,
-            )
-        else:
-            print(f"Warning: Group '{group_name}' not found in idata.")
-    return idata_w_dates
+    elif isinstance(start_date_iso, datetime):
+        start_date_as_dt = start_date_iso
+    else:
+        raise TypeError(
+            f"Parameter 'start_date_iso' must be of type 'str' or 'datetime'; got {type(start_date_iso)}"
+        )
+    if not isinstance(time_step, timedelta):
+        raise TypeError(
+            f"Parameter 'time_step' must be of type 'datetime.timedelta'; got {type(time_step)}"
+        )
+    # retrieve the specified group from the
+    # idata object
+    idata_group = getattr(idata, group, None)
+    # check if the group is not present
+    if idata_group is None:
+        raise ValueError(f"Group '{group}' not found in idata object.")
+    # check if the specified variable exists
+    # in the idata's group
+    if variable not in idata_group.data_vars:
+        raise ValueError(
+            f"Variable '{variable}' not found in group '{group}'."
+        )
+    # retrieve the variable's data array
+    variable_data = idata_group[variable]
+    # check and apply time coordinates only
+    # to the specified dimensions that exist
+    # in the variable
+    if dimension not in variable_data.dims:
+        raise ValueError(
+            f"Dimension '{dimension}' not found in variable dimensions: '{variable_data.dims}'."
+        )
+    # determine the interval size for the
+    # selected dimension
+    interval_size = variable_data.sizes[dimension]
+    # generate date range using the specified time_step and interval size
+    interval_dates = (
+        pl.date_range(
+            start=start_date_as_dt,
+            end=start_date_as_dt + (interval_size - 1) * time_step,
+            interval=f"{time_step.days}d" if time_step.days else "1d",
+            closed="both",
+            eager=True,
+        )
+        .to_numpy()
+        .astype("datetime64[ns]")
+    )
+    # update the dimension's coordinates
+    # (corresponding to the passed variable)
+    idata_group = idata_group.assign_coords({dimension: interval_dates})
+    setattr(idata, group, idata_group)
+    return idata
 
 
 def idata_forecast_w_dates_to_df(
