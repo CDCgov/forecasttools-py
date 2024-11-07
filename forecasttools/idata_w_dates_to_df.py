@@ -14,7 +14,7 @@ import numpy as np
 import polars as pl
 
 
-def add_time_coords_to_idata_variable(
+def add_time_coords_to_idata_dimension(
     idata: az.InferenceData,
     group: str,
     variable: str,

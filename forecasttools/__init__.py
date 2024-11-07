@@ -5,7 +5,7 @@ import polars as pl
 
 from .daily_to_epiweekly import df_aggregate_to_epiweekly
 from .idata_w_dates_to_df import (
-    add_dates_as_coords_to_idata,
+    add_time_coords_to_idata_dimension,
     idata_forecast_w_dates_to_df,
 )
 from .recode_locations import loc_abbr_to_flusight_code
@@ -60,7 +60,7 @@ __all__ = [
     "nhsn_flu_forecast_wo_dates",
     "nhsn_flu_forecast_w_dates",
     "idata_forecast_w_dates_to_df",
-    "add_dates_as_coords_to_idata",
+    "add_time_coords_to_idata_dimension",
     "trajectories_to_quantiles",
     "df_aggregate_to_epiweekly",
     "loc_abbr_to_flusight_code",
