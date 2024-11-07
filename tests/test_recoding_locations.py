@@ -8,45 +8,21 @@ import pytest
 
 import forecasttools
 
-SAMPLE_ABBR_LOC_DF = pl.DataFrame({"location": ["AL", "AK", "CA", "TX", "US"]})
-EXPECTED_CODES = ["01", "02", "06", "48", "US"]
-SAMPLE_CODE_LOC_DF = pl.DataFrame({"location": ["01", "02", "06", "48", "US"]})
-EXPECTED_ABBRS = ["AL", "AK", "CA", "TX", "US"]
-SAMPLE_LONG_LOC_DF = pl.DataFrame(
-    {
-        "location": [
-            "Alabama",
-            "Alaska",
-            "California",
-            "Texas",
-            "United States",
-        ]
-    }
-)
-
-EXPECTED_LONG = [
-    "Alabama",
-    "Alaska",
-    "California",
-    "Texas",
-    "United States",
-]
-
 
 @pytest.mark.parametrize(
     "function, df, location_col, expected_output",
     [
         (
             forecasttools.loc_abbr_to_hubverse_code,
-            SAMPLE_ABBR_LOC_DF,
+            pl.DataFrame({"location": ["AL", "AK", "CA", "TX", "US"]}),
             "location",
-            EXPECTED_CODES,
+            ["01", "02", "06", "48", "US"],
         ),
         (
             forecasttools.loc_hubverse_code_to_abbr,
-            SAMPLE_CODE_LOC_DF,
+            pl.DataFrame({"location": ["01", "02", "06", "48", "US"]}),
             "location",
-            EXPECTED_ABBRS,
+            ["AL", "AK", "CA", "TX", "US"],
         ),
     ],
 )
