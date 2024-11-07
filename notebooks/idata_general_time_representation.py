@@ -30,9 +30,9 @@ def add_time_coords_to_idata_variable(
     idata: az.InferenceData,
     group: str,
     variable: str,
-    dimensions: list[str],
-    start_date_iso: str,
+    start_date_iso: str | datetime,
     time_step: timedelta,
+    dimensions: list[str] | None = None,
 ) -> az.InferenceData:
     """
     Adds time coordinates to a specified variable
@@ -52,15 +52,18 @@ def add_time_coords_to_idata_variable(
     variable : str
         The name of the variable within the
         specified group to assign time coordinates to.
-    dimensions : list[str]
-        A list of dimension names to which time
-        coordinates should be assigned.
     start_date_iso : str
         The start date for the time coordinates
-        in ISO format (e.g., "2022-08-08").
+        in ISO format (e.g., "2022-08-08") or
+        as a datetime object.
     time_step : timedelta
         The time interval between each coordinate
         (e.g., `timedelta(days=1)` for daily intervals).
+    dimensions : list[str]
+        A list of dimension names to which time
+        coordinates should be assigned. If not
+        specified, then defaults to None and
+        set to first
 
     Returns
     -------
@@ -76,6 +79,42 @@ def add_time_coords_to_idata_variable(
         if none of the specified dimensions
         exist in the variable.
     """
+    # input type checking
+    if not isinstance(idata, az.InferenceData):
+        raise TypeError(
+            f"Parameter 'idata' must be of type 'az.InferenceData'; got {type(idata)}"
+        )
+    if not isinstance(group, str):
+        raise TypeError(
+            f"Parameter 'group' must be of type 'str'; got {type(group)}"
+        )
+    if not isinstance(variable, str):
+        raise TypeError(
+            f"Parameter 'variable' must be of type 'str'; got {type(variable)}"
+        )
+    if isinstance(start_date_iso, str):
+        try:
+            start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(
+                f"Parameter 'start_date_iso' must be in the format 'YYYY-MM-DD' if provided as a string; got {start_date_iso}"
+            )
+    elif isinstance(start_date_iso, datetime):
+        start_date_as_dt = start_date_iso
+    else:
+        raise TypeError(
+            f"Parameter 'start_date_iso' must be of type 'str' or 'datetime'; got {type(start_date_iso)}"
+        )
+    if not isinstance(time_step, timedelta):
+        raise TypeError(
+            "Parameter 'time_step' must be of type 'datetime.timedelta'; "
+        )
+    if dimensions is not None and not all(
+        isinstance(dim, str) for dim in dimensions
+    ):
+        raise TypeError(
+            f"Parameter 'dimensions' must be a list of strings or None; got {dimensions}."
+        )
     # retrieve the specified group from the idata object
     idata_group = getattr(idata, group, None)
     if idata_group is None:
@@ -88,13 +127,29 @@ def add_time_coords_to_idata_variable(
     # retrieve the variable's data array
     variable_data = idata_group[variable]
     # check and apply time coordinates only to specified dimensions that exist in the variable
-    applicable_dims = [dim for dim in dimensions if dim in variable_data.dims]
-    if not applicable_dims:
-        raise ValueError(
-            f"No specified dimensions found in variable '{variable}' within group '{group}'."
+    if dimensions is None:
+        # default to first non-chain, non-draw dimension if dimensions are not specified
+        applicable_dims = next(
+            (
+                dim
+                for dim in variable_data.dims
+                if dim not in ["chain", "draw"]
+            ),
+            None,
         )
-    # convert start date to a datetime object
-    start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
+        applicable_dims = [applicable_dims] if applicable_dims else []
+        if not applicable_dims:
+            raise ValueError(
+                "No applicable non-chain, non-draw dimensions found in variable."
+            )
+    else:
+        applicable_dims = [
+            dim for dim in dimensions if dim in variable_data.dims
+        ]
+        if not applicable_dims:
+            raise ValueError(
+                f"No specified dimensions found in variable '{variable}' within group '{group}'."
+            )
     # iterate over applicable dimensions to assign time coordinates
     for dim_name in applicable_dims:
         # determine the interval size for the current dimension
