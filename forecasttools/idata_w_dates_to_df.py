@@ -13,6 +13,8 @@ import arviz as az
 import numpy as np
 import polars as pl
 
+import forecasttools
+
 
 def add_time_coords_to_idata_dimension(
     idata: az.InferenceData,
@@ -138,6 +140,111 @@ def add_time_coords_to_idata_dimension(
     # (corresponding to the passed variable)
     idata_group = idata_group.assign_coords({dimension: interval_dates})
     setattr(idata, group, idata_group)
+    return idata
+
+
+def add_time_coords_to_idata_dimensions(
+    idata: az.InferenceData,
+    groups: str | list[str],
+    variables: str | list[str],
+    dimensions: str | list[str],
+    start_date_iso: str | datetime,
+    time_step: timedelta,
+) -> az.InferenceData:
+    """
+    Modifies the time-based coordinates across
+    groups, variables, and dimensions. The
+    function checks if the group, variable,
+    and dimension exist, and then applies the
+    specified time-based coordinates.
+
+    Parameters
+    ----------
+    idata : az.InferenceData
+        The InferenceData object to modify.
+    groups : str | list[str]
+        A group or a list of groups to modify
+        (e.g., "posterior_predictive").
+    variables : str | list[str]
+        A variable or a list of variables
+        within the specified groups to modify.
+    dimensions : str | list[str]
+        A dimension or a list of dimensions
+        to modify for the variables.
+    start_date_iso : str | datetime
+        The start date for the time
+        coordinates as a str in ISO format
+        (e.g., "2022-08-20") or as a
+        datetime object.
+    time_step : timedelta
+        The time interval between each
+        coordinate (e.g., `timedelta(days=1)`).
+
+    Returns
+    -------
+    az.InferenceData
+        The modified InferenceData object with
+        updated time coordinates for the
+        specified groups, variables, and
+        dimensions.
+    """
+    # ensure that groups, variables, and
+    # dimensions are lists
+    groups = forecasttools.ensure_listlike(groups)
+    variables = forecasttools.ensure_listlike(variables)
+    dimensions = forecasttools.ensure_listlike(dimensions)
+    # check inputted variables
+    if not isinstance(idata, az.InferenceData):
+        raise TypeError(
+            f"Expected 'idata' to be an instance of 'az.InferenceData'; got {type(idata)}."
+        )
+    if not isinstance(start_date_iso, (str, datetime)):
+        raise TypeError(
+            f"Expected 'start_date_iso' to be a string or datetime; got {type(start_date_iso)}."
+        )
+    if not isinstance(time_step, timedelta):
+        raise TypeError(
+            f"Expected 'time_step' to be a 'timedelta'; got {type(time_step)}."
+        )
+    # check that all groups, variables, and dimensions are strings
+    if not all(isinstance(g, str) for g in groups):
+        raise TypeError("All items in 'groups' must be strings.")
+    if not all(isinstance(v, str) for v in variables):
+        raise TypeError("All items in 'variables' must be strings.")
+    if not all(isinstance(d, str) for d in dimensions):
+        raise TypeError("All items in 'dimensions' must be strings.")
+    # iterate over (group, variable, dimension) triples
+    for group, variable, dimension in zip(groups, variables, dimensions):
+        try:
+            # check if the group exists
+            if not hasattr(idata, group):
+                raise ValueError(f"Group '{group}' not found in idata.")
+            # check if the variable exists
+            group_data = getattr(idata, group)
+            if variable not in group_data.data_vars:
+                raise ValueError(
+                    f"Variable '{variable}' not found in group '{group}'."
+                )
+            # check if the dimension exists
+            variable_data = group_data[variable]
+            if dimension not in variable_data.dims:
+                raise ValueError(
+                    f"Dimension '{dimension}' not found for variable '{variable}' in group '{group}'."
+                )
+            # call the helper
+            idata = add_time_coords_to_idata_dimension(
+                idata=idata,
+                group=group,
+                variable=variable,
+                dimension=dimension,
+                start_date_iso=start_date_iso,
+                time_step=time_step,
+            )
+        except ValueError as e:
+            print(
+                f"Error for (group={group}, variable={variable}, dimension={dimension}): {e}"
+            )
+            raise e
     return idata
 
 

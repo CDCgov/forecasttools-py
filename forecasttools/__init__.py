@@ -11,6 +11,7 @@ from .idata_w_dates_to_df import (
 from .recode_locations import loc_abbr_to_flusight_code
 from .to_flusight import get_flusight_table
 from .trajectories_to_quantiles import trajectories_to_quantiles
+from .utils import ensure_listlike
 
 # location table (from Census data)
 with importlib.resources.path(
@@ -65,4 +66,5 @@ __all__ = [
     "df_aggregate_to_epiweekly",
     "loc_abbr_to_flusight_code",
     "get_flusight_table",
+    "ensure_listlike",
 ]
