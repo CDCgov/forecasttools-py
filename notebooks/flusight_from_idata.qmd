@@ -223,7 +223,7 @@ Recode locations:
 
 
 ```{python}
-forecast_df_recoded = forecasttools.loc_abbr_to_flusight_code(
+forecast_df_recoded = forecasttools.loc_abbr_to_hubverse_code(
     df=forecast_df, location_col="location")
 forecast_df_recoded
 ```
@@ -231,7 +231,7 @@ forecast_df_recoded
 Format to FluSight:
 
 ```{python}
-flusight_output = forecasttools.get_flusight_table(
+flusight_output = forecasttools.get_hubverse_table(
     quantile_forecasts=forecast_df_recoded,
     quantile_value_col="quantile_value",
     quantile_level_col="quantile_level",
