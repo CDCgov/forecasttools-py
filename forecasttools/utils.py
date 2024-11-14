@@ -6,6 +6,13 @@ across other forecasttools code.
 from collections.abc import MutableSequence
 
 
+def check_input_variable_type(value: any, expected_type: any, param_name: str):
+    if not isinstance(value, expected_type):
+        raise TypeError(
+            f"Parameter '{param_name}' must be of type '{expected_type.__name__}'; got {type(value)}"
+        )
+
+
 def ensure_listlike(x):
     """
     Ensure that an object either behaves like a

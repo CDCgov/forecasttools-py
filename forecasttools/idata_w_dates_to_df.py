@@ -67,22 +67,11 @@ def add_time_coords_to_idata_dimension(
         group, variable, and dimension.
     """
     # checking of inputted variables
-    if not isinstance(idata, az.InferenceData):
-        raise TypeError(
-            f"Parameter 'idata' must be of type 'az.InferenceData'; got {type(idata)}"
-        )
-    if not isinstance(group, str):
-        raise TypeError(
-            f"Parameter 'group' must be of type 'str'; got {type(group)}"
-        )
-    if not isinstance(variable, str):
-        raise TypeError(
-            f"Parameter 'variable' must be of type 'str'; got {type(variable)}"
-        )
-    if not isinstance(dimension, str):
-        raise TypeError(
-            f"Parameter 'dimension' must be of type 'str'; got {dimension}."
-        )
+    forecasttools.check_input_variable_type(idata, az.InferenceData, "idata")
+    forecasttools.check_input_variable_type(group, str, "group")
+    forecasttools.check_input_variable_type(variable, str, "variable")
+    forecasttools.check_input_variable_type(dimension, str, "dimension")
+    # special handling for start_date_iso
     if isinstance(start_date_iso, str):
         try:
             start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
@@ -96,10 +85,8 @@ def add_time_coords_to_idata_dimension(
         raise TypeError(
             f"Parameter 'start_date_iso' must be of type 'str' or 'datetime'; got {type(start_date_iso)}"
         )
-    if not isinstance(time_step, timedelta):
-        raise TypeError(
-            f"Parameter 'time_step' must be of type 'datetime.timedelta'; got {type(time_step)}"
-        )
+    # check time_step type
+    forecasttools.check_input_variable_type(time_step, timedelta, "time_step")
     # retrieve the specified group from the
     # idata object
     idata_group = getattr(idata, group, None)

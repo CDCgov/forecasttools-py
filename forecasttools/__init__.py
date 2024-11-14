@@ -17,6 +17,7 @@ from forecasttools.recode_locations import (
 )
 from forecasttools.to_hubverse import get_hubverse_table
 from forecasttools.trajectories_to_quantiles import trajectories_to_quantiles
+from forecasttools.utils import check_input_variable_type
 
 # location table (from Census data)
 with importlib.resources.files(__package__).joinpath(
@@ -73,4 +74,5 @@ __all__ = [
     "get_hubverse_table",
     "add_time_coords_to_idata_dimension",
     "add_time_coords_to_idata_dimensions",
+    "check_input_variable_type",
 ]
