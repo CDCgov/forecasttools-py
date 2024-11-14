@@ -17,7 +17,16 @@ from forecasttools.recode_locations import (
 )
 from forecasttools.to_hubverse import get_hubverse_table
 from forecasttools.trajectories_to_quantiles import trajectories_to_quantiles
-from forecasttools.utils import check_input_variable_type
+from forecasttools.utils import (
+    ensure_listlike,
+    generate_date_range_for_dim,
+    validate_and_get_idata_group,
+    validate_and_get_idata_group_var,
+    validate_and_get_start_date,
+    validate_group_var_dim_instances,
+    validate_idata_group_var_dim,
+    validate_input_type,
+)
 
 # location table (from Census data)
 with importlib.resources.files(__package__).joinpath(
@@ -74,5 +83,12 @@ __all__ = [
     "get_hubverse_table",
     "add_time_coords_to_idata_dimension",
     "add_time_coords_to_idata_dimensions",
-    "check_input_variable_type",
+    "validate_input_type",
+    "validate_and_get_start_date",
+    "validate_and_get_idata_group",
+    "validate_and_get_idata_group_var",
+    "validate_idata_group_var_dim",
+    "generate_date_range_for_dim",
+    "validate_group_var_dim_instances",
+    "ensure_listlike",
 ]

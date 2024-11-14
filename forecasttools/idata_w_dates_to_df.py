@@ -66,65 +66,39 @@ def add_time_coords_to_idata_dimension(
         time coordinates for the specified
         group, variable, and dimension.
     """
-    # checking of inputted variables
-    forecasttools.check_input_variable_type(idata, az.InferenceData, "idata")
-    forecasttools.check_input_variable_type(group, str, "group")
-    forecasttools.check_input_variable_type(variable, str, "variable")
-    forecasttools.check_input_variable_type(dimension, str, "dimension")
-    # special handling for start_date_iso
-    if isinstance(start_date_iso, str):
-        try:
-            start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
-        except ValueError:
-            raise ValueError(
-                f"Parameter 'start_date_iso' must be in the format 'YYYY-MM-DD' if provided as a string; got {start_date_iso}"
-            )
-    elif isinstance(start_date_iso, datetime):
-        start_date_as_dt = start_date_iso
-    else:
-        raise TypeError(
-            f"Parameter 'start_date_iso' must be of type 'str' or 'datetime'; got {type(start_date_iso)}"
-        )
-    # check time_step type
-    forecasttools.check_input_variable_type(time_step, timedelta, "time_step")
-    # retrieve the specified group from the
-    # idata object
-    idata_group = getattr(idata, group, None)
-    # check if the group is not present
-    if idata_group is None:
-        raise ValueError(f"Group '{group}' not found in idata object.")
-    # check if the specified variable exists
-    # in the idata's group
-    if variable not in idata_group.data_vars:
-        raise ValueError(
-            f"Variable '{variable}' not found in group '{group}'."
-        )
-    # retrieve the variable's data array
-    variable_data = idata_group[variable]
-    # check and apply time coordinates only
-    # to the specified dimensions that exist
-    # in the variable
-    if dimension not in variable_data.dims:
-        raise ValueError(
-            f"Dimension '{dimension}' not found in variable dimensions: '{variable_data.dims}'."
-        )
-    # determine the interval size for the
-    # selected dimension
-    interval_size = variable_data.sizes[dimension]
-    # generate date range using the specified time_step and interval size
-    interval_dates = (
-        pl.date_range(
-            start=start_date_as_dt,
-            end=start_date_as_dt + (interval_size - 1) * time_step,
-            interval=f"{time_step.days}d" if time_step.days else "1d",
-            closed="both",
-            eager=True,
-        )
-        .to_numpy()
-        .astype("datetime64[ns]")
+    forecasttools.validate_input_type(
+        value=idata, expected_type=az.InferenceData, param_name="idata"
     )
-    # update the dimension's coordinates
-    # (corresponding to the passed variable)
+    forecasttools.validate_input_type(
+        value=group, expected_type=str, param_name="group"
+    )
+    forecasttools.validate_input_type(
+        value=variable, expected_type=str, param_name="variable"
+    )
+    forecasttools.validate_input_type(
+        value=dimension, expected_type=str, param_name="dimension"
+    )
+    start_date_as_dt = forecasttools.validate_and_get_start_date(
+        start_date_iso
+    )
+    forecasttools.validate_input_type(
+        value=time_step, expected_type=timedelta, param_name="time_step"
+    )
+    idata_group = forecasttools.validate_and_get_idata_group(
+        idata=idata, group=group
+    )
+    variable_data = forecasttools.validate_and_get_idata_group_var(
+        idata_group=idata_group, group=group, variable=variable
+    )
+    forecasttools.validate_idata_group_var_dim(
+        variable_data=variable_data, dimension=dimension
+    )
+    interval_dates = forecasttools.generate_date_range_for_dim(
+        start_date_as_dt=start_date_as_dt,
+        variable_data=variable_data,
+        dimension=dimension,
+        time_step=time_step,
+    )
     idata_group = idata_group.assign_coords({dimension: interval_dates})
     setattr(idata, group, idata_group)
     return idata
@@ -175,63 +149,44 @@ def add_time_coords_to_idata_dimensions(
         specified groups, variables, and
         dimensions.
     """
-    # ensure that groups, variables, and
-    # dimensions are lists
+    forecasttools.validate_input_type(
+        value=idata, expected_type=az.InferenceData, param_name="idata"
+    )
+    forecasttools.validate_input_type(
+        value=groups, expected_type=(str, list), param_name="groups"
+    )
+    forecasttools.validate_input_type(
+        value=variables, expected_type=(str, list), param_name="variables"
+    )
+    forecasttools.validate_input_type(
+        value=dimensions, expected_type=(str, list), param_name="dimensions"
+    )
+    # if str, convert to list
     groups = forecasttools.ensure_listlike(groups)
     variables = forecasttools.ensure_listlike(variables)
     dimensions = forecasttools.ensure_listlike(dimensions)
-    # check inputted variables
-    if not isinstance(idata, az.InferenceData):
-        raise TypeError(
-            f"Expected 'idata' to be an instance of 'az.InferenceData'; got {type(idata)}."
-        )
-    if not isinstance(start_date_iso, (str, datetime)):
-        raise TypeError(
-            f"Expected 'start_date_iso' to be a string or datetime; got {type(start_date_iso)}."
-        )
-    if not isinstance(time_step, timedelta):
-        raise TypeError(
-            f"Expected 'time_step' to be a 'timedelta'; got {type(time_step)}."
-        )
-    # check that all groups, variables, and dimensions are strings
-    if not all(isinstance(g, str) for g in groups):
-        raise TypeError("All items in 'groups' must be strings.")
-    if not all(isinstance(v, str) for v in variables):
-        raise TypeError("All items in 'variables' must be strings.")
-    if not all(isinstance(d, str) for d in dimensions):
-        raise TypeError("All items in 'dimensions' must be strings.")
+    # check groups, variables, and dimensions
+    # all contain str vars
+    forecasttools.validate_group_var_dim_instances(groups, str, "groups")
+    forecasttools.validate_group_var_dim_instances(variables, str, "variables")
+    forecasttools.validate_group_var_dim_instances(
+        dimensions, str, "dimensions"
+    )
     # iterate over (group, variable, dimension) triples
     for group, variable, dimension in zip(groups, variables, dimensions):
         try:
-            # check if the group exists
-            if not hasattr(idata, group):
-                raise ValueError(f"Group '{group}' not found in idata.")
-            # check if the variable exists
-            group_data = getattr(idata, group)
-            if variable not in group_data.data_vars:
-                raise ValueError(
-                    f"Variable '{variable}' not found in group '{group}'."
-                )
-            # check if the dimension exists
-            variable_data = group_data[variable]
-            if dimension not in variable_data.dims:
-                raise ValueError(
-                    f"Dimension '{dimension}' not found for variable '{variable}' in group '{group}'."
-                )
-            # call the helper
             idata = add_time_coords_to_idata_dimension(
                 idata=idata,
                 group=group,
                 variable=variable,
-                dimension=dimension,
-                start_date_iso=start_date_iso,
-                time_step=time_step,
+                dimension=dimension,  # validated in called func
+                start_date_iso=start_date_iso,  # validated in called func
+                time_step=time_step,  # validated in called func
             )
         except ValueError as e:
-            print(
+            raise ValueError(
                 f"Error for (group={group}, variable={variable}, dimension={dimension}): {e}"
             )
-            raise e
     return idata
 
 
