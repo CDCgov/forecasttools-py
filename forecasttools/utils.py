@@ -94,17 +94,52 @@ def generate_date_range_for_dim(
     dimension: str,
     time_step: timedelta,
 ):
-    """Generates a range of dates based on
-    the start date, time step, and variable's
-    dimension size."""
+    """
+    Generates a range of dates based on the
+    start date, time step, and variable's
+    dimension size. Only allows time steps in
+    exact integer days or weeks, including
+    combined weeks and days.
+    """
+    # number of seconds in a day and a week
+    SECONDS_IN_DAY = timedelta(days=1).total_seconds()
+    # total number of seconds in the time_step
+    total_seconds = time_step.total_seconds()
+    # extract the weeks and days
+    # from the time_step
+    weeks = time_step.days // 7
+    days = time_step.days % 7
+    # if there are no weeks, handle only days
+    if weeks == 0 and days > 0:
+        if total_seconds % SECONDS_IN_DAY == 0:  # exact number of days
+            interval_str = f"{days}d"
+        else:
+            raise ValueError(
+                f"Time step must be an exact number of days; got {time_step}"
+            )
+    # if weeks, handle both weeks and days
+    elif weeks > 0:
+        if days == 0:  # only weeks, no extra days
+            interval_str = f"{weeks}w"
+        else:
+            # if both weeks and days are
+            # present, default to days
+            total_days = weeks * 7 + days
+            interval_str = f"{total_days}d"
+    else:
+        raise ValueError(
+            f"Unsupported time step: {time_step}. Must be a combination of weeks and or days."
+        )
+    # get the size of the dimension
     interval_size = variable_data.sizes[dimension]
+    # generate date range
     return (
         pl.date_range(
             start=start_date_as_dt,
             end=start_date_as_dt + (interval_size - 1) * time_step,
-            interval=f"{time_step.days}d" if time_step.days else "1d",
+            interval=interval_str,  # use the calculated interval
             closed="both",
-            eager=True,
+            eager=True,  # to return pl.Series, not pl.Expr
         )
         .to_numpy()
         .astype("datetime64[ns]")
