@@ -140,7 +140,7 @@ def generate_date_range_for_dim(
     interval_size = variable_data.sizes[dimension]
     # generate date range
     return (
-        pl.date_range(
+        pl.datetime_range(
             start=start_date_as_dt,
             end=start_date_as_dt + (interval_size - 1) * time_step,
             interval=interval_str,  # use the calculated interval

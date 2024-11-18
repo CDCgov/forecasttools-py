@@ -66,23 +66,20 @@ def add_time_coords_to_idata_dimension(
         time coordinates for the specified
         group, variable, and dimension.
     """
-    forecasttools.validate_input_type(
-        value=idata, expected_type=az.InferenceData, param_name="idata"
-    )
-    forecasttools.validate_input_type(
-        value=group, expected_type=str, param_name="group"
-    )
-    forecasttools.validate_input_type(
-        value=variable, expected_type=str, param_name="variable"
-    )
-    forecasttools.validate_input_type(
-        value=dimension, expected_type=str, param_name="dimension"
-    )
+    inputs = [
+        (idata, az.InferenceData, "idata"),
+        (group, str, "group"),
+        (variable, str, "variable"),
+        (dimension, str, "dimension"),
+        (time_step, timedelta, "time_step"),
+    ]
+    for value, expected_type, param_name in inputs:
+        forecasttools.validate_input_type(
+            value=value, expected_type=expected_type, param_name=param_name
+        )
+
     start_date_as_dt = forecasttools.validate_and_get_start_date(
         start_date_iso
-    )
-    forecasttools.validate_input_type(
-        value=time_step, expected_type=timedelta, param_name="time_step"
     )
     idata_group = forecasttools.validate_and_get_idata_group(
         idata=idata, group=group
@@ -149,18 +146,16 @@ def add_time_coords_to_idata_dimensions(
         specified groups, variables, and
         dimensions.
     """
-    forecasttools.validate_input_type(
-        value=idata, expected_type=az.InferenceData, param_name="idata"
-    )
-    forecasttools.validate_input_type(
-        value=groups, expected_type=(str, list), param_name="groups"
-    )
-    forecasttools.validate_input_type(
-        value=variables, expected_type=(str, list), param_name="variables"
-    )
-    forecasttools.validate_input_type(
-        value=dimensions, expected_type=(str, list), param_name="dimensions"
-    )
+    inputs = [
+        (idata, az.InferenceData, "idata"),
+        (groups, (str, list), "groups"),
+        (variables, (str, list), "variables"),
+        (dimensions, (str, list), "dimensions"),
+    ]
+    for value, expected_type, param_name in inputs:
+        forecasttools.validate_input_type(
+            value=value, expected_type=expected_type, param_name=param_name
+        )
     # if str, convert to list
     groups = forecasttools.ensure_listlike(groups)
     variables = forecasttools.ensure_listlike(variables)
