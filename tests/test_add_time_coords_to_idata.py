@@ -76,51 +76,6 @@ def test_add_time_coords_to_idata_dimension(
         )
 
 
-def test_invalid_group_name():
-    with pytest.raises(ValueError):
-        forecasttools.add_time_coords_to_idata_dimension(
-            IDATA_WO_DATES,
-            "invalid_group",
-            "obs",
-            "obs_dim_0",
-            "2022-08-01",
-            timedelta(days=1),
-        )
-    # with pytest.raises(ValueError):
-    #     forecasttools.add_time_coords_to_idata_dimensions(
-    #         idata=IDATA_WO_DATES,
-    #         "invalid_group",
-    #         "obs",
-    #         "obs_dim_0",
-    #         "2022-08-01",
-    #         timedelta(days=1),
-    #     )
-
-
-def test_invalid_variable_name():
-    with pytest.raises(ValueError):
-        forecasttools.add_time_coords_to_idata_dimension(
-            IDATA_WO_DATES,
-            "posterior_predictive",
-            "invalid_variable",  # invalid variable name
-            "obs_dim_0",
-            "2022-08-01",
-            timedelta(days=1),
-        )
-
-
-def test_invalid_dimension_name():
-    with pytest.raises(ValueError):
-        forecasttools.add_time_coords_to_idata_dimension(
-            IDATA_WO_DATES,
-            "posterior_predictive",
-            "obs",
-            "invalid_dimension",
-            "2022-08-01",
-            timedelta(days=1),
-        )
-
-
 def test_valid_datetime_start_date():
     start_date_iso = datetime(2022, 8, 1)
     time_step = timedelta(days=1)
@@ -139,7 +94,7 @@ def test_valid_datetime_start_date():
     )
 
 
-def test_valid_str_start_date():
+def test_valid_string_start_date():
     start_date_iso = "2022-08-01"
     time_step = timedelta(days=1)
     idata = forecasttools.add_time_coords_to_idata_dimension(
@@ -155,15 +110,6 @@ def test_valid_str_start_date():
         len(idata.posterior_predictive["obs"].coords["obs_dim_0"])
         == idata.posterior_predictive["obs"].sizes["obs_dim_0"]
     )
-
-
-def test_object_list_of_strs():
-    """
-    For add_time_coords_to_idata_dimensions,
-    test whether certain arguments are, in
-    fact, lists of strings.
-    """
-    pass
 
 
 @pytest.mark.parametrize(
@@ -323,3 +269,172 @@ def test_input_types_add_coords(
         # old_dim = idata[group][variable][dimension]
         # new_dim = idata_out[group][variable][dimension]
         # assert not np.array_equal(old_dim, new_dim)
+
+
+@pytest.mark.parametrize(
+    "input_value, expected_output",
+    [
+        ("group1", ["group1"]),  # input is string, should be converted to list
+        (
+            ["group1", "group2"],
+            ["group1", "group2"],
+        ),  # input is list, should stay same
+        ("single", ["single"]),  # single string input
+        ([], []),  # empty list should remain empty
+    ],
+)
+def test_ensure_listlike(input_value, expected_output):
+    """
+    Test that ensure_listlike converts a
+    string to a list and leaves list
+    unchanged.
+    """
+    out = forecasttools.ensure_listlike(input_value)
+    assert (
+        out == expected_output
+    ), f"Expected {expected_output}, but got {out}."
+
+
+@pytest.mark.parametrize(
+    "input_value, expected_error, param_name",
+    [
+        (["group1", "group2"], None, "groups"),  # valid, list of strings
+        ("group1", None, "groups"),  # valid, single string
+        (["group1", 123], TypeError, "groups"),  # invalid, non-string in list
+        (123, TypeError, "groups"),  # invalid, non-string in single value
+        (["var1", "var2"], None, "variables"),  # valid, list of strings
+        ("var1", None, "variables"),  # valid, single string
+        (["var1", 123], TypeError, "variables"),  # invalid, non-string in list
+        (["dim1", "dim2"], None, "dimensions"),  # valid, list of strings
+        ("dim1", None, "dimensions"),  # valid, single string
+        (
+            ["dim1", 123],
+            TypeError,
+            "dimensions",
+        ),  # invalid, non-string in list
+    ],
+)
+def test_validate_group_var_dim_instances(
+    input_value, expected_error, param_name
+):
+    """
+    Test that validate_group_var_dim_instances
+    properly validates that all entries in
+    groups, variables, and dimensions are
+    strings.
+    """
+    if expected_error:
+        with pytest.raises(expected_error):
+            forecasttools.validate_group_var_dim_instances(
+                input_value, str, param_name
+            )
+    else:
+        forecasttools.validate_group_var_dim_instances(
+            input_value, str, param_name
+        )
+
+
+@pytest.mark.parametrize(
+    "idata, groups, variables, dimensions, expected_error",
+    [
+        # valid
+        (
+            IDATA_WO_DATES,
+            "posterior_predictive",
+            "obs",
+            "obs_dim_0",
+            None,
+        ),  # all valid types
+        (
+            IDATA_WO_DATES,
+            ["posterior_predictive"],
+            ["obs"],
+            ["obs_dim_0"],
+            None,
+        ),  # all valid types in lists
+        # invalid cases
+        (
+            [],
+            "posterior_predictive",
+            "obs",
+            "obs_dim_0",
+            TypeError,
+        ),  # invalid idata: list instead of InferenceData
+        (
+            "string",
+            "posterior_predictive",
+            "obs",
+            "obs_dim_0",
+            TypeError,
+        ),  # invalid idata: string instead of InferenceData
+        (
+            IDATA_WO_DATES,
+            123,
+            "obs",
+            "obs_dim_0",
+            TypeError,
+        ),  # invalid groups: int instead of str or list[str]
+        (
+            IDATA_WO_DATES,
+            None,
+            "obs",
+            "obs_dim_0",
+            TypeError,
+        ),  # invalid groups: None
+        (
+            IDATA_WO_DATES,
+            "posterior_predictive",
+            123,
+            "obs_dim_0",
+            TypeError,
+        ),  # invalid variables: int instead of str or list[str]
+        (
+            IDATA_WO_DATES,
+            "posterior_predictive",
+            None,
+            "obs_dim_0",
+            TypeError,
+        ),  # invalid variables: None
+        (
+            IDATA_WO_DATES,
+            "posterior_predictive",
+            "obs",
+            123,
+            TypeError,
+        ),  # invalid dimensions: int instead of str or list[str]
+        (
+            IDATA_WO_DATES,
+            "posterior_predictive",
+            "obs",
+            None,
+            TypeError,
+        ),  # invalid dimensions: None
+    ],
+)
+def test_validate_input_types_in_add_time_coords_to_idata_dimensions(
+    idata, groups, variables, dimensions, expected_error
+):
+    """
+    Tests all the validate_input_type calls
+    within the add_time_coords_to_idata_dimensions
+    function.
+    """
+    if expected_error:
+        with pytest.raises(expected_error):
+            forecasttools.add_time_coords_to_idata_dimensions(
+                idata=idata,
+                groups=groups,
+                variables=variables,
+                dimensions=dimensions,
+                start_date_iso="2022-08-01",
+                time_step=timedelta(days=1),
+            )
+    else:
+        forecasttools.add_time_coords_to_idata_dimensions(
+            idata=idata,
+            groups=groups,
+            variables=variables,
+            dimensions=dimensions,
+            start_date_iso="2022-08-01",
+            time_step=timedelta(days=1),
+        )

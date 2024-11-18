@@ -17,10 +17,16 @@ def validate_input_type(
     """Checks the type of a variable and
     raises a TypeError if it does not match
     the expected type."""
-    if not isinstance(value, expected_type):
-        raise TypeError(
-            f"Parameter '{param_name}' must be of type '{expected_type.__name__}'; got {type(value)}"
-        )
+    if isinstance(expected_type, tuple):
+        if not any(isinstance(value, t) for t in expected_type):
+            raise TypeError(
+                f"Parameter '{param_name}' must be one of the types {expected_type}; got {type(value)}"
+            )
+    else:
+        if not isinstance(value, expected_type):
+            raise TypeError(
+                f"Parameter '{param_name}' must be of type '{expected_type.__name__}'; got {type(value)}"
+            )
 
 
 def validate_and_get_start_date(start_date_iso: any):
