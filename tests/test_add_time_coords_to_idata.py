@@ -21,7 +21,7 @@ IDATA_WO_DATES = forecasttools.nhsn_flu_forecast_wo_dates
             None,
         ),  # valid case, datetime date
         ("invalid-date", timedelta(days=1), ValueError),  # invalid date string
-        ("2022-08-01", "invalid-timedelta", TypeError),  # invalid time_step
+        ("2022-08-01", "invalid-timedelta", TypeError),  # invalid time step
         (
             datetime(2022, 8, 1),
             timedelta(days=0),
@@ -32,6 +32,12 @@ IDATA_WO_DATES = forecasttools.nhsn_flu_forecast_wo_dates
 def test_add_time_coords_to_idata_dimension(
     start_date_iso, time_step, expected_error
 ):
+    """
+    Tests the cases where one adds an
+    valid cases with str and datetime dates,
+    an invalid case with str date, and
+    invalid time step cases.
+    """
     group = "posterior_predictive"
     variable = "obs"
     dimension = "obs_dim_0"
@@ -74,6 +80,15 @@ def test_invalid_group():
             "2022-08-01",
             timedelta(days=1),
         )
+    # with pytest.raises(ValueError):
+    #     forecasttools.add_time_coords_to_idata_dimensions(
+    #         idata=IDATA_WO_DATES,
+    #         "invalid_group",
+    #         "obs",
+    #         "obs_dim_0",
+    #         "2022-08-01",
+    #         timedelta(days=1),
+    #     )
 
 
 def test_invalid_variable():
