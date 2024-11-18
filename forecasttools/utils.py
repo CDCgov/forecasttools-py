@@ -29,16 +29,27 @@ def validate_input_type(
             )
 
 
-def validate_and_get_start_date(start_date_iso: any):
+def validate_and_get_start_time(start_date_iso: any):
     """Handles the start_date_iso input,
-    converting it to a datetime object."""
+    converting it to a datetime object.
+
+    If the input is a string, it must be in
+    the format 'YYYY-MM-DD' or
+    'YYYY-MM-DD HH:MM:SS'. If it's a
+    datetime object, it is returned as is.
+    Otherwise, a TypeError is raised.
+    """
     if isinstance(start_date_iso, str):
-        try:
-            return datetime.strptime(start_date_iso, "%Y-%m-%d")
-        except ValueError:
-            raise ValueError(
-                f"Parameter 'start_date_iso' must be in the format 'YYYY-MM-DD' if provided as a string; got {start_date_iso}."
-            )
+        # try parsing both formats
+        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S"):
+            try:
+                return datetime.strptime(start_date_iso, fmt)
+            except ValueError:
+                continue
+        # raise error if neither format matches
+        raise ValueError(
+            f"Parameter 'start_date_iso' must be in the format 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS' if provided as a string; got {start_date_iso}."
+        )
     elif isinstance(start_date_iso, datetime):
         return start_date_iso
     else:
@@ -95,7 +106,7 @@ def validate_group_var_dim_instances(
 
 
 def generate_time_range_for_dim(
-    start_date_as_dt: datetime,
+    start_time_as_dt: datetime,
     variable_data: xr.DataArray,
     dimension: str,
     time_step: timedelta,
@@ -125,8 +136,8 @@ def generate_time_range_for_dim(
         # use date_range for dates
         return (
             pl.date_range(
-                start=start_date_as_dt,
-                end=start_date_as_dt + (interval_size - 1) * time_step,
+                start=start_time_as_dt,
+                end=start_time_as_dt + (interval_size - 1) * time_step,
                 interval=time_step,  # use the calculated interval
                 closed="both",
                 eager=True,  # return a Polars Series
@@ -138,14 +149,14 @@ def generate_time_range_for_dim(
         # use datetime_range for times
         return (
             pl.datetime_range(
-                start=start_date_as_dt,
-                end=start_date_as_dt + (interval_size - 1) * time_step,
+                start=start_time_as_dt,
+                end=start_time_as_dt + (interval_size - 1) * time_step,
                 interval=time_step,  # use the calculated interval
                 closed="both",
                 eager=True,  # return a Polars Series
             )
             .to_numpy()
-            .astype("datetime64[ns]")  # Ensure consistent datetime format
+            .astype("datetime64[ns]")  # time format
         )
 
 

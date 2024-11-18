@@ -78,7 +78,7 @@ def add_time_coords_to_idata_dimension(
             value=value, expected_type=expected_type, param_name=param_name
         )
 
-    start_date_as_dt = forecasttools.validate_and_get_start_date(
+    start_time_as_dt = forecasttools.validate_and_get_start_time(
         start_date_iso
     )
     idata_group = forecasttools.validate_and_get_idata_group(
@@ -91,7 +91,7 @@ def add_time_coords_to_idata_dimension(
         variable_data=variable_data, dimension=dimension
     )
     interval_dates = forecasttools.generate_time_range_for_dim(
-        start_date_as_dt=start_date_as_dt,
+        start_time_as_dt=start_time_as_dt,
         variable_data=variable_data,
         dimension=dimension,
         time_step=time_step,

@@ -11,7 +11,7 @@ import forecasttools
 
 
 def generate_time_range_for_dim(
-    start_date_as_dt: datetime,
+    start_time_as_dt: datetime,
     variable_data: xr.DataArray,
     dimension: str,
     time_step: timedelta,
@@ -41,8 +41,8 @@ def generate_time_range_for_dim(
         # use date_range for dates
         return (
             pl.date_range(
-                start=start_date_as_dt,
-                end=start_date_as_dt + (interval_size - 1) * time_step,
+                start=start_time_as_dt,
+                end=start_time_as_dt + (interval_size - 1) * time_step,
                 interval=time_step,  # use the calculated interval
                 closed="both",
                 eager=True,  # return a Polars Series
@@ -54,14 +54,46 @@ def generate_time_range_for_dim(
         # use datetime_range for times
         return (
             pl.datetime_range(
-                start=start_date_as_dt,
-                end=start_date_as_dt + (interval_size - 1) * time_step,
+                start=start_time_as_dt,
+                end=start_time_as_dt + (interval_size - 1) * time_step,
                 interval=time_step,  # use the calculated interval
                 closed="both",
                 eager=True,  # return a Polars Series
             )
             .to_numpy()
-            .astype("datetime64[ns]")  # Ensure consistent datetime format
+            .astype("datetime64[ns]")  # time format
+        )
+
+
+# %% DATE FUNCTION
+
+
+def validate_and_get_start_time(start_date_iso: any):
+    """Handles the start_date_iso input,
+    converting it to a datetime object.
+
+    If the input is a string, it must be in
+    the format 'YYYY-MM-DD' or
+    'YYYY-MM-DD HH:MM:SS'. If it's a
+    datetime object, it is returned as is.
+    Otherwise, a TypeError is raised.
+    """
+    if isinstance(start_date_iso, str):
+        # try parsing both formats
+        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S"):
+            try:
+                return datetime.strptime(start_date_iso, fmt)
+            except ValueError:
+                continue
+        # raise error if neither format matches
+        raise ValueError(
+            f"Parameter 'start_date_iso' must be in the format 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS' if provided as a string; got {start_date_iso}."
+        )
+    elif isinstance(start_date_iso, datetime):
+        return start_date_iso
+    else:
+        raise TypeError(
+            f"Parameter 'start_date_iso' must be of type 'str' or 'datetime'; got {type(start_date_iso)}."
         )
 
 
@@ -73,10 +105,10 @@ variable_data = IDATA_WO_DATES["posterior_predictive"]["obs"]
 
 start_date_iso = "2022-08-01"
 
-start_date_as_dt = forecasttools.validate_and_get_start_date(start_date_iso)
+start_time_as_dt = validate_and_get_start_time(start_date_iso)
 
 as_dates_idata = generate_time_range_for_dim(
-    start_date_as_dt=start_date_as_dt,
+    start_time_as_dt=start_time_as_dt,
     variable_data=variable_data,
     dimension="obs_dim_0",
     time_step=timedelta(days=1),
@@ -84,7 +116,7 @@ as_dates_idata = generate_time_range_for_dim(
 print(as_dates_idata[:5], type(as_dates_idata[0]))
 
 as_time_idata = generate_time_range_for_dim(
-    start_date_as_dt=start_date_as_dt,
+    start_time_as_dt=start_time_as_dt,
     variable_data=variable_data,
     dimension="obs_dim_0",
     time_step=timedelta(days=1.5),
@@ -93,7 +125,7 @@ print(as_time_idata[:5], type(as_time_idata[0]))
 # %% ANOTHER CHECK
 
 as_dates_idata = generate_time_range_for_dim(
-    start_date_as_dt=start_date_as_dt,
+    start_time_as_dt=start_time_as_dt,
     variable_data=variable_data,
     dimension="obs_dim_0",
     time_step=timedelta(weeks=1),
@@ -101,7 +133,47 @@ as_dates_idata = generate_time_range_for_dim(
 print(as_dates_idata[:5], type(as_dates_idata[0]))
 
 as_time_idata = generate_time_range_for_dim(
-    start_date_as_dt=start_date_as_dt,
+    start_time_as_dt=start_time_as_dt,
+    variable_data=variable_data,
+    dimension="obs_dim_0",
+    time_step=timedelta(weeks=1.5),
+)
+print(as_time_idata[:5], type(as_time_idata[0]))
+
+# %% ANOTHER CHECK WITH ODD START DATE
+
+start_date_iso = "2022-08-01 15:15:15"
+
+start_time_as_dt = validate_and_get_start_time(start_date_iso)
+
+
+as_dates_idata = generate_time_range_for_dim(
+    start_time_as_dt=start_time_as_dt,
+    variable_data=variable_data,
+    dimension="obs_dim_0",
+    time_step=timedelta(days=1),
+)
+print(as_dates_idata[:5], type(as_dates_idata[0]))
+
+as_time_idata = generate_time_range_for_dim(
+    start_time_as_dt=start_time_as_dt,
+    variable_data=variable_data,
+    dimension="obs_dim_0",
+    time_step=timedelta(days=1.5),
+)
+print(as_time_idata[:5], type(as_time_idata[0]))
+
+
+as_dates_idata = generate_time_range_for_dim(
+    start_time_as_dt=start_time_as_dt,
+    variable_data=variable_data,
+    dimension="obs_dim_0",
+    time_step=timedelta(weeks=1),
+)
+print(as_dates_idata[:5], type(as_dates_idata[0]))
+
+as_time_idata = generate_time_range_for_dim(
+    start_time_as_dt=start_time_as_dt,
     variable_data=variable_data,
     dimension="obs_dim_0",
     time_step=timedelta(weeks=1.5),

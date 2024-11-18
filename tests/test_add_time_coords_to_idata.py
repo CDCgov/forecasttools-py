@@ -10,6 +10,7 @@ or Type error can be produced.
 
 from datetime import datetime, timedelta
 
+import polars as pl
 import pytest
 
 import forecasttools
@@ -31,7 +32,7 @@ IDATA_WO_DATES = forecasttools.nhsn_flu_forecast_wo_dates
         (
             datetime(2022, 8, 1),
             timedelta(days=0),
-            ValueError,
+            pl.exceptions.ComputeError,
         ),  # time_step can't be 0
     ],
 )
@@ -223,7 +224,7 @@ def test_valid_string_start_date():
             "obs",
             "obs_dim_0",
             timedelta(days=0),
-            ValueError,
+            pl.exceptions.ComputeError,
         ),  # invalid time_step: 0 days
     ],
 )
