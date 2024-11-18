@@ -109,46 +109,25 @@ def generate_time_range_for_dim(
     is generated if the start date is a time
     and/or the time step is a time.
     """
+
+    # get the size of the dimension
+    interval_size = variable_data.sizes[dimension]
     # number of seconds in a day
     SECONDS_IN_DAY = timedelta(days=1).total_seconds()
 
     # total number of seconds in the time_step
     total_seconds = time_step.total_seconds()
 
-    # get the size of the dimension
-    interval_size = variable_data.sizes[dimension]
-
     # determine the interval string for Polars
     if (
         total_seconds % SECONDS_IN_DAY == 0
     ):  # check if time_step is in full days
-        interval_str = f"{int(total_seconds // SECONDS_IN_DAY)}d"
-    else:
-        interval_str = (
-            f"{total_seconds}s"  # handle finer-grained time intervals
-        )
-
-    # check if the start_date_as_dt is a datetime or date
-    if isinstance(start_date_as_dt, datetime):
-        # use datetime_range for times
-        return (
-            pl.datetime_range(
-                start=start_date_as_dt,
-                end=start_date_as_dt + (interval_size - 1) * time_step,
-                interval=interval_str,  # use the calculated interval
-                closed="both",
-                eager=True,  # return a Polars Series
-            )
-            .to_numpy()
-            .astype("datetime64[ns]")  # Ensure consistent datetime format
-        )
-    elif isinstance(start_date_as_dt, datetime.date):
         # use date_range for dates
         return (
             pl.date_range(
                 start=start_date_as_dt,
                 end=start_date_as_dt + (interval_size - 1) * time_step,
-                interval=interval_str,  # use the calculated interval
+                interval=time_step,  # use the calculated interval
                 closed="both",
                 eager=True,  # return a Polars Series
             )
@@ -156,8 +135,17 @@ def generate_time_range_for_dim(
             .astype("datetime64[D]")  # date format
         )
     else:
-        raise ValueError(
-            f"Unsupported start_date type: {type(start_date_as_dt)}. Must be datetime or date."
+        # use datetime_range for times
+        return (
+            pl.datetime_range(
+                start=start_date_as_dt,
+                end=start_date_as_dt + (interval_size - 1) * time_step,
+                interval=time_step,  # use the calculated interval
+                closed="both",
+                eager=True,  # return a Polars Series
+            )
+            .to_numpy()
+            .astype("datetime64[ns]")  # Ensure consistent datetime format
         )
 
 
