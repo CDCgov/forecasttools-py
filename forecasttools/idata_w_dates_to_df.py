@@ -90,7 +90,7 @@ def add_time_coords_to_idata_dimension(
     forecasttools.validate_idata_group_var_dim(
         variable_data=variable_data, dimension=dimension
     )
-    interval_dates = forecasttools.generate_date_range_for_dim(
+    interval_dates = forecasttools.generate_time_range_for_dim(
         start_date_as_dt=start_date_as_dt,
         variable_data=variable_data,
         dimension=dimension,

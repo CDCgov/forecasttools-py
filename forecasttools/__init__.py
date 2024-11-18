@@ -19,7 +19,7 @@ from forecasttools.to_hubverse import get_hubverse_table
 from forecasttools.trajectories_to_quantiles import trajectories_to_quantiles
 from forecasttools.utils import (
     ensure_listlike,
-    generate_date_range_for_dim,
+    generate_time_range_for_dim,
     validate_and_get_idata_group,
     validate_and_get_idata_group_var,
     validate_and_get_start_date,
@@ -88,7 +88,7 @@ __all__ = [
     "validate_and_get_idata_group",
     "validate_and_get_idata_group_var",
     "validate_idata_group_var_dim",
-    "generate_date_range_for_dim",
+    "generate_time_range_for_dim",
     "validate_group_var_dim_instances",
     "ensure_listlike",
 ]
