@@ -169,6 +169,7 @@ def ensure_listlike(x):
     alongside single strings.
     Based on this _`StackOverflow approach
     <https://stackoverflow.com/a/66485952>`.
+
     Parameters
     ----------
     x
