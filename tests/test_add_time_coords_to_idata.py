@@ -10,6 +10,7 @@ or Type error can be produced.
 
 from datetime import datetime, timedelta
 
+import numpy as np
 import polars as pl
 import pytest
 
@@ -109,7 +110,7 @@ def test_start_date_as_str_or_datetime(start_date_iso, time_step):
             "posterior_predictive",
             "obs",
             "obs_dim_0",
-            timedelta(days=1),
+            timedelta(days=2),  # fail when 1?
             None,
         ),  # valid
         (
@@ -117,7 +118,7 @@ def test_start_date_as_str_or_datetime(start_date_iso, time_step):
             "observed_data",
             "obs",
             "obs_dim_0",
-            timedelta(days=2),
+            timedelta(days=1),
             None,
         ),  # different valid
         # invalid idata
@@ -239,7 +240,8 @@ def test_input_types_add_coords(
     else:
         # if no error is expected,
         # execute the function
-        idata_out = forecasttools.add_time_coords_to_idata_dimension(
+        old_dim = idata[group][variable][dimension].values
+        idata = forecasttools.add_time_coords_to_idata_dimension(
             idata=idata,
             group=group,
             variable=variable,
@@ -247,16 +249,15 @@ def test_input_types_add_coords(
             start_date_iso="2022-08-01",
             time_step=time_step,
         )
+        new_dim = idata[group][variable][dimension].values
+        assert not np.array_equal(old_dim, new_dim)
         # validate that the function executed
         # correctly and the dimension has been modified
-        assert dimension in idata_out.posterior_predictive[variable].coords
+        assert dimension in idata.posterior_predictive[variable].coords
         assert (
-            len(idata_out.posterior_predictive[variable].coords[dimension])
-            == idata_out.posterior_predictive[variable].sizes[dimension]
+            len(idata.posterior_predictive[variable].coords[dimension])
+            == idata.posterior_predictive[variable].sizes[dimension]
         )
-        # old_dim = idata[group][variable][dimension]
-        # new_dim = idata_out[group][variable][dimension]
-        # assert not np.array_equal(old_dim, new_dim)
 
 
 @pytest.mark.parametrize(

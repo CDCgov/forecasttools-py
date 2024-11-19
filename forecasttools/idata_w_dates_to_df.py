@@ -35,6 +35,7 @@ def generate_time_range_for_dim(
 
     # get the size of the dimension
     interval_size = variable_data.sizes[dimension]
+
     # number of seconds in a day
     SECONDS_IN_DAY = timedelta(days=1).total_seconds()
 
