@@ -162,9 +162,9 @@ def add_time_coords_to_idata_dimensions(
     dimensions = forecasttools.ensure_listlike(dimensions)
     # check groups, variables, and dimensions
     # all contain str vars
-    forecasttools.validate_group_var_dim_instances(groups, str, "groups")
-    forecasttools.validate_group_var_dim_instances(variables, str, "variables")
-    forecasttools.validate_group_var_dim_instances(
+    forecasttools.validate_iter_has_expected_types(groups, str, "groups")
+    forecasttools.validate_iter_has_expected_types(variables, str, "variables")
+    forecasttools.validate_iter_has_expected_types(
         dimensions, str, "dimensions"
     )
     # iterate over (group, variable, dimension) triples

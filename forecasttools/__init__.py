@@ -23,9 +23,9 @@ from forecasttools.utils import (
     validate_and_get_idata_group,
     validate_and_get_idata_group_var,
     validate_and_get_start_time,
-    validate_group_var_dim_instances,
     validate_idata_group_var_dim,
     validate_input_type,
+    validate_iter_has_expected_types,
 )
 
 # location table (from Census data)
@@ -89,6 +89,6 @@ __all__ = [
     "validate_and_get_idata_group_var",
     "validate_idata_group_var_dim",
     "generate_time_range_for_dim",
-    "validate_group_var_dim_instances",
+    "validate_iter_has_expected_types",
     "ensure_listlike",
 ]

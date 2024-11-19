@@ -315,22 +315,22 @@ def test_ensure_listlike(input_value, expected_output):
         ),  # invalid, non-string in list
     ],
 )
-def test_validate_group_var_dim_instances(
+def test_validate_iter_has_expected_types(
     input_value, expected_error, param_name
 ):
     """
-    Test that validate_group_var_dim_instances
+    Test that validate_iter_has_expected_types
     properly validates that all entries in
     groups, variables, and dimensions are
     strings.
     """
     if expected_error:
         with pytest.raises(expected_error):
-            forecasttools.validate_group_var_dim_instances(
+            forecasttools.validate_iter_has_expected_types(
                 input_value, str, param_name
             )
     else:
-        forecasttools.validate_group_var_dim_instances(
+        forecasttools.validate_iter_has_expected_types(
             input_value, str, param_name
         )
 

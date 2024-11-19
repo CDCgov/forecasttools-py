@@ -90,7 +90,7 @@ def validate_idata_group_var_dim(variable_data: xr.DataArray, dimension: str):
         )
 
 
-def validate_group_var_dim_instances(
+def validate_iter_has_expected_types(
     iterable: Iterable, expected_type: type, param_name: str
 ):
     """
