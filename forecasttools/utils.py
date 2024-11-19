@@ -62,10 +62,9 @@ def validate_and_get_idata_group(idata: az.InferenceData, group: str):
     """Retrieves the group from the
     InferenceData object and validates its
     existence."""
-    idata_group = getattr(idata, group, None)
-    if idata_group is None:
+    if not hasattr(idata, group):
         raise ValueError(f"Group '{group}' not found in idata object.")
-    return idata_group
+    return getattr(idata, group)
 
 
 def validate_and_get_idata_group_var(
