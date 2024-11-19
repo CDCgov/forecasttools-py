@@ -7,6 +7,7 @@ from forecasttools.daily_to_epiweekly import df_aggregate_to_epiweekly
 from forecasttools.idata_w_dates_to_df import (
     add_time_coords_to_idata_dimension,
     add_time_coords_to_idata_dimensions,
+    generate_time_range_for_dim,
     idata_forecast_w_dates_to_df,
 )
 from forecasttools.recode_locations import (
@@ -19,7 +20,6 @@ from forecasttools.to_hubverse import get_hubverse_table
 from forecasttools.trajectories_to_quantiles import trajectories_to_quantiles
 from forecasttools.utils import (
     ensure_listlike,
-    generate_time_range_for_dim,
     validate_and_get_idata_group,
     validate_and_get_idata_group_var,
     validate_and_get_start_time,

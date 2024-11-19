@@ -4,10 +4,9 @@ across other forecasttools code.
 """
 
 from collections.abc import Iterable, MutableSequence
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import arviz as az
-import polars as pl
 import xarray as xr
 
 
@@ -101,61 +100,6 @@ def validate_iter_has_expected_types(
     if not all(isinstance(item, expected_type) for item in iterable):
         raise TypeError(
             f"All items in '{param_name}' must be of type '{expected_type.__name__}'."
-        )
-
-
-def generate_time_range_for_dim(
-    start_time_as_dt: datetime,
-    variable_data: xr.DataArray,
-    dimension: str,
-    time_step: timedelta,
-):
-    """
-    Generates a range of times based on the
-    start date, time step, and variable's
-    dimension size. A range of dates is
-    generated if the start date is a date and
-    the time step is in days. A range of times
-    is generated if the start date is a time
-    and/or the time step is a time.
-    """
-
-    # get the size of the dimension
-    interval_size = variable_data.sizes[dimension]
-    # number of seconds in a day
-    SECONDS_IN_DAY = timedelta(days=1).total_seconds()
-
-    # total number of seconds in the time_step
-    total_seconds = time_step.total_seconds()
-
-    # determine the interval string for Polars
-    if (
-        total_seconds % SECONDS_IN_DAY == 0
-    ):  # check if time_step is in full days
-        # use date_range for dates
-        return (
-            pl.date_range(
-                start=start_time_as_dt,
-                end=start_time_as_dt + (interval_size - 1) * time_step,
-                interval=time_step,  # use the calculated interval
-                closed="both",
-                eager=True,  # return a Polars Series
-            )
-            .to_numpy()
-            .astype("datetime64[D]")  # date format
-        )
-    else:
-        # use datetime_range for times
-        return (
-            pl.datetime_range(
-                start=start_time_as_dt,
-                end=start_time_as_dt + (interval_size - 1) * time_step,
-                interval=time_step,  # use the calculated interval
-                closed="both",
-                eager=True,  # return a Polars Series
-            )
-            .to_numpy()
-            .astype("datetime64[ns]")  # time format
         )
 
 
