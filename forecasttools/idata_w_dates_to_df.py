@@ -237,7 +237,7 @@ def add_time_coords_to_idata_dimensions(
             )
         except ValueError as e:
             raise ValueError(
-                f"Error for (group={group}, variable={variable}, dimension={dimension}): {e}"
+                f"Error for (group={group}, variable={variable}, dimension={dimension})."
             ) from e
 
     return idata
