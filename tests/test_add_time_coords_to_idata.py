@@ -77,27 +77,14 @@ def test_add_time_coords_to_idata_dimension(
         )
 
 
-def test_valid_datetime_start_date():
-    start_date_iso = datetime(2022, 8, 1)
-    time_step = timedelta(days=1)
-    idata = forecasttools.add_time_coords_to_idata_dimension(
-        IDATA_WO_DATES,
-        "posterior_predictive",
-        "obs",
-        "obs_dim_0",
-        start_date_iso,
-        time_step,
-    )
-    assert "obs_dim_0" in idata.posterior_predictive["obs"].coords
-    assert (
-        len(idata.posterior_predictive["obs"].coords["obs_dim_0"])
-        == idata.posterior_predictive["obs"].sizes["obs_dim_0"]
-    )
-
-
-def test_valid_string_start_date():
-    start_date_iso = "2022-08-01"
-    time_step = timedelta(days=1)
+@pytest.mark.parametrize(
+    "start_date_iso, time_step",
+    [
+        (datetime(2022, 8, 1), timedelta(days=1)),  # datetime input
+        ("2022-08-01", timedelta(days=1)),  # string input
+    ],
+)
+def test_start_date_as_str_or_datetime(start_date_iso, time_step):
     idata = forecasttools.add_time_coords_to_idata_dimension(
         IDATA_WO_DATES,
         "posterior_predictive",
