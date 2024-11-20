@@ -140,7 +140,6 @@ def add_time_coords_to_idata_dimension(
         dimension=dimension,
         time_step=time_step,
     )
-    print(interval_dates, len(interval_dates))
     idata_group = idata_group.assign_coords({dimension: interval_dates})
     setattr(idata, group, idata_group)
     return idata
