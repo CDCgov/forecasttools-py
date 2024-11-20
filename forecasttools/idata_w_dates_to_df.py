@@ -7,7 +7,7 @@ Polars dataframes to hubverse ready and
 scoringutils ready dataframes
 """
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 import arviz as az
 import numpy as np
@@ -18,7 +18,7 @@ import forecasttools
 
 
 def generate_time_range_for_dim(
-    start_time_as_dt: datetime,
+    start_time_as_dt: datetime | date,
     variable_data: xr.DataArray,
     dimension: str,
     time_step: timedelta,
@@ -36,40 +36,36 @@ def generate_time_range_for_dim(
     # get the size of the dimension
     interval_size = variable_data.sizes[dimension]
 
-    # number of seconds in a day
-    SECONDS_IN_DAY = timedelta(days=1).total_seconds()
+    # check if time_step is in full days
+    is_full_days = (
+        time_step.total_seconds() % timedelta(days=1).total_seconds() == 0
+    )
 
-    # total number of seconds in the time_step
-    total_seconds = time_step.total_seconds()
-
-    # determine the interval string for Polars
-    if (
-        total_seconds % SECONDS_IN_DAY == 0
-    ):  # check if time_step is in full days
-        # use date_range for dates
+    if isinstance(start_time_as_dt, date) and is_full_days:
+        # use pl.date_range for dates
         return (
             pl.date_range(
                 start=start_time_as_dt,
                 end=start_time_as_dt + (interval_size - 1) * time_step,
-                interval=time_step,  # use the calculated interval
+                interval=f"{time_step.days}d",
                 closed="both",
-                eager=True,  # return a Polars Series
+                eager=True,
             )
             .to_numpy()
-            .astype("datetime64[D]")  # date format
+            .astype("datetime64[D]")
         )
     else:
-        # use datetime_range for times
+        # use pl.datetime_range for datetime
         return (
             pl.datetime_range(
                 start=start_time_as_dt,
                 end=start_time_as_dt + (interval_size - 1) * time_step,
-                interval=time_step,  # use the calculated interval
+                interval=time_step,  # use timedelta directly
                 closed="both",
-                eager=True,  # return a Polars Series
+                eager=True,  # return a Polars series
             )
             .to_numpy()
-            .astype("datetime64[ns]")  # time format
+            .astype("datetime64[ns]")
         )
 
 
@@ -78,7 +74,7 @@ def add_time_coords_to_idata_dimension(
     group: str,
     variable: str,
     dimension: str,
-    start_date_iso: str | datetime,
+    start_date_iso: str | datetime | date,
     time_step: timedelta,
 ) -> az.InferenceData:
     """

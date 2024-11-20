@@ -4,7 +4,7 @@ across other forecasttools code.
 """
 
 from collections.abc import Iterable, MutableSequence
-from datetime import datetime
+from datetime import date, datetime
 
 import arviz as az
 import xarray as xr
@@ -29,31 +29,38 @@ def validate_input_type(
 
 
 def validate_and_get_start_time(start_date_iso: any):
-    """Handles the start_date_iso input,
-    converting it to a datetime object.
-
-    If the input is a string, it must be in
-    the format 'YYYY-MM-DD' or
-    'YYYY-MM-DD HH:MM:SS'. If it's a
-    datetime object, it is returned as is.
-    Otherwise, a TypeError is raised.
+    """
+    Handles the start_date_iso input,
+    converting it to a datetime.date or
+    datetime.datetime object based on
+    the input format. If the input is a string:
+    'YYYY-MM-DD' turns into datetime.date and
+    'YYYY-MM-DD HH:MM:SS' into datetime.datetime
+    If it's a datetime.date or datetime.datetime,
+    it is returned as is. Otherwise,
+    a TypeError is raised.
     """
     if isinstance(start_date_iso, str):
         # try parsing both formats
-        for fmt in ("%Y-%m-%d", "%Y-%m-%d %H:%M:%S"):
-            try:
-                return datetime.strptime(start_date_iso, fmt)
-            except ValueError:
-                continue
+        try:
+            return datetime.strptime(start_date_iso, "%Y-%m-%d").date()
+        except ValueError:
+            pass
+        try:
+            return datetime.strptime(start_date_iso, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            pass
         # raise error if neither format matches
         raise ValueError(
             f"Parameter 'start_date_iso' must be in the format 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS' if provided as a string; got {start_date_iso}."
         )
     elif isinstance(start_date_iso, datetime):
         return start_date_iso
+    elif isinstance(start_date_iso, date):
+        return start_date_iso
     else:
         raise TypeError(
-            f"Parameter 'start_date_iso' must be of type 'str' or 'datetime'; got {type(start_date_iso)}."
+            f"Parameter 'start_date_iso' must be of type 'str', 'datetime.date', or 'datetime.datetime'; got {type(start_date_iso)}."
         )
 
 

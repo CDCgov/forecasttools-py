@@ -8,7 +8,7 @@ step, where invalid usually means a Value
 or Type error can be produced.
 """
 
-from datetime import datetime, timedelta
+from datetime import date, timedelta
 
 import numpy as np
 import polars as pl
@@ -24,14 +24,14 @@ IDATA_WO_DATES = forecasttools.nhsn_flu_forecast_wo_dates
     [
         ("2022-08-01", timedelta(days=1), None),  # valid case, str date
         (
-            datetime(2022, 8, 1),
+            date(2022, 8, 1),
             timedelta(days=1),
             None,
         ),  # valid case, datetime date
         ("invalid-date", timedelta(days=1), ValueError),  # invalid date string
         ("2022-08-01", "invalid-timedelta", TypeError),  # invalid time step
         (
-            datetime(2022, 8, 1),
+            date(2022, 8, 1),
             timedelta(days=0),
             pl.exceptions.ComputeError,
         ),  # time_step can't be 0
@@ -81,7 +81,7 @@ def test_add_time_coords_to_idata_dimension(
 @pytest.mark.parametrize(
     "start_date_iso, time_step",
     [
-        (datetime(2022, 8, 1), timedelta(days=1)),  # datetime input
+        (date(2022, 8, 1), timedelta(days=1)),  # datetime input
         ("2022-08-01", timedelta(days=1)),  # string input
     ],
 )
