@@ -22,7 +22,7 @@ def generate_time_range_for_dim(
     variable_data: xr.DataArray,
     dimension: str,
     time_step: timedelta,
-):
+) -> list[date] | list[datetime]:
     """
     Generates a range of times based on the
     start date, time step, and variable's
@@ -45,30 +45,22 @@ def generate_time_range_for_dim(
     if isinstance(start_time_as_dt, date) and is_full_days_or_weeks:
 
         # use pl.date_range for dates
-        return (
-            pl.date_range(
-                start=start_time_as_dt,
-                end=start_time_as_dt + (interval_size - 1) * time_step,
-                interval=f"{time_step.days}d",
-                closed="both",
-                eager=True,
-            )
-            .to_numpy()
-            .astype("datetime64[D]")
-        )
+        return pl.date_range(
+            start=start_time_as_dt,
+            end=start_time_as_dt + (interval_size - 1) * time_step,
+            interval=time_step,
+            closed="both",
+            eager=True,
+        ).to_list()
     else:
         # use pl.datetime_range for datetime
-        return (
-            pl.datetime_range(
-                start=start_time_as_dt,
-                end=start_time_as_dt + (interval_size - 1) * time_step,
-                interval=time_step,  # use timedelta directly
-                closed="both",
-                eager=True,  # return a Polars series
-            )
-            .to_numpy()
-            .astype("datetime64[ns]")
-        )
+        return pl.datetime_range(
+            start=start_time_as_dt,
+            end=start_time_as_dt + (interval_size - 1) * time_step,
+            interval=time_step,
+            closed="both",
+            eager=True,  # return a Polars series
+        ).to_list()
 
 
 def add_time_coords_to_idata_dimension(
@@ -142,13 +134,13 @@ def add_time_coords_to_idata_dimension(
     forecasttools.validate_idata_group_var_dim(
         variable_data=variable_data, dimension=dimension
     )
-    start_time_as_dt = start_date_iso  # after validation
     interval_dates = generate_time_range_for_dim(
-        start_time_as_dt=start_time_as_dt,
+        start_time_as_dt=start_date_iso,
         variable_data=variable_data,
         dimension=dimension,
         time_step=time_step,
     )
+    print(interval_dates, len(interval_dates))
     idata_group = idata_group.assign_coords({dimension: interval_dates})
     setattr(idata, group, idata_group)
     return idata
@@ -182,11 +174,10 @@ def add_time_coords_to_idata_dimensions(
     dimensions : str | list[str]
         A dimension or a list of dimensions
         to modify for the variables.
-    start_date_iso : str | datetime
+    start_date_iso : date | datetime
         The start date for the time
-        coordinates as a str in ISO format
-        (e.g., "2022-08-20") or as a
-        datetime object.
+        coordinates as a datetime date or as
+        a datetime datetime.
     time_step : timedelta
         The time interval between each
         coordinate (e.g., `timedelta(days=1)`).
