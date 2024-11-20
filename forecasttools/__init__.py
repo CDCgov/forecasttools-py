@@ -22,7 +22,6 @@ from forecasttools.utils import (
     ensure_listlike,
     validate_and_get_idata_group,
     validate_and_get_idata_group_var,
-    validate_and_get_start_time,
     validate_idata_group_var_dim,
     validate_input_type,
     validate_iter_has_expected_types,

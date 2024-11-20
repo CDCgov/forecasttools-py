@@ -36,12 +36,13 @@ def generate_time_range_for_dim(
     # get the size of the dimension
     interval_size = variable_data.sizes[dimension]
 
-    # check if time_step is in full days
-    is_full_days = (
+    # check if time_step is in full days or
+    # weeks
+    is_full_days_or_weeks = (
         time_step.total_seconds() % timedelta(days=1).total_seconds() == 0
     )
 
-    if isinstance(start_time_as_dt, date) and is_full_days:
+    if isinstance(start_time_as_dt, date) and is_full_days_or_weeks:
         # use pl.date_range for dates
         return (
             pl.date_range(
@@ -74,7 +75,7 @@ def add_time_coords_to_idata_dimension(
     group: str,
     variable: str,
     dimension: str,
-    start_date_iso: str | datetime | date,
+    start_date_iso: datetime | date,
     time_step: timedelta,
 ) -> az.InferenceData:
     """
@@ -101,7 +102,7 @@ def add_time_coords_to_idata_dimension(
     dimension : str
         The dimension name to which time
         coordinates should be assigned.
-    start_date_iso : str | datetime
+    start_date_iso : date | datetime
         The start date for the time
         coordinates as a str in ISO format
         (e.g., "2022-08-20") or as a
@@ -125,15 +126,12 @@ def add_time_coords_to_idata_dimension(
         (variable, str, "variable"),
         (dimension, str, "dimension"),
         (time_step, timedelta, "time_step"),
+        (start_date_iso, (date, datetime), "start_date_iso"),
     ]
     for value, expected_type, param_name in inputs:
         forecasttools.validate_input_type(
             value=value, expected_type=expected_type, param_name=param_name
         )
-
-    start_time_as_dt = forecasttools.validate_and_get_start_time(
-        start_date_iso
-    )
     idata_group = forecasttools.validate_and_get_idata_group(
         idata=idata, group=group
     )
@@ -143,6 +141,7 @@ def add_time_coords_to_idata_dimension(
     forecasttools.validate_idata_group_var_dim(
         variable_data=variable_data, dimension=dimension
     )
+    start_time_as_dt = start_date_iso  # after validation
     interval_dates = generate_time_range_for_dim(
         start_time_as_dt=start_time_as_dt,
         variable_data=variable_data,

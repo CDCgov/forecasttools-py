@@ -22,14 +22,18 @@ IDATA_WO_DATES = forecasttools.nhsn_flu_forecast_wo_dates
 @pytest.mark.parametrize(
     "start_date_iso, time_step, expected_error",
     [
-        ("2022-08-01", timedelta(days=1), None),  # valid case, str date
+        (date(2022, 8, 1), timedelta(days=1), None),  # valid case, str date
         (
             date(2022, 8, 1),
             timedelta(days=1),
             None,
         ),  # valid case, datetime date
-        ("invalid-date", timedelta(days=1), ValueError),  # invalid date string
-        ("2022-08-01", "invalid-timedelta", TypeError),  # invalid time step
+        ("invalid-date", timedelta(days=1), TypeError),  # invalid date string
+        (
+            date(2022, 8, 1),
+            "invalid-timedelta",
+            TypeError,
+        ),  # invalid time step
         (
             date(2022, 8, 1),
             timedelta(days=0),
@@ -82,7 +86,7 @@ def test_add_time_coords_to_idata_dimension(
     "start_date_iso, time_step",
     [
         (date(2022, 8, 1), timedelta(days=1)),  # datetime input
-        ("2022-08-01", timedelta(days=1)),  # string input
+        (date(2022, 8, 1), timedelta(days=1)),  # string input
     ],
 )
 def test_start_date_as_str_or_datetime(start_date_iso, time_step):
@@ -234,7 +238,7 @@ def test_input_types_add_coords(
                 group=group,
                 variable=variable,
                 dimension=dimension,
-                start_date_iso="2022-08-01",
+                start_date_iso=date(2022, 8, 1),
                 time_step=time_step,
             )
     else:
@@ -246,7 +250,7 @@ def test_input_types_add_coords(
             group=group,
             variable=variable,
             dimension=dimension,
-            start_date_iso="2022-08-01",
+            start_date_iso=date(2022, 8, 1),
             time_step=time_step,
         )
         new_dim = idata[group][variable][dimension].values
@@ -415,7 +419,7 @@ def test_validate_input_types_in_add_time_coords_to_idata_dimensions(
                 groups=groups,
                 variables=variables,
                 dimensions=dimensions,
-                start_date_iso="2022-08-01",
+                start_date_iso=date(2022, 8, 1),
                 time_step=timedelta(days=1),
             )
     else:
@@ -424,6 +428,6 @@ def test_validate_input_types_in_add_time_coords_to_idata_dimensions(
             groups=groups,
             variables=variables,
             dimensions=dimensions,
-            start_date_iso="2022-08-01",
+            start_date_iso=date(2022, 8, 1),
             time_step=timedelta(days=1),
         )
