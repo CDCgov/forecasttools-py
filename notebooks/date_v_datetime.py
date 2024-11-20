@@ -10,7 +10,13 @@ from datetime import date, datetime, timedelta
 
 import polars as pl
 
+import forecasttools
+
 # %% SETUP FOR DATE / TIME RANGE
+
+IDATA_WO_DATES = forecasttools.nhsn_flu_forecast_wo_dates
+
+print(IDATA_WO_DATES["posterior_predictive"]["obs"]["obs_dim_0"])
 
 start_date_as_dt_01 = datetime(2024, 12, 12, 14, 30, 0)
 

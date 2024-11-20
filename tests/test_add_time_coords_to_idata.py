@@ -10,9 +10,11 @@ or Type error can be produced.
 
 from datetime import date, timedelta
 
+import arviz as az
 import numpy as np
 import polars as pl
 import pytest
+import xarray as xr
 
 import forecasttools
 
@@ -245,7 +247,8 @@ def test_input_types_add_coords(
         # if no error is expected,
         # execute the function
         old_dim = idata[group][variable][dimension].values
-        idata = forecasttools.add_time_coords_to_idata_dimension(
+
+        idata_out = forecasttools.add_time_coords_to_idata_dimension(
             idata=idata,
             group=group,
             variable=variable,
@@ -253,15 +256,61 @@ def test_input_types_add_coords(
             start_date_iso=date(2022, 8, 1),
             time_step=time_step,
         )
-        new_dim = idata[group][variable][dimension].values
+
+        new_dim = idata_out[group][variable][dimension].values
+
+        print(old_dim, new_dim)
         assert not np.array_equal(old_dim, new_dim)
         # validate that the function executed
         # correctly and the dimension has been modified
-        assert dimension in idata.posterior_predictive[variable].coords
+        assert dimension in idata_out.posterior_predictive[variable].coords
         assert (
-            len(idata.posterior_predictive[variable].coords[dimension])
-            == idata.posterior_predictive[variable].sizes[dimension]
+            len(idata_out.posterior_predictive[variable].coords[dimension])
+            == idata_out.posterior_predictive[variable].sizes[dimension]
         )
+
+
+def test_basic_add_time_coords_to_idata_dimension():
+    # set up test data
+    coords = {"obs_dim_0": [0, 1, 2, 3, 5]}
+    data = xr.Dataset(
+        {"obs": ("obs_dim_0", np.array([10, 20, 30, 40, 50]))}, coords=coords
+    )
+    idata = az.InferenceData(observed_data=data)
+
+    # test parameters
+    group = "observed_data"
+    variable = "obs"
+    dimension = "obs_dim_0"
+    start_date_iso = date(2024, 11, 19)
+    time_step = timedelta(days=2)
+
+    # expected output dates
+    expected_dates = np.array(
+        [
+            np.datetime64("2024-11-19"),
+            np.datetime64("2024-11-21"),
+            np.datetime64("2024-11-23"),
+            np.datetime64("2024-11-24"),
+            np.datetime64("2024-11-26"),
+        ]
+    ).astype("datetime64[D]")
+
+    # function call
+    updated_idata = forecasttools.add_time_coords_to_idata_dimension(
+        idata=idata,
+        group=group,
+        variable=variable,
+        dimension=dimension,
+        start_date_iso=start_date_iso,
+        time_step=time_step,
+    )
+
+    # extract the updated time coordinates
+    updated_coords = updated_idata.observed_data.coords[dimension].values
+
+    # assert that the updated coordinates match the expected dates
+    np.testing.assert_array_equal(updated_coords, expected_dates)
 
 
 @pytest.mark.parametrize(

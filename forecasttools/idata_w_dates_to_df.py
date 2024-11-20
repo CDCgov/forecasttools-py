@@ -39,10 +39,11 @@ def generate_time_range_for_dim(
     # check if time_step is in full days or
     # weeks
     is_full_days_or_weeks = (
-        time_step.total_seconds() % timedelta(days=1).total_seconds() == 0
+        time_step.total_seconds() % timedelta(days=1).total_seconds() == 0.0
     )
 
     if isinstance(start_time_as_dt, date) and is_full_days_or_weeks:
+
         # use pl.date_range for dates
         return (
             pl.date_range(
