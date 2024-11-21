@@ -17,6 +17,17 @@ import xarray as xr
 import forecasttools
 
 
+def is_integer_days(td: timedelta):
+    if td.resolution > timedelta(days=1):
+        raise ValueError(
+            "Cannot check whether a timedelta "
+            "represents an integer number of days "
+            "for a timedelta with resolution greater than 1 day. "
+            f"Got {td.resolution}"
+        )
+    return abs(td - td.days) < td.resolution
+
+
 def generate_time_range_for_dim(
     start_time_as_dt: datetime | date,
     variable_data: xr.DataArray,

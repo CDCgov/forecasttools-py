@@ -287,8 +287,8 @@ def test_basic_add_time_coords_to_idata_dimension():
         date(2024, 11, 19),
         date(2024, 11, 21),
         date(2024, 11, 23),
-        date(2024, 11, 24),
-        date(2024, 11, 26),
+        date(2024, 11, 25),
+        date(2024, 11, 27),
     ]
 
     # function call
@@ -303,6 +303,7 @@ def test_basic_add_time_coords_to_idata_dimension():
 
     # extract the updated time coordinates
     updated_coords = updated_idata.observed_data.coords[dimension].values
+    print(updated_coords, expected_dates)
 
     # assert that the updated coordinates are equal to the expected dates
     assert all(a == b for a, b in zip(updated_coords, expected_dates))
