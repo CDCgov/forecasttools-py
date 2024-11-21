@@ -8,7 +8,7 @@ step, where invalid usually means a Value
 or Type error can be produced.
 """
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import arviz as az
 import numpy as np
@@ -267,7 +267,7 @@ def test_input_types_add_coords(
         )
 
 
-def test_basic_add_time_coords_to_idata_dimension():
+def test_dates_add_time_coords_to_idata_dimension():
     # set up test data
     coords = {"obs_dim_0": [0, 1, 2, 3, 5]}
     data = xr.Dataset(
@@ -306,6 +306,54 @@ def test_basic_add_time_coords_to_idata_dimension():
 
     # assert that the updated coordinates are equal to the expected dates
     np.testing.assert_array_equal(updated_coords, expected_dates)
+
+
+def test_datetimes_add_time_coords_to_idata_dimension():
+    # set up test data
+    coords = {"obs_dim_0": [0, 1, 2, 3, 5]}
+    data = xr.Dataset(
+        {"obs": ("obs_dim_0", np.array([10, 20, 30, 40, 50]))}, coords=coords
+    )
+    idata = az.InferenceData(observed_data=data)
+
+    # test parameters
+    group = "observed_data"
+    variable = "obs"
+    dimension = "obs_dim_0"
+    start_date = datetime(2022, 8, 1, 12)
+    time_step = timedelta(days=1.5)
+
+    # expected output datetimes
+    expected_datetimes = np.array(
+        [
+            datetime(2022, 8, 1, 12),
+            datetime(2022, 8, 3, 0),
+            datetime(2022, 8, 4, 12),
+            datetime(2022, 8, 6, 0),
+            datetime(2022, 8, 7, 12),
+        ]
+    ).astype(
+        "datetime64[ns]"
+    )  # this is
+    # necessary as assign_coords seems to
+    # cast list[datetime] as numpy[datetime]
+    # as numpy[datetime64[ns]]
+
+    # function call
+    updated_idata = forecasttools.add_time_coords_to_idata_dimension(
+        idata=idata,
+        group=group,
+        variable=variable,
+        dimension=dimension,
+        start_date_iso=start_date,
+        time_step=time_step,
+    )
+
+    # extract the updated time coordinates
+    updated_coords = updated_idata.observed_data.coords[dimension].values
+
+    # assert that the updated coordinates are equal to the expected datetimes
+    np.testing.assert_array_equal(updated_coords, expected_datetimes)
 
 
 @pytest.mark.parametrize(
