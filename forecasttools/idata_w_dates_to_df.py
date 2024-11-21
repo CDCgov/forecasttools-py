@@ -217,9 +217,9 @@ def add_time_coords_to_idata_dimensions(
                 idata=idata,
                 group=group,
                 variable=variable,
-                dimension=dimension,  # validated in called func
-                start_date_iso=start_date_iso,  # validated in called func
-                time_step=time_step,  # validated in called func
+                dimension=dimension,
+                start_date_iso=start_date_iso,
+                time_step=time_step,
             )
         except ValueError as e:
             raise ValueError(
