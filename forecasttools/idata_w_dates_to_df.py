@@ -59,7 +59,7 @@ def generate_time_range_for_dim(
             end=start_time_as_dt + (interval_size - 1) * time_step,
             interval=time_step,
             closed="both",
-            eager=True,  # return a Polars series
+            eager=True,
         ).to_list()
 
 
