@@ -304,8 +304,8 @@ def test_basic_add_time_coords_to_idata_dimension():
     # extract the updated time coordinates
     updated_coords = updated_idata.observed_data.coords[dimension].values
 
-    # assert that the updated coordinates are different from expected dates
-    assert any(a == b for a, b in zip(updated_coords, expected_dates))
+    # assert that the updated coordinates are equal to the expected dates
+    assert all(a == b for a, b in zip(updated_coords, expected_dates))
 
 
 @pytest.mark.parametrize(
