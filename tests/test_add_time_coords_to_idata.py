@@ -257,7 +257,7 @@ def test_input_types_add_coords(
         )
 
         new_dim = idata_out[group][variable][dimension].values
-        assert any(a != b for a, b in zip(old_dim, new_dim))
+        assert not np.array_equal(old_dim, new_dim)
         # validate that the function executed
         # correctly and the dimension has been modified
         assert dimension in idata_out.posterior_predictive[variable].coords
