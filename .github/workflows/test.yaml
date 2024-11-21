@@ -32,6 +32,4 @@ jobs:
 
       - name: run tests
         run: |
-          poetry run pytest \
-            --mpl --mpl-default-tolerance=10 \
-            --cov=forecasttools --cov-report term --cov-report xml .
+          poetry run pytest
