@@ -335,12 +335,7 @@ def test_datetimes_add_time_coords_to_idata_dimension():
             datetime(2022, 8, 6, 0),
             datetime(2022, 8, 7, 12),
         ]
-    ).astype(
-        "datetime64[ns]"
-    )  # this is
-    # necessary as assign_coords seems to
-    # cast list[datetime] as numpy[datetime]
-    # as numpy[datetime64[ns]]
+    ).astype("datetime64[ns]")
 
     # function call
     updated_idata = forecasttools.add_time_coords_to_idata_dimension(
