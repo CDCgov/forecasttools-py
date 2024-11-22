@@ -27,7 +27,7 @@ def is_timedelta_in_days_only(td: timedelta) -> bool:
     return td.seconds == 0 and td.microseconds == 0
 
 
-def convert_date_or_datetime_to_np(time_object: any):
+def convert_date_or_datetime_to_np(time_object: any) -> np.datetime64:
     """
     Converts a date or datetime object to
     numpy.datetime64: date -> datetime64[D]
@@ -76,26 +76,15 @@ def generate_time_range_for_dim(
     # get the size of the dimension
     interval_size = variable_data.sizes[dimension]
 
-    # use date precision
-    if isinstance(start_time_as_dt, date) and is_timedelta_in_days_only(
-        time_step
-    ):
-        time_step = convert_timedelta_to_np(time_step)
-        start_time_as_dt = convert_date_or_datetime_to_np(start_time_as_dt)
-        return np.arange(
-            start=start_time_as_dt,
-            stop=start_time_as_dt + interval_size * time_step,
-            step=time_step,
-        )
-    # use ns precision
-    else:
-        time_step = convert_timedelta_to_np(time_step)
-        start_time_as_dt = convert_date_or_datetime_to_np(start_time_as_dt)
-        return np.arange(
-            start=start_time_as_dt,
-            stop=start_time_as_dt + interval_size * time_step,
-            step=time_step,
-        )
+    # convert the start time to correct np
+    start_time_as_np = convert_date_or_datetime_to_np(start_time_as_dt)
+    time_step_as_np = convert_timedelta_to_np(time_step)
+    end_step_as_np = start_time_as_np + interval_size * time_step_as_np
+    return np.arange(
+        start=start_time_as_np,
+        stop=end_step_as_np,
+        step=time_step_as_np,
+    )
 
 
 def add_time_coords_to_idata_dimension(
