@@ -54,7 +54,7 @@ def convert_timedelta_to_np(td: timedelta) -> np.timedelta64:
     if is_timedelta_in_days_only(td):
         return np.timedelta64(td.days, "D")
     else:
-        return np.timedelta64(td.total_seconds() * 1e9, "ns")
+        return np.timedelta64(int(td.total_seconds() * 1e9), "ns")
 
 
 def generate_time_range_for_dim(
@@ -83,14 +83,18 @@ def generate_time_range_for_dim(
         time_step = convert_timedelta_to_np(time_step)
         start_time_as_dt = convert_date_or_datetime_to_np(start_time_as_dt)
         return np.arange(
-            start=start_time_as_dt, stop=interval_size, step=time_step
+            start=start_time_as_dt,
+            stop=start_time_as_dt + interval_size * time_step,
+            step=time_step,
         )
     # use ns precision
     else:
         time_step = convert_timedelta_to_np(time_step)
         start_time_as_dt = convert_date_or_datetime_to_np(start_time_as_dt)
         return np.arange(
-            start=start_time_as_dt, stop=interval_size, step=time_step
+            start=start_time_as_dt,
+            stop=start_time_as_dt + interval_size * time_step,
+            step=time_step,
         )
 
 

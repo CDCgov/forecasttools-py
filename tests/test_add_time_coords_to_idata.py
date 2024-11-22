@@ -12,7 +12,6 @@ from datetime import date, datetime, timedelta
 
 import arviz as az
 import numpy as np
-import polars as pl
 import pytest
 import xarray as xr
 
@@ -39,7 +38,7 @@ IDATA_WO_DATES = forecasttools.nhsn_flu_forecast_wo_dates
         (
             date(2022, 8, 1),
             timedelta(days=0),
-            pl.exceptions.ComputeError,
+            ValueError,
         ),  # time_step can't be 0
     ],
 )
@@ -218,7 +217,7 @@ def test_start_date_as_str_or_datetime(start_date_iso, time_step):
             "obs",
             "obs_dim_0",
             timedelta(days=0),
-            pl.exceptions.ComputeError,
+            ValueError,
         ),  # invalid time_step: 0 days
     ],
 )
@@ -283,13 +282,15 @@ def test_dates_add_time_coords_to_idata_dimension():
     time_step = timedelta(days=2)
 
     # expected output dates
-    expected_dates = [
-        date(2024, 11, 19),
-        date(2024, 11, 21),
-        date(2024, 11, 23),
-        date(2024, 11, 25),
-        date(2024, 11, 27),
-    ]
+    expected_dates = np.array(
+        [
+            date(2024, 11, 19),
+            date(2024, 11, 21),
+            date(2024, 11, 23),
+            date(2024, 11, 25),
+            date(2024, 11, 27),
+        ]
+    ).astype("datetime64[D]")
 
     # function call
     updated_idata = forecasttools.add_time_coords_to_idata_dimension(
@@ -303,6 +304,8 @@ def test_dates_add_time_coords_to_idata_dimension():
 
     # extract the updated time coordinates
     updated_coords = updated_idata.observed_data.coords[dimension].values
+
+    print(updated_coords)
 
     # assert that the updated coordinates are equal to the expected dates
     np.testing.assert_array_equal(updated_coords, expected_dates)
@@ -351,6 +354,8 @@ def test_datetimes_add_time_coords_to_idata_dimension():
 
     # extract the updated time coordinates
     updated_coords = updated_idata.observed_data.coords[dimension].values
+
+    print(updated_coords)
 
     # assert that the updated coordinates are equal to the expected datetimes
     np.testing.assert_array_equal(updated_coords, expected_datetimes)
