@@ -17,15 +17,44 @@ import xarray as xr
 import forecasttools
 
 
-def is_integer_days(td: timedelta):
-    if td.resolution > timedelta(days=1):
-        raise ValueError(
-            "Cannot check whether a timedelta "
-            "represents an integer number of days "
-            "for a timedelta with resolution greater than 1 day. "
-            f"Got {td.resolution}"
+def is_timedelta_in_days_only(td: timedelta) -> bool:
+    """
+    Checks if a timedelta object can be
+    represented exclusively in days,
+    meaning it has no hours, minutes,
+    seconds, or microseconds.
+    """
+    return td.seconds == 0 and td.microseconds == 0
+
+
+def convert_date_or_datetime_to_np(time_object: any):
+    """
+    Converts a date or datetime object to
+    numpy.datetime64: date -> datetime64[D]
+    (day precision), datetime ->
+    datetime64[ns] (nanosecond precision).
+    """
+    if isinstance(time_object, date) and not isinstance(time_object, datetime):
+        return np.datetime64(time_object, "D")
+    elif isinstance(time_object, datetime):
+        return np.datetime64(time_object, "ns")
+    else:
+        raise TypeError(
+            f"Input must be a date or datetime object; got {type(time_object)}"
         )
-    return abs(td - td.days) < td.resolution
+
+
+def convert_timedelta_to_np(td: timedelta) -> np.timedelta64:
+    """
+    Converts a Python timedelta to:
+    numpy.timedelta64[D] if it is
+    representable in days only. Otherwise,
+    convert to numpy.timedelta64[ns].
+    """
+    if is_timedelta_in_days_only(td):
+        return np.timedelta64(td.days, "D")
+    else:
+        return np.timedelta64(td.total_seconds() * 1e9, "ns")
 
 
 def generate_time_range_for_dim(
@@ -47,31 +76,22 @@ def generate_time_range_for_dim(
     # get the size of the dimension
     interval_size = variable_data.sizes[dimension]
 
-    # check if time_step is in full days or
-    # weeks
-    is_full_days_or_weeks = (
-        time_step.total_seconds() % timedelta(days=1).total_seconds() == 0.0
-    )
-
-    if isinstance(start_time_as_dt, date) and is_full_days_or_weeks:
-
-        # use pl.date_range for dates
-        return pl.date_range(
-            start=start_time_as_dt,
-            end=start_time_as_dt + (interval_size - 1) * time_step,
-            interval=time_step,
-            closed="both",
-            eager=True,
-        ).to_list()
+    # use date precision
+    if isinstance(start_time_as_dt, date) and is_timedelta_in_days_only(
+        time_step
+    ):
+        time_step = convert_timedelta_to_np(time_step)
+        start_time_as_dt = convert_date_or_datetime_to_np(start_time_as_dt)
+        return np.arange(
+            start=start_time_as_dt, stop=interval_size, step=time_step
+        )
+    # use ns precision
     else:
-        # use pl.datetime_range for datetime
-        return pl.datetime_range(
-            start=start_time_as_dt,
-            end=start_time_as_dt + (interval_size - 1) * time_step,
-            interval=time_step,
-            closed="both",
-            eager=True,
-        ).to_list()
+        time_step = convert_timedelta_to_np(time_step)
+        start_time_as_dt = convert_date_or_datetime_to_np(start_time_as_dt)
+        return np.arange(
+            start=start_time_as_dt, stop=interval_size, step=time_step
+        )
 
 
 def add_time_coords_to_idata_dimension(
