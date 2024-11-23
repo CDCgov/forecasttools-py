@@ -32,9 +32,14 @@ def convert_date_or_datetime_to_np(time_object: any) -> np.datetime64:
     Converts a date or datetime object to
     numpy.datetime64: date -> datetime64[D]
     (day precision), datetime ->
-    datetime64[ns] (nanosecond precision).
+    datetime64[ns] (nanosecond precision). Or
+    returns as is if already np.datetime64.
     """
-    if isinstance(time_object, date) and not isinstance(time_object, datetime):
+    if isinstance(time_object, np.datetime64):
+        return time_object
+    elif isinstance(time_object, date) and not isinstance(
+        time_object, datetime
+    ):
         return np.datetime64(time_object, "D")
     elif isinstance(time_object, datetime):
         return np.datetime64(time_object, "ns")

@@ -305,7 +305,6 @@ def test_dates_add_time_coords_to_idata_dimension():
     # extract the updated time coordinates
     updated_coords = updated_idata.observed_data.coords[dimension].values
 
-
     # assert that the updated coordinates are equal to the expected dates
     np.testing.assert_array_equal(updated_coords, expected_dates)
 
