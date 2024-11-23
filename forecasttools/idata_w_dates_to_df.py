@@ -88,7 +88,7 @@ def add_time_coords_to_idata_dimension(
     group: str,
     variable: str,
     dimension: str,
-    start_date_iso: datetime | date,
+    start_date_iso: datetime | date | np.datetime,
     time_step: timedelta,
 ) -> az.InferenceData:
     """
