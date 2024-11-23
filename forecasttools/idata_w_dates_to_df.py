@@ -54,7 +54,7 @@ def convert_timedelta_to_np(td: timedelta) -> np.timedelta64:
     if is_timedelta_in_days_only(td):
         return np.timedelta64(td.days, "D")
     else:
-        return np.timedelta64(int(td.total_seconds() * 1e9), "ns")
+        return np.timedelta64(td).astype("timedelta64[ns]")
 
 
 def generate_time_range_for_dim(
