@@ -62,11 +62,11 @@ def generate_time_range_for_dim(
     variable_data: xr.DataArray,
     dimension: str,
     time_step: timedelta | np.timedelta64,
-) -> np.ndarray
+) -> np.ndarray:
     """
     Generates a range of times based on the
     start date, time step, and variable's
-    dimension size. 
+    dimension size.
     """
 
     # get the size of the dimension
@@ -88,7 +88,7 @@ def add_time_coords_to_idata_dimension(
     group: str,
     variable: str,
     dimension: str,
-    start_date_iso: datetime | date | np.datetime,
+    start_date_iso: datetime | date | np.datetime64,
     time_step: timedelta,
 ) -> az.InferenceData:
     """
