@@ -66,11 +66,7 @@ def generate_time_range_for_dim(
     """
     Generates a range of times based on the
     start date, time step, and variable's
-    dimension size. A range of dates is
-    generated if the start date is a date and
-    the time step is in days. A range of times
-    is generated if the start date is a time
-    and/or the time step is a time.
+    dimension size. 
     """
 
     # get the size of the dimension
