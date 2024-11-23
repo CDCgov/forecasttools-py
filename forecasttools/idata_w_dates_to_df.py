@@ -58,7 +58,7 @@ def convert_timedelta_to_np(td: timedelta) -> np.timedelta64:
 
 
 def generate_time_range_for_dim(
-    start_time_as_dt: datetime | date,
+    start_time_as_dt: datetime | date | np.datetime64,
     variable_data: xr.DataArray,
     dimension: str,
     time_step: timedelta | np.timedelta64,
