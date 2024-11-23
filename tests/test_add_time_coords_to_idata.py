@@ -290,7 +290,7 @@ def test_dates_add_time_coords_to_idata_dimension():
             date(2024, 11, 25),
             date(2024, 11, 27),
         ]
-    ).astype("datetime64[D]")
+    ).astype("datetime64[ns]")
 
     # function call
     updated_idata = forecasttools.add_time_coords_to_idata_dimension(
