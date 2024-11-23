@@ -44,14 +44,17 @@ def convert_date_or_datetime_to_np(time_object: any) -> np.datetime64:
         )
 
 
-def convert_timedelta_to_np(td: timedelta) -> np.timedelta64:
+def convert_timedelta_to_np(td: timedelta | np.timedelta64) -> np.timedelta64:
     """
     Converts a Python timedelta to:
     numpy.timedelta64[D] if it is
     representable in days only. Otherwise,
-    convert to numpy.timedelta64[ns].
+    convert to numpy.timedelta64[ns]. If
+    already np.timedelta64, return as is.
     """
-    if is_timedelta_in_days_only(td):
+    if isinstance(td, np.timedelta64):
+        return td
+    elif is_timedelta_in_days_only(td):
         return np.timedelta64(td.days, "D")
     else:
         return np.timedelta64(td).astype("timedelta64[ns]")
@@ -89,7 +92,7 @@ def add_time_coords_to_idata_dimension(
     variable: str,
     dimension: str,
     start_date_iso: datetime | date | np.datetime64,
-    time_step: timedelta,
+    time_step: timedelta | np.timedelta64,
 ) -> az.InferenceData:
     """
     Adds time coordinates to a specified
@@ -115,12 +118,12 @@ def add_time_coords_to_idata_dimension(
     dimension : str
         The dimension name to which time
         coordinates should be assigned.
-    start_date_iso : date | datetime
+    start_date_iso : date | datetime | np.datetime64
         The start date for the time
         coordinates as a str in ISO format
         (e.g., "2022-08-20") or as a
         datetime object.
-    time_step : timedelta
+    time_step : timedelta | np.timedelta64
         The time interval between each
         coordinate (e.g., `timedelta(days=1)`
         for daily intervals).
@@ -138,8 +141,8 @@ def add_time_coords_to_idata_dimension(
         (group, str, "group"),
         (variable, str, "variable"),
         (dimension, str, "dimension"),
-        (time_step, timedelta, "time_step"),
-        (start_date_iso, (date, datetime), "start_date_iso"),
+        (time_step, (timedelta, np.timedelta64), "time_step"),
+        (start_date_iso, (date, datetime, np.datetime64), "start_date_iso"),
     ]
     for value, expected_type, param_name in inputs:
         forecasttools.validate_input_type(
