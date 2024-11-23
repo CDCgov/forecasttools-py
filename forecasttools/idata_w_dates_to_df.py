@@ -61,7 +61,7 @@ def generate_time_range_for_dim(
     start_time_as_dt: datetime | date,
     variable_data: xr.DataArray,
     dimension: str,
-    time_step: timedelta,
+    time_step: timedelta | np.timedelta64,
 ) -> np.ndarray
     """
     Generates a range of times based on the
