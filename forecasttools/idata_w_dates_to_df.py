@@ -59,12 +59,14 @@ def convert_timedelta_to_np(td: timedelta | np.timedelta64) -> np.timedelta64:
     """
     if isinstance(td, np.timedelta64):
         return td
-    elif isinstance(td, timedelta): 
-        return (np.timedelta64(td.days, "D") if is_timedelta_in_days_only(td) else np.timedelta64(td).astype("timedelta64[ns]"))
-    else:
-        raise TypeError(
-            f"Input must be a timedelta object; got {type(td)}"
+    elif isinstance(td, timedelta):
+        return (
+            np.timedelta64(td.days, "D")
+            if is_timedelta_in_days_only(td)
+            else np.timedelta64(td).astype("timedelta64[ns]")
         )
+    else:
+        raise TypeError(f"Input must be a timedelta object; got {type(td)}")
 
 
 def generate_time_range_for_dim(
