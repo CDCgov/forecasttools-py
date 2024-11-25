@@ -7,18 +7,18 @@ license = "Apache-2.0"
 readme = "README.md"
 packages = [{include = "forecasttools"}]
 include = [
-    { path = "forecasttools/location_table.csv", format = "sdist" },
-    { path = "forecasttools/location_table.csv", format = "wheel" },
-    { path = "forecasttools/example_flusight_submission.csv", format = "sdist" },
-    { path = "forecasttools/example_flusight_submission.csv", format = "wheel" },
+    { path = "forecasttools/location_table.parquet", format = "sdist" },
+    { path = "forecasttools/location_table.parquet", format = "wheel" },
+    { path = "forecasttools/example_flusight_submission.parquet", format = "sdist" },
+    { path = "forecasttools/example_flusight_submission.parquet", format = "wheel" },
     { path = "forecasttools/example_flu_forecast_wo_dates.nc", format = "sdist" },
     { path = "forecasttools/example_flu_forecast_wo_dates.nc", format = "wheel" },
     { path = "forecasttools/example_flu_forecast_w_dates.nc", format = "sdist" },
     { path = "forecasttools/example_flu_forecast_w_dates.nc", format = "wheel" },
-    { path = "forecasttools/nhsn_hosp_COVID.csv", format = "sdist" },
-    { path = "forecasttools/nhsn_hosp_COVID.csv", format = "wheel" },
-    { path = "forecasttools/nhsn_hosp_flu.csv", format = "sdist" },
-    { path = "forecasttools/nhsn_hosp_flu.csv", format = "wheel" },
+    { path = "forecasttools/nhsn_hosp_COVID.parquet", format = "sdist" },
+    { path = "forecasttools/nhsn_hosp_COVID.parquet", format = "wheel" },
+    { path = "forecasttools/nhsn_hosp_flu.parquet", format = "sdist" },
+    { path = "forecasttools/nhsn_hosp_flu.parquet", format = "wheel" },
 ]
 
 
@@ -40,6 +40,10 @@ nbformat = "^5.10.4"
 nbclient = "^0.10.0"
 jupyter = "^1.1.1"
 
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.3"
 
 [build-system]
 requires = ["poetry-core"]

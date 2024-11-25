@@ -7,80 +7,258 @@ Polars dataframes to hubverse ready and
 scoringutils ready dataframes
 """
 
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 import arviz as az
 import numpy as np
 import polars as pl
+import xarray as xr
+
+import forecasttools
 
 
-def add_dates_as_coords_to_idata(
-    idata_wo_dates: az.InferenceData,
-    group_dim_dict: dict[str, str],
-    start_date_iso: str,
+def is_timedelta_in_days_only(td: timedelta) -> bool:
+    """
+    Checks if a timedelta object can be
+    represented exclusively in days,
+    meaning it has no hours, minutes,
+    seconds, or microseconds.
+    """
+    return td.seconds == 0 and td.microseconds == 0
+
+
+def convert_date_or_datetime_to_np(time_object: any) -> np.datetime64:
+    """
+    Converts a date or datetime object to
+    numpy.datetime64: date -> datetime64[D]
+    (day precision), datetime ->
+    datetime64[ns] (nanosecond precision). Or
+    returns as is if already np.datetime64.
+    """
+    if isinstance(time_object, np.datetime64):
+        return time_object
+    elif isinstance(time_object, date) and not isinstance(
+        time_object, datetime
+    ):
+        return np.datetime64(time_object, "D")
+    elif isinstance(time_object, datetime):
+        return np.datetime64(time_object, "ns")
+    else:
+        raise TypeError(
+            f"Input must be a date or datetime object; got {type(time_object)}"
+        )
+
+
+def convert_timedelta_to_np(td: timedelta | np.timedelta64) -> np.timedelta64:
+    """
+    Converts a Python timedelta to:
+    numpy.timedelta64[D] if it is
+    representable in days only. Otherwise,
+    convert to numpy.timedelta64[ns]. If
+    already np.timedelta64, return as is.
+    """
+    if isinstance(td, np.timedelta64):
+        return td
+    elif isinstance(td, timedelta):
+        return (
+            np.timedelta64(td.days, "D")
+            if is_timedelta_in_days_only(td)
+            else np.timedelta64(td).astype("timedelta64[ns]")
+        )
+    else:
+        raise TypeError(f"Input must be a timedelta object; got {type(td)}")
+
+
+def generate_time_range_for_dim(
+    start_time_as_dt: datetime | date | np.datetime64,
+    variable_data: xr.DataArray,
+    dimension: str,
+    time_step: timedelta | np.timedelta64,
+) -> np.ndarray:
+    """
+    Generates a range of times based on the
+    start date, time step, and variable's
+    dimension size.
+    """
+
+    # get the size of the dimension
+    interval_size = variable_data.sizes[dimension]
+
+    # convert the start time to correct np
+    start_time_as_np = convert_date_or_datetime_to_np(start_time_as_dt)
+    time_step_as_np = convert_timedelta_to_np(time_step)
+    end_step_as_np = start_time_as_np + interval_size * time_step_as_np
+    return np.arange(
+        start=start_time_as_np,
+        stop=end_step_as_np,
+        step=time_step_as_np,
+    )
+
+
+def add_time_coords_to_idata_dimension(
+    idata: az.InferenceData,
+    group: str,
+    variable: str,
+    dimension: str,
+    start_date_iso: datetime | date | np.datetime64,
+    time_step: timedelta | np.timedelta64,
 ) -> az.InferenceData:
     """
-    Modifies the provided idata object by assigning
-    date arrays to each group specified in group_dim_dict.
+    Adds time coordinates to a specified
+    variable within a group in an ArviZ
+    InferenceData object. This function
+    assigns a range of time coordinates
+    to a specified dimension in a variable
+    within a group in an InferenceData object.
 
     Parameters
     ----------
-    idata
-        The InferenceData object that contains
-        multiple groups (e.g., observed_data,
-        posterior_predictive).
-    group_dim_dict
-        A dictionary that maps InferenceData group
-        names (e.g., "observed_data", "posterior_predictive"
-        ) to dimension names (e.g., "obs_dim_0").
-    start_date_iso
-        The start date in ISO format (YYYY-MM-DD) from
-        which to begin the date range for the dimension.
+    idata : az.InferenceData
+        The InferenceData object containing
+        the group and variable to modify.
+    group : str
+        The name of the group within the
+        InferenceData object (e.g.,
+        "posterior_predictive").
+    variable : str
+        The name of the variable within the
+        specified group to assign time
+        coordinates to.
+    dimension : str
+        The dimension name to which time
+        coordinates should be assigned.
+    start_date_iso : date | datetime | np.datetime64
+        The start date for the time
+        coordinates as a str in ISO format
+        (e.g., "2022-08-20") or as a
+        datetime object.
+    time_step : timedelta | np.timedelta64
+        The time interval between each
+        coordinate (e.g., `timedelta(days=1)`
+        for daily intervals).
+
 
     Returns
     -------
-    idata
-        The modified InferenceData object with
-        date coordinates assigned to each group.
+    az.InferenceData
+        The InferenceData object with updated
+        time coordinates for the specified
+        group, variable, and dimension.
     """
+    inputs = [
+        (idata, az.InferenceData, "idata"),
+        (group, str, "group"),
+        (variable, str, "variable"),
+        (dimension, str, "dimension"),
+        (time_step, (timedelta, np.timedelta64), "time_step"),
+        (start_date_iso, (date, datetime, np.datetime64), "start_date_iso"),
+    ]
+    for value, expected_type, param_name in inputs:
+        forecasttools.validate_input_type(
+            value=value, expected_type=expected_type, param_name=param_name
+        )
+    idata_group = forecasttools.validate_and_get_idata_group(
+        idata=idata, group=group
+    )
+    variable_data = forecasttools.validate_and_get_idata_group_var(
+        idata_group=idata_group, group=group, variable=variable
+    )
+    forecasttools.validate_idata_group_var_dim(
+        variable_data=variable_data, dimension=dimension
+    )
+    interval_dates = generate_time_range_for_dim(
+        start_time_as_dt=start_date_iso,
+        variable_data=variable_data,
+        dimension=dimension,
+        time_step=time_step,
+    )
+    idata_group = idata_group.assign_coords({dimension: interval_dates})
+    setattr(idata, group, idata_group)
+    return idata
 
-    # NOTE: failure mode is if groups don't have the same
-    # start date
 
-    # convert received start date string to datetime object
-    start_date_as_dt = datetime.strptime(start_date_iso, "%Y-%m-%d")
-    # copy idata object to avoid modifying the original
-    idata_w_dates = idata_wo_dates.copy()
-    # modify indices of each selected group to dates
-    for (
-        group_name,
-        dim_name,
-    ) in group_dim_dict.items():
-        idata_group = getattr(idata_w_dates, group_name, None)
-        if idata_group is not None:
-            interval_size = idata_group.sizes[dim_name]
-            interval_dates = (
-                pl.date_range(
-                    start=start_date_as_dt,
-                    end=start_date_as_dt + pl.duration(days=interval_size - 1),
-                    interval="1d",
-                    closed="both",
-                    eager=True,
-                )
-                .to_numpy()
-                .astype("datetime64[ns]")
+def add_time_coords_to_idata_dimensions(
+    idata: az.InferenceData,
+    groups: str | list[str],
+    variables: str | list[str],
+    dimensions: str | list[str],
+    start_date_iso: str | datetime,
+    time_step: timedelta,
+) -> az.InferenceData:
+    """
+    Modifies the time-based coordinates across
+    groups, variables, and dimensions. The
+    function checks if the group, variable,
+    and dimension exist, and then applies the
+    specified time-based coordinates.
+
+    Parameters
+    ----------
+    idata : az.InferenceData
+        The InferenceData object to modify.
+    groups : str | list[str]
+        A group or a list of groups to modify
+        (e.g., "posterior_predictive").
+    variables : str | list[str]
+        A variable or a list of variables
+        within the specified groups to modify.
+    dimensions : str | list[str]
+        A dimension or a list of dimensions
+        to modify for the variables.
+    start_date_iso : date | datetime
+        The start date for the time
+        coordinates as a datetime date or as
+        a datetime datetime.
+    time_step : timedelta
+        The time interval between each
+        coordinate (e.g., `timedelta(days=1)`).
+
+    Returns
+    -------
+    az.InferenceData
+        The modified InferenceData object with
+        updated time coordinates for the
+        specified groups, variables, and
+        dimensions.
+    """
+    inputs = [
+        (idata, az.InferenceData, "idata"),
+        (groups, (str, list), "groups"),
+        (variables, (str, list), "variables"),
+        (dimensions, (str, list), "dimensions"),
+    ]
+    for value, expected_type, param_name in inputs:
+        forecasttools.validate_input_type(
+            value=value, expected_type=expected_type, param_name=param_name
+        )
+    # if str, convert to list
+    groups = forecasttools.ensure_listlike(groups)
+    variables = forecasttools.ensure_listlike(variables)
+    dimensions = forecasttools.ensure_listlike(dimensions)
+    # check groups, variables, and dimensions
+    # all contain str vars
+    forecasttools.validate_iter_has_expected_types(groups, str, "groups")
+    forecasttools.validate_iter_has_expected_types(variables, str, "variables")
+    forecasttools.validate_iter_has_expected_types(
+        dimensions, str, "dimensions"
+    )
+    # iterate over (group, variable, dimension) triples
+    for group, variable, dimension in zip(groups, variables, dimensions):
+        try:
+            idata = add_time_coords_to_idata_dimension(
+                idata=idata,
+                group=group,
+                variable=variable,
+                dimension=dimension,
+                start_date_iso=start_date_iso,
+                time_step=time_step,
             )
-            idata_group_with_dates = idata_group.assign_coords(
-                {dim_name: interval_dates}
-            )
-            setattr(
-                idata_w_dates,
-                group_name,
-                idata_group_with_dates,
-            )
-        else:
-            print(f"Warning: Group '{group_name}' not found in idata.")
-    return idata_w_dates
+        except ValueError as e:
+            raise ValueError(
+                f"Error for (group={group}, variable={variable}, dimension={dimension})."
+            ) from e
+
+    return idata
 
 
 def idata_forecast_w_dates_to_df(
