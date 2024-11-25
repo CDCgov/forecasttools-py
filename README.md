@@ -1,5 +1,5 @@
-CFA Forecast Tools (Python)
-================
+# CFA Forecast Tools (Python)
+
 
 <!-- To learn more about using Quarto for
 render a GitHub README, see
@@ -31,6 +31,10 @@ Install `forecasttools` via:
 
 # Datasets
 
+``` python
+import forecasttools
+```
+
 `forecasttools` contains several datasets. These datasets aid with
 experimentation or are directly necessary to some of `forecasttools`
 utilities.
@@ -41,28 +45,35 @@ The location table contains abbreviations, codes, and extended names for
 the US jurisdictions for which the FluSight and COVID forecasting hubs
 require users to generate forecasts.
 
-Shape: (58, 3)
+``` python
+forecasttools.location_table
+```
 
-| location_code | short_name | long_name                   |
-|---------------|------------|-----------------------------|
-| str           | str        | str                         |
-| —————         | ————       | —————————–                  |
-| US            | US         | United States               |
-| 1             | AL         | Alabama                     |
-| 2             | AK         | Alaska                      |
-| 4             | AZ         | Arizona                     |
-| 5             | AR         | Arkansas                    |
-| 6             | CA         | California                  |
-| 8             | CO         | Colorado                    |
-| 9             | CT         | Connecticut                 |
-| …             | …          | …                           |
-| 56            | WY         | Wyoming                     |
-| 60            | AS         | American Samoa              |
-| 66            | GU         | Guam                        |
-| 69            | MP         | Northern Mariana Islands    |
-| 72            | PR         | Puerto Rico                 |
-| 74            | UM         | U.S. Minor Outlying Islands |
-| 78            | VI         | U.S. Virgin Islands         |
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (58, 3)</small>
+
+| location_code | short_name | long_name                     |
+|---------------|------------|-------------------------------|
+| str           | str        | str                           |
+| "US"          | "US"       | "United States"               |
+| "01"          | "AL"       | "Alabama"                     |
+| "02"          | "AK"       | "Alaska"                      |
+| "04"          | "AZ"       | "Arizona"                     |
+| "05"          | "AR"       | "Arkansas"                    |
+| …             | …          | …                             |
+| "66"          | "GU"       | "Guam"                        |
+| "69"          | "MP"       | "Northern Mariana Islands"    |
+| "72"          | "PR"       | "Puerto Rico"                 |
+| "74"          | "UM"       | "U.S. Minor Outlying Islands" |
+| "78"          | "VI"       | "U.S. Virgin Islands"         |
+
+</div>
 
 The location table is stored in `forecasttools` as a `polars` dataframe
 and is accessed via:
@@ -86,31 +97,35 @@ make_census_dataset(
 The example FluSight submission comes from the [following 2023-24
 submission](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv).
 
-Shape: (4_876, 8)
+``` python
+forecasttools.example_flusight_submission
+```
 
-| reference_date | target     | horizon | target_end_date | location | output_type | output_type_id | value      |
-|----------------|------------|---------|-----------------|----------|-------------|----------------|------------|
-| 2023-10-14     | wk inc flu | -1      | 2023-10-07      | 01       | quantile    | 0.01           | 7.670286   |
-|                | hosp       |         |                 |          |             |                |            |
-| 2023-10-14     | wk inc flu | -1      | 2023-10-07      | 01       | quantile    | 0.025          | 9.968043   |
-|                | hosp       |         |                 |          |             |                |            |
-| 2023-10-14     | wk inc flu | -1      | 2023-10-07      | 01       | quantile    | 0.05           | 12.022354  |
-|                | hosp       |         |                 |          |             |                |            |
-| 2023-10-14     | wk inc flu | -1      | 2023-10-07      | 01       | quantile    | 0.1            | 14.497646  |
-|                | hosp       |         |                 |          |             |                |            |
-| 2023-10-14     | wk inc flu | -1      | 2023-10-07      | 01       | quantile    | 0.15           | 16.119813  |
-|                | hosp       |         |                 |          |             |                |            |
-| 2023-10-14     | wk inc flu | -1      | 2023-10-07      | 01       | quantile    | 0.2            | 17.670122  |
-|                | hosp       |         |                 |          |             |                |            |
-| 2023-10-14     | wk inc flu | -1      | 2023-10-07      | 01       | quantile    | 0.25           | 19.125462  |
-|                | hosp       |         |                 |          |             |                |            |
-| 2023-10-14     | wk inc flu | -1      | 2023-10-07      | 01       | quantile    | 0.3            | 20.443282  |
-|                | hosp       |         |                 |          |             |                |            |
-| …              | …          | …       | …               | …        | …           | …              | …          |
-| 2023-10-14     | wk inc flu | 2       | 2023-10-28      | US       | quantile    | 0.75           | 1995.98533 |
-|                | hosp       |         |                 |          |             |                | 6          |
-| 2023-10-14     | wk inc flu | 2       | 2023-10-28      | US       | quantile    | 0.99           | 4761.75738 |
-|                | hosp       |         |                 |          |             |                | 5          |
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (4_876, 8)</small>
+
+| reference_date | target | horizon | target_end_date | location | output_type | output_type_id | value |
+|----|----|----|----|----|----|----|----|
+| str | str | i64 | str | str | str | f64 | f64 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.01 | 7.670286 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.025 | 9.968043 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.05 | 12.022354 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.1 | 14.497646 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.15 | 16.119813 |
+| … | … | … | … | … | … | … | … |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.85 | 2451.874899 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.9 | 2806.928588 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.95 | 3383.74799 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.975 | 3940.392536 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.99 | 4761.757385 |
+
+</div>
 
 The example FluSight submission is stored in `forecasttools` as a
 `polars` dataframe and is accessed via:
@@ -169,15 +184,41 @@ The fitting data is stored in `forecasttools` as a `polars` dataframe
 and is accessed via:
 
 ``` python
-import forecasttools
-
-
 # access COVID data
 covid_nhsn_data = forecasttools.nhsn_hosp_COVID
 
 # access flu data
 flu_nhsn_data = forecasttools.nhsn_hosp_flu
+
+# display flu data
+flu_nhsn_data
 ```
+
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (81_713, 3)</small>
+
+| state | date         | hosp |
+|-------|--------------|------|
+| str   | str          | str  |
+| "AK"  | "2020-03-23" | null |
+| "AK"  | "2020-03-24" | null |
+| "AK"  | "2020-03-25" | null |
+| "AK"  | "2020-03-26" | null |
+| "AK"  | "2020-03-27" | null |
+| …     | …            | …    |
+| "WY"  | "2024-04-23" | "1"  |
+| "WY"  | "2024-04-24" | "1"  |
+| "WY"  | "2024-04-25" | "0"  |
+| "WY"  | "2024-04-26" | "0"  |
+| "WY"  | "2024-04-27" | "0"  |
+
+</div>
 
 The data was created by placing a csv file called
 `NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools`
@@ -250,12 +291,8 @@ make_forecast(
 
 The forecast looks like:
 
-<figure>
 <img src="./assets/example_forecast_w_dates.png" style="width:75.0%"
 alt="Example NHSN-based Influenza forecast" />
-<figcaption aria-hidden="true">Example NHSN-based Influenza
-forecast</figcaption>
-</figure>
 
 ------------------------------------------------------------------------
 
@@ -270,7 +307,9 @@ CDC use of GitHub does not imply an endorsement of any one particular
 service, product, or enterprise.
 
 <details>
+
 <summary>
+
 Rules, Policy, And Collaboration
 </summary>
 
@@ -282,10 +321,14 @@ Rules, Policy, And Collaboration
 - [Code of Conduct](./rules-and-policies/code-of-conduct.md)
 
 </details>
+
 <details>
+
 <summary>
+
 Public Domain Standard Notice
 </summary>
+
 This repository constitutes a work of the United States Government and
 is not subject to domestic copyright protection under 17 USC § 105. This
 repository is in the public domain within the United States, and
@@ -296,8 +339,11 @@ contributions to this repository will be released under the CC0
 dedication. By submitting a pull request you are agreeing to comply with
 this waiver of copyright interest.
 </details>
+
 <details>
+
 <summary>
+
 License Standard Notice
 </summary>
 
@@ -320,18 +366,25 @@ http://www.apache.org/licenses/LICENSE-2.0.html
 The source code forked from other open source projects will inherit its
 license.
 </details>
+
 <details>
+
 <summary>
+
 Privacy Standard Notice
 </summary>
+
 This repository contains only non-sensitive, publicly available data and
 information. All material and community participation is covered by the
 [Disclaimer](DISCLAIMER.md) and [Code of Conduct](code-of-conduct.md).
 For more information about CDC’s privacy policy, please visit
 [http://www.cdc.gov/other/privacy.html](https://www.cdc.gov/other/privacy.html).
 </details>
+
 <details>
+
 <summary>
+
 Contributing Standard Notice
 </summary>
 
@@ -349,19 +402,27 @@ through CDC including this GitHub page may be subject to applicable
 federal law, including but not limited to the Federal Records Act, and
 may be archived. Learn more at <http://www.cdc.gov/other/privacy.html>.
 </details>
+
 <details>
+
 <summary>
+
 Records Management Standard Notice
 </summary>
+
 This repository is not a source of government records, but is a copy to
 increase collaboration and collaborative potential. All government
 records will be published through the [CDC web
 site](http://www.cdc.gov).
 </details>
+
 <details>
+
 <summary>
+
 Additional Standard Notices
 </summary>
+
 Please refer to [CDC’s Template
 Repository](https://github.com/CDCgov/template) for more information
 about [contributing to this
