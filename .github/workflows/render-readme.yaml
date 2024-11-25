@@ -1,0 +1,30 @@
+name: Render Quarto README
+
+on:
+  push:
+    paths:
+      - README.qmd
+
+jobs:
+  render-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set Up Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+
+    - name: Render README.md From README.qmd
+      run: quarto render README.qmd
+
+    - name: Commit And Push Changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add README.md README.qmd
+        git commit -m "Auto-update README.md"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
