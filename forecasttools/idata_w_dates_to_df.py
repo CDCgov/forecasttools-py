@@ -173,6 +173,10 @@ def add_time_coords_to_idata_dimension(
         dimension=dimension,
         time_step=time_step,
     )
+    # will change when xarray supports
+    # numpy.dtype("datetime64[D]")
+    if not interval_dates.dtype == np.dtype("datetime64[ns]"):
+        interval_dates = interval_dates.astype("datetime64[ns]")
     idata_group = idata_group.assign_coords({dimension: interval_dates})
     setattr(idata, group, idata_group)
     return idata
