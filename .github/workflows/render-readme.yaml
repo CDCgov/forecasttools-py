@@ -18,14 +18,14 @@ jobs:
       with:
         python-version: "3.12"
 
+    - name: Set Up Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+
     - name: Install Poetry
       run: pip install poetry
 
     - name: Install Dependencies With Poetry
       run: poetry install --with dev
-
-    - name: Set Up Quarto
-      uses: quarto-dev/quarto-actions/setup@v2
 
     - name: Render README.md From README.qmd
       run: quarto render README.qmd
