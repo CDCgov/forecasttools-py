@@ -27,6 +27,9 @@ jobs:
     - name: Install Dependencies With Poetry
       run: poetry install --with dev
 
+    - name: Set QUARTO_PYTHON to Poetry Environment
+      run: echo "QUARTO_PYTHON=$(poetry env info --path)/bin/python" >> $GITHUB_ENV
+
     - name: Render README.md From README.qmd
       run: quarto render README.qmd
 
