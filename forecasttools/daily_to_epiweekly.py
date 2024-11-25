@@ -18,7 +18,10 @@ def calculate_epi_week_and_year(date: str):
         An ISO8601 date.
     """
     epiweek = epiweeks.Week.fromdate(datetime.strptime(date, "%Y-%m-%d"))
-    epiweek_df_struct = {"epiweek": epiweek.week, "epiyear": epiweek.year}
+    epiweek_df_struct = {
+        "epiweek": epiweek.week,
+        "epiyear": epiweek.year,
+    }
     return epiweek_df_struct
 
 
@@ -26,7 +29,7 @@ def df_aggregate_to_epiweekly(
     forecast_df: pl.DataFrame,
     value_col: str = "value",
     date_col: str = "date",
-    id_cols: list[str] = [".draw"],
+    id_cols: list[str] = ["draw"],
     weekly_value_name: str = "weekly_value",
     strict: bool = False,
 ) -> pl.DataFrame:
@@ -41,7 +44,7 @@ def df_aggregate_to_epiweekly(
         A polars dataframe with draws and dates
         as columns. This dataframe will likely
         have come from an InferenceData object
-        that was passed converted using `forecast_as_df_with_dates`.
+        that was converted using `idata_w_dates_to_df`.
     value_col
         The name of the column with the fitted
         and or forecasted quantity. Defaults
@@ -70,12 +73,6 @@ def df_aggregate_to_epiweekly(
         A dataframe with value_col aggregated
         across epiweek and epiyear.
     """
-    # check intended df columns are in received df
-    forecast_df_cols = forecast_df.columns
-    required_cols = [value_col, date_col] + id_cols
-    assert set(required_cols).issubset(
-        set(forecast_df_cols)
-    ), f"Column mismatch between require columns {required_cols} and forecast dateframe columns {forecast_df_cols}."
     # add epiweek and epiyear columns
     forecast_df = forecast_df.with_columns(
         pl.col(["date"])
@@ -105,12 +102,14 @@ def df_aggregate_to_epiweekly(
     if strict:
         valid_groups = n_elements.filter(pl.col("n_elements") == 7)
         forecast_df = forecast_df.join(
-            valid_groups.select(group_cols), on=group_cols, how="inner"
+            valid_groups.select(group_cols),
+            on=group_cols,
+            how="inner",
         )
     # aggregate; sum values in the specified value_col
     df = (
         forecast_df.group_by(group_cols)
         .agg(pl.col(value_col).sum().alias(weekly_value_name))
-        .sort(["epiyear", "epiweek", ".draw"])
+        .sort(["epiyear", "epiweek", "draw"])
     )
     return df

@@ -1,6 +1,6 @@
 """
 Takes epiweekly quantilized Polars dataframe
-and performs final conversion to the FluSight
+and performs final conversion to the hubverse
 formatted output.
 """
 
@@ -10,14 +10,17 @@ import epiweeks
 import polars as pl
 
 
-def get_flusight_target_end_dates(
-    reference_date: str, horizons: list[str] | None = None
+def get_hubverse_target_end_dates(
+    reference_date: str,
+    horizons: list[str] | None = None,
 ) -> pl.DataFrame:
     """
-    Generates remaining FluSight format
+    Generates remaining hubverse format
     columns from a reference date for use
     in a epiweekly quantilized dataframe.
 
+    Parameters
+    ----------
     reference_date
         The target forecast week, the first
         week in (usually) a four week forecast.
@@ -26,6 +29,12 @@ def get_flusight_target_end_dates(
         typically -1 to 3 (including 0) corresponding
         to one week prior to reference_date and
         three weeks after. Defaults to None.
+
+    Returns
+    -------
+    pl.DataFrame
+        A dataframe of columns necessary for
+        the hubverse submission.
     """
     # set default horizons in case of no specification
     if horizons is None:
@@ -53,14 +62,17 @@ def get_flusight_target_end_dates(
     # unnest epidate column
     data_df = data_df.with_columns(
         pl.col(["epidate"]).map_elements(
-            lambda elt: {"epiweek": elt.week, "epiyear": elt.year},
+            lambda elt: {
+                "epiweek": elt.week,
+                "epiyear": elt.year,
+            },
             return_dtype=pl.Struct,
         )
     ).unnest("epidate")
     return data_df
 
 
-def get_flusight_table(
+def get_hubverse_table(
     quantile_forecasts: pl.DataFrame,
     reference_date: str,
     quantile_value_col: str = "quantile_value",
@@ -73,9 +85,11 @@ def get_flusight_table(
 ) -> pl.DataFrame:
     """
     Takes epiweekly quantilized Polars dataframe
-    and adds target ends dates for FluSight
+    and adds target ends dates for hubverse
     formatted output dataframe.
 
+    Parameters
+    ----------
     quantile_forecasts
         A Polars dataframe of quantilized
         epiweekly forecasts for a single
@@ -110,6 +124,11 @@ def get_flusight_table(
         A list of US location codes to ignore
         certain locations. If None, defaults to
         ["60", "78"].
+
+    Returns
+    -------
+    pl.DataFrame
+        A hubverse formatted dataframe.
     """
     # default horizons and locations
     if horizons is None:
@@ -117,7 +136,7 @@ def get_flusight_table(
     if excluded_locations is None:
         excluded_locations = ["60", "78"]
     # get target end dates
-    targets = get_flusight_target_end_dates(reference_date, horizons=horizons)
+    targets = get_hubverse_target_end_dates(reference_date, horizons=horizons)
     # filter and select relevant columns
     quants = quantile_forecasts.select(
         [
@@ -129,7 +148,11 @@ def get_flusight_table(
         ]
     ).filter(~pl.col("location").is_in(excluded_locations))
     # inner join between targets and quantile forecasts
-    output_table = targets.join(quants, on=["epiweek", "epiyear"], how="inner")
+    output_table = targets.join(
+        quants,
+        on=["epiweek", "epiyear"],
+        how="inner",
+    )
     output_table = output_table.with_columns(
         [
             pl.lit("quantile").alias("output_type"),
