@@ -169,6 +169,15 @@ cython_debug/
 # MISCELLANEOUS
 ################################################################################
 
-poetry.lock
 
+poetry.lock
+/.quarto/
+_site
+/_site
+/_freeze
+_freeze
 .DS_Store
+DS_Store
+_book/
+_book
+render_test_idata_general_time_representation_files
