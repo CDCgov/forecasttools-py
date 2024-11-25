@@ -82,7 +82,7 @@ import forecasttools
 import matplotlib.pyplot as plt
 import xarray as xr
 import numpy as np
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 
 # load example FluSight submission
 submission = forecasttools.example_flusight_submission
@@ -212,9 +212,7 @@ idata_wo_dates["posterior_predictive"]["obs"]["obs_dim_0"]
 __Intermediary Functions For Adding Dates Or Time__
 
 ```{python}
-start_date_iso = "2022-08-01"
-
-start_time_as_dt = forecasttools.validate_and_get_start_time(start_date_iso)
+start_time_as_dt = date(2022, 8, 1)
 
 variable_data = idata_wo_dates["posterior_predictive"]["obs"]
 
@@ -243,7 +241,7 @@ idata_w_dates_single = forecasttools.add_time_coords_to_idata_dimension(
     group="posterior_predictive",
     variable="obs",
     dimension="obs_dim_0",
-    start_date_iso=start_date_iso,
+    start_date_iso=start_time_as_dt,
     time_step=timedelta(weeks=1), # notice weeks
 )
 idata_w_dates_single.posterior_predictive
@@ -254,15 +252,20 @@ idata_w_dates_single["posterior_predictive"]["obs"]["obs_dim_0"].values[-15:]
 ```
 
 ```{python}
+
 idata_w_dates_multiple = forecasttools.add_time_coords_to_idata_dimensions(
     idata=idata_wo_dates,
     groups=["posterior_predictive", "observed_data"],
     variables="obs",
     dimensions="obs_dim_0",
-    start_date_iso=start_date_iso,
+    start_date_iso=start_time_as_dt,
     time_step=timedelta(days=1),
 )
 idata_w_dates_multiple.observed_data
+```
+
+```{python}
+idata_w_dates_multiple["observed_data"]["obs"]["obs_dim_0"].values[-15:]
 ```
 
 ```{python}

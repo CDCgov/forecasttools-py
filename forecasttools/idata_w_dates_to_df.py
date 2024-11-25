@@ -7,6 +7,7 @@ Polars dataframes to hubverse ready and
 scoringutils ready dataframes
 """
 
+import itertools
 from datetime import date, datetime, timedelta
 
 import arviz as az
@@ -242,8 +243,17 @@ def add_time_coords_to_idata_dimensions(
     forecasttools.validate_iter_has_expected_types(
         dimensions, str, "dimensions"
     )
+    # create tuples, the groups should have
+    # every combination of variables and
+    # dimensions
+    var_dim_combinations = list(itertools.product(variables, dimensions))
+    gvd_tuples = [
+        (group, var, dim)
+        for group in groups
+        for var, dim in var_dim_combinations
+    ]
     # iterate over (group, variable, dimension) triples
-    for group, variable, dimension in zip(groups, variables, dimensions):
+    for group, variable, dimension in gvd_tuples:
         try:
             idata = add_time_coords_to_idata_dimension(
                 idata=idata,
