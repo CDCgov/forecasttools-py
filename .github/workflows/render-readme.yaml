@@ -21,7 +21,7 @@ jobs:
     - name: Install Poetry
       run: pip install poetry
 
-    - name: Install dependencies with Poetry
+    - name: Install Dependencies With Poetry
       run: poetry install --with dev
 
     - name: Set Up Quarto

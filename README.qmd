@@ -120,15 +120,15 @@ Shape: (81_713, 3)
 
 The fitting data is stored in `forecasttools` as a `polars` dataframe and is accessed via:
 
-```python
-import forecasttools
-
-
+```{python}
 # access COVID data
 covid_nhsn_data = forecasttools.nhsn_hosp_COVID
 
 # access flu data
 flu_nhsn_data = forecasttools.nhsn_hosp_flu
+
+# display covid data
+covid_nhsn_data
 ```
 
 The data was created by placing a csv file called `NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools` and running, in `data.py`, the following:
