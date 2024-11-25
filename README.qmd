@@ -70,31 +70,9 @@ make_census_dataset(
 
 The example FluSight submission comes from the [following 2023-24 submission](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv).
 
-Shape: (4_876, 8)
-
-| reference_date | target     | horizon | target_end_date | location | output_type | output_type_id | value |
-|------------|------------|---------|------------|----------|------------|------------|------------|
-| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.01       | 7.670286   |
-|            | hosp       |         |            |          |            |            |            |
-| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.025      | 9.968043   |
-|            | hosp       |         |            |          |            |            |            |
-| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.05       | 12.022354  |
-|            | hosp       |         |            |          |            |            |            |
-| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.1        | 14.497646  |
-|            | hosp       |         |            |          |            |            |            |
-| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.15       | 16.119813  |
-|            | hosp       |         |            |          |            |            |            |
-| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.2        | 17.670122  |
-|            | hosp       |         |            |          |            |            |            |
-| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.25       | 19.125462  |
-|            | hosp       |         |            |          |            |            |            |
-| 2023-10-14 | wk inc flu | -1      | 2023-10-07 | 01       | quantile   | 0.3        | 20.443282  |
-|            | hosp       |         |            |          |            |            |            |
-| …         | …         | …      | …         | …       | …         | …         | …          |
-| 2023-10-14 | wk inc flu | 2       | 2023-10-28 | US       | quantile   | 0.75       | 1995.98533 |
-|            | hosp       |         |            |          |            |            | 6          |
-| 2023-10-14 | wk inc flu | 2       | 2023-10-28 | US       | quantile   | 0.99       | 4761.75738 |
-|            | hosp       |         |            |          |            |            | 5          |
+```{python}
+forecasttools.example_flusight_submission
+```
 
 The example FluSight submission is stored in `forecasttools` as a `polars` dataframe and is accessed via:
 
