@@ -18,6 +18,12 @@ jobs:
       with:
         python-version: "3.12"
 
+    - name: Install Poetry
+      run: pip install poetry
+
+    - name: Install dependencies with Poetry
+      run: poetry install --with dev
+
     - name: Set Up Quarto
       uses: quarto-dev/quarto-actions/setup@v2
 
