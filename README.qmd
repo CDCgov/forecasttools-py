@@ -37,34 +37,19 @@ pip3 install git+https://github.com/CDCgov/forecasttools-py@main
 
 # Datasets
 
+```{python}
+import forecasttools
+```
+
 `forecasttools` contains several datasets. These datasets aid with experimentation or are directly necessary to some of `forecasttools` utilities.
 
 ## Location Table
 
 The location table contains abbreviations, codes, and extended names for the US jurisdictions for which the FluSight and COVID forecasting hubs require users to generate forecasts.
 
-Shape: (58, 3)
-
-| location_code | short_name | long_name                   |
-| ---           | ---        | ---                         |
-| str           | str        | str                         |
-|---------------|------------|-----------------------------|
-| US            | US         | United States               |
-| 1             | AL         | Alabama                     |
-| 2             | AK         | Alaska                      |
-| 4             | AZ         | Arizona                     |
-| 5             | AR         | Arkansas                    |
-| 6             | CA         | California                  |
-| 8             | CO         | Colorado                    |
-| 9             | CT         | Connecticut                 |
-| …            | …         | …                          |
-| 56            | WY         | Wyoming                     |
-| 60            | AS         | American Samoa              |
-| 66            | GU         | Guam                        |
-| 69            | MP         | Northern Mariana Islands    |
-| 72            | PR         | Puerto Rico                 |
-| 74            | UM         | U.S. Minor Outlying Islands |
-| 78            | VI         | U.S. Virgin Islands         |
+```{python}
+forecasttools.location_table
+```
 
 The location table is stored in `forecasttools` as a `polars` dataframe and is accessed via:
 
