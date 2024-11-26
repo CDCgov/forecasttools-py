@@ -14,6 +14,17 @@ repos:
     -   id: mixed-line-ending
     -   id: trailing-whitespace
 ################################################################################
+# QUARTO README RENDERING
+################################################################################
+-   repo: local
+    hooks:
+    -   id: render-quarto-readme
+        name: "render README.qmd as README.md"
+        entry: "./scripts/hooks/render-quarto-readme.sh"
+        language: script
+        always_run: true
+        files: "README.qmd"
+################################################################################
 # PYTHON
 ################################################################################
 -   repo: https://github.com/psf/black-pre-commit-mirror
