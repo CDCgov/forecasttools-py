@@ -85,7 +85,7 @@ The location table is stored in `forecasttools` as a `polars` dataframe and is a
 #| output: asis
 
 loc_table = forecasttools.location_table
-loc_table
+print(loc_table)
 ```
 
 Using `./forecasttools/data.py`, the location table was created by running the following:
@@ -107,7 +107,7 @@ The example FluSight submission is stored in `forecasttools` as a `polars` dataf
 
 ```{python}
 submission = forecasttools.example_flusight_submission
-submission
+print(submission)
 ```
 
 Using `data.py`, the example FluSight submission was created by running the following:
