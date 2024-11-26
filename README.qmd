@@ -36,6 +36,36 @@ Notes:
 * For the R version of this toolkit, see [forecasttools](https://github.com/CDCgov/forecasttools).
 * For CDC project expected to use `forecasttools-py`, see [pyrenew-hew](https://github.com/CDCgov/pyrenew-hew).
 
+<details markdown=1>
+<summary>
+A Tentative Utilities Diagram
+</summary>
+
+```{mermaid}
+%%{init: {"theme": "neutral", "themeVariables": { "fontFamily": "Iosevka", "fontSize": "25px", "lineColor": "#808b96", "arrowheadColor": "#808b96", "edgeStrokeWidth": "10px", "arrowheadLength": "20px"}}}%%
+flowchart TD
+    A1[COVID-19 Data _from forecasttools_] --> A4[NumPyro Model]
+    A2[Influenza Data _from forecasttools_] --> A4[NumPyro Model]
+    A3[External Dataset] --> A4[NumPyro Model]
+    A4[NumPyro Model] -->|_arviz.from_numpyro_| A5[Forecast As InferenceData Object wo/ Dates]
+    A5[Forecast As InferenceData Object wo/ Dates] -->|_Add Dates To InferenceData_ - done| A6[InferenceData Object w/ Dates]
+    A6[InferenceData Object w/ Dates] -->|_Convert To Tidy-Like Dataframe_ - done| A7[Polars Forecast Dataframe w/ Draws]
+    A7[Polars Forecast Dataframe w/ Draws] -->|_Convert To Hubverse Formatted Dataframe_ - done| A8[FluSight Submission Dataframe]
+    A7[Polars Forecast Dataframe w/ Draws] -->|_Convert To ScoringUtils Formatted Dataframe_ - in progress| A9[ScoringUtils DataFrame]
+    A7[Polars Forecast Dataframe w/ Draws] -->|_Save_| A10[Parquet File]
+    A8[FluSight Submission Dataframe] -->|_Save_| A11[Parquet File]
+    A9[ScoringUtils DataFrame] -->|_Save_| A12[Parquet File]
+    A8[FluSight Submission Dataframe] -->|_Convert To ScoringUtils Formatted Dataframe_ - in progress| A9[ScoringUtils DataFrame]
+    A12[Parquet File] -->|_Get scores in R_| A13[Forecast Scores]
+    A11[Parquet File] -->|_Model Forecast Hypothesis Testing_| A14[Model Comparison Report]
+
+    B1[Pulled Parquet Hubverse Submissions] -->|_Model Forecast Hypothesis Testing_| A14[Model Comparison Report]
+
+    linkStyle default stroke: #808b96
+    linkStyle default stroke-width: 2.0px
+```
+</details
+
 # Installation
 
 Install `forecasttools-py` via:
