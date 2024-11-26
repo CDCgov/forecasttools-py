@@ -1,8 +1,6 @@
 ---
 title: CFA Forecast Tools (Python)
-format:
-    gfm: # github flavored markdown
-        df-print: kable
+format: gfm
 jupyter: python3
 ---
 
@@ -14,15 +12,10 @@ render a GitHub README, see
 ```{python}
 #| echo: false
 import polars as pl
-import xarray as xr
-
-
-xr.set_options(display_expand_data=False, display_expand_attrs=False)
-
 
 # format polars dataframe correctly in the
 # background
-pl.Config.set_tbl_hide_dataframe_shape(True)
+pl.Config.set_tbl_hide_dataframe_shape(False)
 pl.Config.set_tbl_formatting("ASCII_MARKDOWN")
 pl.Config.set_tbl_hide_column_data_types(False)
 ```
@@ -89,6 +82,8 @@ The location table contains abbreviations, codes, and extended names for the US 
 The location table is stored in `forecasttools` as a `polars` dataframe and is accessed via:
 
 ```{python}
+#| output: asis
+
 loc_table = forecasttools.location_table
 loc_table
 ```
@@ -605,7 +600,7 @@ The forecast looks like:
 * [Code of Conduct](./rules-and-policies/code-of-conduct.md)
 </details>
 
-```{details markdown=1}
+<details markdown=1>
 <summary>
 Public Domain Standard Notice
 </summary>
@@ -617,7 +612,7 @@ the work worldwide are waived through the [CC0 1.0 Universal public domain dedic
 All contributions to this repository will be released under the CC0 dedication. By
 submitting a pull request you are agreeing to comply with this waiver of
 copyright interest.
-```
+</details>
 
 
 <details markdown=1>
