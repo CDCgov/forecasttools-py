@@ -18,9 +18,6 @@ fi
 echo "Installing dependencies with Poetry..."
 poetry install --with dev
 
-# set QUARTO_PYTHON environment variable
-export QUARTO_PYTHON=$(poetry env info --path)/bin/python
-
 echo "Rendering README.md from README.qmd..."
 poetry run quarto render README.qmd
 
