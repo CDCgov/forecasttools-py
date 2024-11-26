@@ -16,6 +16,15 @@ pl.Config.set_tbl_formatting("ASCII_MARKDOWN")
 pl.Config.set_tbl_hide_column_data_types(False)
 ``` -->
 
+``` {details}
+#| markdown: true
+<summary>Click to reveal content</summary>
+
+This is the content inside the `<details>` block.
+
+[forecasttools](https://github.com/CDCgov/forecasttools).
+```
+
 Summary of `forecasttools-py`:
 
 - A Python package.
@@ -28,10 +37,14 @@ Summary of `forecasttools-py`:
 Notes:
 
 - This repository is a WORK IN PROGRESS.
+- For the R version of this toolkit, see
+  [forecasttools](https://github.com/CDCgov/forecasttools).
+- For CDC project expected to use `forecasttools-py`, see
+  [pyrenew-hew](https://github.com/CDCgov/pyrenew-hew).
 
 # Installation
 
-Install `forecasttools` via:
+Install `forecasttools-py` via:
 
     pip3 install git+https://github.com/CDCgov/forecasttools-py@main
 
@@ -82,8 +95,8 @@ The location table contains abbreviations, codes, and extended names for
 the US jurisdictions for which the FluSight and COVID forecasting hubs
 require users to generate forecasts.
 
-The location table is stored in `forecasttools` as a `polars` dataframe
-and is accessed via:
+The location table is stored in `forecasttools-py` as a `polars`
+dataframe and is accessed via:
 
 ``` python
 loc_table = forecasttools.location_table
@@ -126,7 +139,7 @@ make_census_dataset(
 The example FluSight submission comes from the [following 2023-24
 submission](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv).
 
-The example FluSight submission is stored in `forecasttools` as a
+The example FluSight submission is stored in `forecasttools-py` as a
 `polars` dataframe and is accessed via:
 
 ``` python
@@ -194,7 +207,7 @@ is retained and for COVID the
 can be seen in the example below, some early dates for each jurisdiction
 do not have data.
 
-The fitting data is stored in `forecasttools` as a `polars` dataframe
+The fitting data is stored in `forecasttools-py` as a `polars` dataframe
 and is accessed via:
 
 ``` python
@@ -261,17 +274,7 @@ influenza hospital admissions forecasts for Texas made using a spline
 regression model fitted to NHSN data between 2022-08-08 and 2022-12-08.
 The only difference between the forecasts is that
 `example_flu_forecast_w_dates.nc` has had dates added as its coordinates
-(this is not a native Arviz feature). The `idata` objects which includes
-the observed data and posterior predictive samples is given below:
-
-    Inference data with groups:
-        > posterior
-        > posterior_predictive
-        > log_likelihood
-        > sample_stats
-        > prior
-        > prior_predictive
-        > observed_data
+(this is not a native Arviz feature).
 
 The forecast `idata`s are accessed via:
 
