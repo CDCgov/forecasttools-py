@@ -61,17 +61,17 @@ forecasttools.location_table
 | location_code | short_name | long_name                     |
 |---------------|------------|-------------------------------|
 | str           | str        | str                           |
-| "US"          | "US"       | "United States"               |
+| "US"          | "US"       | "United States"               |
 | "01"          | "AL"       | "Alabama"                     |
 | "02"          | "AK"       | "Alaska"                      |
 | "04"          | "AZ"       | "Arizona"                     |
 | "05"          | "AR"       | "Arkansas"                    |
 | …             | …          | …                             |
 | "66"          | "GU"       | "Guam"                        |
-| "69"          | "MP"       | "Northern Mariana Islands"    |
-| "72"          | "PR"       | "Puerto Rico"                 |
-| "74"          | "UM"       | "U.S. Minor Outlying Islands" |
-| "78"          | "VI"       | "U.S. Virgin Islands"         |
+| "69"          | "MP"       | "Northern Mariana Islands"    |
+| "72"          | "PR"       | "Puerto Rico"                 |
+| "74"          | "UM"       | "U.S. Minor Outlying Islands" |
+| "78"          | "VI"       | "U.S. Virgin Islands"         |
 
 </div>
 
@@ -113,17 +113,17 @@ forecasttools.example_flusight_submission
 | reference_date | target | horizon | target_end_date | location | output_type | output_type_id | value |
 |----|----|----|----|----|----|----|----|
 | str | str | i64 | str | str | str | f64 | f64 |
-| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.01 | 7.670286 |
-| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.025 | 9.968043 |
-| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.05 | 12.022354 |
-| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.1 | 14.497646 |
-| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.15 | 16.119813 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.01 | 7.670286 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.025 | 9.968043 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.05 | 12.022354 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.1 | 14.497646 |
+| "2023-10-14" | "wk inc flu hosp" | -1 | "2023-10-07" | "01" | "quantile" | 0.15 | 16.119813 |
 | … | … | … | … | … | … | … | … |
-| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.85 | 2451.874899 |
-| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.9 | 2806.928588 |
-| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.95 | 3383.74799 |
-| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.975 | 3940.392536 |
-| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.99 | 4761.757385 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.85 | 2451.874899 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.9 | 2806.928588 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.95 | 3383.74799 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.975 | 3940.392536 |
+| "2023-10-14" | "wk inc flu hosp" | 2 | "2023-10-28" | "US" | "quantile" | 0.99 | 4761.757385 |
 
 </div>
 
@@ -191,7 +191,7 @@ covid_nhsn_data = forecasttools.nhsn_hosp_COVID
 flu_nhsn_data = forecasttools.nhsn_hosp_flu
 
 # display flu data
-flu_nhsn_data
+covid_nhsn_data
 ```
 
 <div><style>
@@ -212,11 +212,11 @@ flu_nhsn_data
 | "AK"  | "2020-03-26" | null |
 | "AK"  | "2020-03-27" | null |
 | …     | …            | …    |
-| "WY"  | "2024-04-23" | "1"  |
+| "WY"  | "2024-04-23" | "2"  |
 | "WY"  | "2024-04-24" | "1"  |
 | "WY"  | "2024-04-25" | "0"  |
-| "WY"  | "2024-04-26" | "0"  |
-| "WY"  | "2024-04-27" | "0"  |
+| "WY"  | "2024-04-26" | "1"  |
+| "WY"  | "2024-04-27" | "1"  |
 
 </div>
 
