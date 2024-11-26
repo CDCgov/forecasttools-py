@@ -40,7 +40,7 @@ Notes:
 A Tentative Utilities Diagram
 </summary>
 
-``` {mermaid}
+``` mermaid
 %%{init: {"theme": "neutral", "themeVariables": { "fontFamily": "Iosevka", "fontSize": "25px", "lineColor": "#808b96", "arrowheadColor": "#808b96", "edgeStrokeWidth": "10px", "arrowheadLength": "20px"}}}%%
 flowchart TD
     A1[COVID-19 Data _from forecasttools_] --> A4[NumPyro Model]
