@@ -6,6 +6,8 @@ render a GitHub README, see
 <https://quarto.org/docs/output-formats/gfm.html>
 -->
 
+    polars.config.Config
+
 Summary of `forecasttools-py`:
 
 - A Python package.
@@ -17,7 +19,7 @@ Summary of `forecasttools-py`:
 
 Notes:
 
-- *This repository is a WORK IN PROGRESS.*
+- This repository is a *WORK IN PROGRESS*.
 
 # Installation
 
@@ -27,7 +29,13 @@ Install `forecasttools` via:
 
 # Vignettes
 
-- Format Arviz Forecast Output For FluSight Submission (In Progress)
+- [Format Arviz Forecast Output For FluSight
+  Submission](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/flusight_from_idata.qmd)
+- [Community Meeting Utilities Demonstration
+  (2024-11-19)](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/forecasttools_community_demo_2024-11-19.qmd)
+
+*Coming soon, with the completion of [Issue
+26](https://github.com/CDCgov/forecasttools-py/issues/26)*.
 
 # Datasets
 
@@ -293,8 +301,6 @@ The forecast looks like:
 
 <img src="./assets/example_forecast_w_dates.png" style="width:75.0%"
 alt="Example NHSN-based Influenza forecast" />
-
-------------------------------------------------------------------------
 
 # CDC Open Source Considerations
 
