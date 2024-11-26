@@ -64,73 +64,92 @@ flowchart TD
     linkStyle default stroke-width: 2.0px
 ```
 
-</details
-&#10;# Installation
-&#10;Install `forecasttools-py` via:
-&#10;```
-pip3 install git+https://github.com/CDCgov/forecasttools-py@main
-```
-&#10;# Vignettes
-&#10;* [Format Arviz Forecast Output For FluSight Submission](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/flusight_from_idata.qmd)
-* [Community Meeting Utilities Demonstration (2024-11-19)](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/forecasttools_community_demo_2024-11-19.qmd)
-&#10;_Coming soon as webpages, once [Issue 26](https://github.com/CDCgov/forecasttools-py/issues/26) is completed_.
-&#10;# Datasets
-&#10;Within `forecasttools-py`, one finds several packaged datasets. These datasets can aid with experimentation; some are directly necessary to other utilities provided by `forecasttools-py`.
-&#10;::: {.cell execution_count=1}
-``` {.python .cell-code}
+</details>
+
+# Installation
+
+Install `forecasttools-py` via:
+
+    pip3 install git+https://github.com/CDCgov/forecasttools-py@main
+
+# Vignettes
+
+- [Format Arviz Forecast Output For FluSight
+  Submission](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/flusight_from_idata.qmd)
+- [Community Meeting Utilities Demonstration
+  (2024-11-19)](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/forecasttools_community_demo_2024-11-19.qmd)
+
+*Coming soon as webpages, once [Issue
+26](https://github.com/CDCgov/forecasttools-py/issues/26) is completed*.
+
+# Datasets
+
+Within `forecasttools-py`, one finds several packaged datasets. These
+datasets can aid with experimentation; some are directly necessary to
+other utilities provided by `forecasttools-py`.
+
+``` python
 import forecasttools
 ```
-:::
-&#10;
+
 Summary of datasets:
-&#10;* `forecasttools.location_table`
-  * A Polars dataframe of location abbreviations, codes, and names for Hubverse formatted forecast submissions.
-* `forecasttools.example_flusight_submission`
-  * An example Hubverse formatted influenza forecast submission (as a Polars dataframe) submitted to the FluSight Hub.
-* `forecasttools.nhsn_hosp_COVID`
-  * A Polars dataframe of NHSN COVID hospital admissions data.
-* `forecasttools.nhsn_hosp_flu`
-  * A Polars dataframe of NHSN influenza hospital admissions data.
-* `forecasttools.nhsn_flu_forecast_wo_dates`
-  * An `az.InferenceData` object containing a forecast made using NSHN influenza data for Texas.
-* `forecasttools.nhsn_flu_forecast_w_dates`
-  * An modified (with dates as coordinates) `az.InferenceData` object containing a forecast made using NSHN influenza data for Texas.
-&#10;See below for more information on the datasets.
-&#10;## Location Table
-&#10;The location table contains abbreviations, codes, and extended names for the US jurisdictions for which the FluSight and COVID forecasting hubs require users to generate forecasts.
-&#10;
-The location table is stored in `forecasttools-py` as a `polars` dataframe and is accessed via:
-&#10;::: {.cell execution_count=2}
-``` {.python .cell-code}
+
+- `forecasttools.location_table`
+  - A Polars dataframe of location abbreviations, codes, and names for
+    Hubverse formatted forecast submissions.
+- `forecasttools.example_flusight_submission`
+  - An example Hubverse formatted influenza forecast submission (as a
+    Polars dataframe) submitted to the FluSight Hub.
+- `forecasttools.nhsn_hosp_COVID`
+  - A Polars dataframe of NHSN COVID hospital admissions data.
+- `forecasttools.nhsn_hosp_flu`
+  - A Polars dataframe of NHSN influenza hospital admissions data.
+- `forecasttools.nhsn_flu_forecast_wo_dates`
+  - An `az.InferenceData` object containing a forecast made using NSHN
+    influenza data for Texas.
+- `forecasttools.nhsn_flu_forecast_w_dates`
+  - An modified (with dates as coordinates) `az.InferenceData` object
+    containing a forecast made using NSHN influenza data for Texas.
+
+See below for more information on the datasets.
+
+## Location Table
+
+The location table contains abbreviations, codes, and extended names for
+the US jurisdictions for which the FluSight and COVID forecasting hubs
+require users to generate forecasts.
+
+The location table is stored in `forecasttools-py` as a `polars`
+dataframe and is accessed via:
+
+``` python
 loc_table = forecasttools.location_table
 print(loc_table)
 ```
-&#10;::: {.cell-output .cell-output-stdout}
-```
-shape: (58, 3)
-┌───────────────┬────────────┬─────────────────────────────┐
-│ location_code ┆ short_name ┆ long_name                   │
-│ ---           ┆ ---        ┆ ---                         │
-│ str           ┆ str        ┆ str                         │
-╞═══════════════╪════════════╪═════════════════════════════╡
-│ US            ┆ US         ┆ United States               │
-│ 01            ┆ AL         ┆ Alabama                     │
-│ 02            ┆ AK         ┆ Alaska                      │
-│ 04            ┆ AZ         ┆ Arizona                     │
-│ 05            ┆ AR         ┆ Arkansas                    │
-│ …             ┆ …          ┆ …                           │
-│ 66            ┆ GU         ┆ Guam                        │
-│ 69            ┆ MP         ┆ Northern Mariana Islands    │
-│ 72            ┆ PR         ┆ Puerto Rico                 │
-│ 74            ┆ UM         ┆ U.S. Minor Outlying Islands │
-│ 78            ┆ VI         ┆ U.S. Virgin Islands         │
-└───────────────┴────────────┴─────────────────────────────┘
-```
-:::
-:::
-&#10;
-Using `./forecasttools/data.py`, the location table was created by running the following:
-&#10;```python
+
+    shape: (58, 3)
+    ┌───────────────┬────────────┬─────────────────────────────┐
+    │ location_code ┆ short_name ┆ long_name                   │
+    │ ---           ┆ ---        ┆ ---                         │
+    │ str           ┆ str        ┆ str                         │
+    ╞═══════════════╪════════════╪═════════════════════════════╡
+    │ US            ┆ US         ┆ United States               │
+    │ 01            ┆ AL         ┆ Alabama                     │
+    │ 02            ┆ AK         ┆ Alaska                      │
+    │ 04            ┆ AZ         ┆ Arizona                     │
+    │ 05            ┆ AR         ┆ Arkansas                    │
+    │ …             ┆ …          ┆ …                           │
+    │ 66            ┆ GU         ┆ Guam                        │
+    │ 69            ┆ MP         ┆ Northern Mariana Islands    │
+    │ 72            ┆ PR         ┆ Puerto Rico                 │
+    │ 74            ┆ UM         ┆ U.S. Minor Outlying Islands │
+    │ 78            ┆ VI         ┆ U.S. Virgin Islands         │
+    └───────────────┴────────────┴─────────────────────────────┘
+
+Using `./forecasttools/data.py`, the location table was created by
+running the following:
+
+``` python
 make_census_dataset(
     file_save_path=os.path.join(
         os.getcwd(),
@@ -138,51 +157,54 @@ make_census_dataset(
     ),
 )
 ```
-&#10;## Example FluSight Hub Submission
-&#10;The example FluSight submission comes from the [following 2023-24 submission](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv).
-&#10;The example FluSight submission is stored in `forecasttools-py` as a `polars` dataframe and is accessed via:
-&#10;::: {.cell execution_count=3}
-``` {.python .cell-code}
+
+## Example FluSight Hub Submission
+
+The example FluSight submission comes from the [following 2023-24
+submission](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv).
+
+The example FluSight submission is stored in `forecasttools-py` as a
+`polars` dataframe and is accessed via:
+
+``` python
 submission = forecasttools.example_flusight_submission
 print(submission)
 ```
-&#10;::: {.cell-output .cell-output-stdout}
-```
-shape: (4_876, 8)
-┌────────────┬────────────┬─────────┬────────────┬──────────┬────────────┬────────────┬────────────┐
-│ reference_ ┆ target     ┆ horizon ┆ target_end ┆ location ┆ output_typ ┆ output_typ ┆ value      │
-│ date       ┆ ---        ┆ ---     ┆ _date      ┆ ---      ┆ e          ┆ e_id       ┆ ---        │
-│ ---        ┆ str        ┆ i64     ┆ ---        ┆ str      ┆ ---        ┆ ---        ┆ f64        │
-│ str        ┆            ┆         ┆ str        ┆          ┆ str        ┆ f64        ┆            │
-╞════════════╪════════════╪═════════╪════════════╪══════════╪════════════╪════════════╪════════════╡
-│ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.01       ┆ 7.670286   │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
-│ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.025      ┆ 9.968043   │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
-│ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.05       ┆ 12.022354  │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
-│ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.1        ┆ 14.497646  │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
-│ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.15       ┆ 16.119813  │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
-│ …          ┆ …          ┆ …       ┆ …          ┆ …        ┆ …          ┆ …          ┆ …          │
-│ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.85       ┆ 2451.87489 │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆ 9          │
-│ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.9        ┆ 2806.92858 │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆ 8          │
-│ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.95       ┆ 3383.74799 │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
-│ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.975      ┆ 3940.39253 │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆ 6          │
-│ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.99       ┆ 4761.75738 │
-│            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆ 5          │
-└────────────┴────────────┴─────────┴────────────┴──────────┴────────────┴────────────┴────────────┘
-```
-:::
-:::
-&#10;
-Using `data.py`, the example FluSight submission was created by running the following:
-&#10;```python
+
+    shape: (4_876, 8)
+    ┌────────────┬────────────┬─────────┬────────────┬──────────┬────────────┬────────────┬────────────┐
+    │ reference_ ┆ target     ┆ horizon ┆ target_end ┆ location ┆ output_typ ┆ output_typ ┆ value      │
+    │ date       ┆ ---        ┆ ---     ┆ _date      ┆ ---      ┆ e          ┆ e_id       ┆ ---        │
+    │ ---        ┆ str        ┆ i64     ┆ ---        ┆ str      ┆ ---        ┆ ---        ┆ f64        │
+    │ str        ┆            ┆         ┆ str        ┆          ┆ str        ┆ f64        ┆            │
+    ╞════════════╪════════════╪═════════╪════════════╪══════════╪════════════╪════════════╪════════════╡
+    │ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.01       ┆ 7.670286   │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
+    │ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.025      ┆ 9.968043   │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
+    │ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.05       ┆ 12.022354  │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
+    │ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.1        ┆ 14.497646  │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
+    │ 2023-10-14 ┆ wk inc flu ┆ -1      ┆ 2023-10-07 ┆ 01       ┆ quantile   ┆ 0.15       ┆ 16.119813  │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
+    │ …          ┆ …          ┆ …       ┆ …          ┆ …        ┆ …          ┆ …          ┆ …          │
+    │ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.85       ┆ 2451.87489 │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆ 9          │
+    │ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.9        ┆ 2806.92858 │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆ 8          │
+    │ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.95       ┆ 3383.74799 │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆            │
+    │ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.975      ┆ 3940.39253 │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆ 6          │
+    │ 2023-10-14 ┆ wk inc flu ┆ 2       ┆ 2023-10-28 ┆ US       ┆ quantile   ┆ 0.99       ┆ 4761.75738 │
+    │            ┆ hosp       ┆         ┆            ┆          ┆            ┆            ┆ 5          │
+    └────────────┴────────────┴─────────┴────────────┴──────────┴────────────┴────────────┴────────────┘
+
+Using `data.py`, the example FluSight submission was created by running
+the following:
+
+``` python
 get_and_save_flusight_submission(
     file_save_path=os.path.join(
         os.getcwd(),
@@ -190,49 +212,63 @@ get_and_save_flusight_submission(
     ),
 )
 ```
-&#10;
+
 ## NHSN COVID And Flu Hospital Admissions
-&#10;NHSN hospital admissions fitting data for COVID and Flu is included in `forecasttools-py` as well, for user experimentation.
-&#10;This data:
-&#10;* Is current as of `2024-04-27`
-* Comes from the website [HealthData.gov COVID-19 Reported Patient Impact and Hospital Capacity by State Timeseries](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh).
-&#10;For influenza, the `previous_day_admission_influenza_confirmed` column is retained and for COVID the `previous_day_admission_adult_covid_confirmed` column is retained. As can be seen in the example below, some early dates for each jurisdiction do not have data.
-&#10;The fitting data is stored in `forecasttools-py` as a `polars` dataframe and is accessed via:
-&#10;::: {.cell execution_count=4}
-``` {.python .cell-code}
+
+NHSN hospital admissions fitting data for COVID and Flu is included in
+`forecasttools-py` as well, for user experimentation.
+
+This data:
+
+- Is current as of `2024-04-27`
+- Comes from the website [HealthData.gov COVID-19 Reported Patient
+  Impact and Hospital Capacity by State
+  Timeseries](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh).
+
+For influenza, the `previous_day_admission_influenza_confirmed` column
+is retained and for COVID the
+`previous_day_admission_adult_covid_confirmed` column is retained. As
+can be seen in the example below, some early dates for each jurisdiction
+do not have data.
+
+The fitting data is stored in `forecasttools-py` as a `polars` dataframe
+and is accessed via:
+
+``` python
 # access COVID data
 covid_nhsn_data = forecasttools.nhsn_hosp_COVID
-&#10;# access flu data
+
+# access flu data
 flu_nhsn_data = forecasttools.nhsn_hosp_flu
-&#10;# display flu data
+
+# display flu data
 print(flu_nhsn_data)
 ```
-&#10;::: {.cell-output .cell-output-stdout}
-```
-shape: (81_713, 3)
-┌───────┬────────────┬──────┐
-│ state ┆ date       ┆ hosp │
-│ ---   ┆ ---        ┆ ---  │
-│ str   ┆ str        ┆ str  │
-╞═══════╪════════════╪══════╡
-│ AK    ┆ 2020-03-23 ┆ null │
-│ AK    ┆ 2020-03-24 ┆ null │
-│ AK    ┆ 2020-03-25 ┆ null │
-│ AK    ┆ 2020-03-26 ┆ null │
-│ AK    ┆ 2020-03-27 ┆ null │
-│ …     ┆ …          ┆ …    │
-│ WY    ┆ 2024-04-23 ┆ 1    │
-│ WY    ┆ 2024-04-24 ┆ 1    │
-│ WY    ┆ 2024-04-25 ┆ 0    │
-│ WY    ┆ 2024-04-26 ┆ 0    │
-│ WY    ┆ 2024-04-27 ┆ 0    │
-└───────┴────────────┴──────┘
-```
-:::
-:::
-&#10;
-The data was created by placing a csv file called `NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools/` and running, in `data.py`, the following:
-&#10;```python
+
+    shape: (81_713, 3)
+    ┌───────┬────────────┬──────┐
+    │ state ┆ date       ┆ hosp │
+    │ ---   ┆ ---        ┆ ---  │
+    │ str   ┆ str        ┆ str  │
+    ╞═══════╪════════════╪══════╡
+    │ AK    ┆ 2020-03-23 ┆ null │
+    │ AK    ┆ 2020-03-24 ┆ null │
+    │ AK    ┆ 2020-03-25 ┆ null │
+    │ AK    ┆ 2020-03-26 ┆ null │
+    │ AK    ┆ 2020-03-27 ┆ null │
+    │ …     ┆ …          ┆ …    │
+    │ WY    ┆ 2024-04-23 ┆ 1    │
+    │ WY    ┆ 2024-04-24 ┆ 1    │
+    │ WY    ┆ 2024-04-25 ┆ 0    │
+    │ WY    ┆ 2024-04-26 ┆ 0    │
+    │ WY    ┆ 2024-04-27 ┆ 0    │
+    └───────┴────────────┴──────┘
+
+The data was created by placing a csv file called
+`NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools/`
+and running, in `data.py`, the following:
+
+``` python
 # generate COVID dataset
 make_nshn_fitting_dataset(
     dataset="COVID",
@@ -242,7 +278,8 @@ make_nshn_fitting_dataset(
         "nhsn_hosp_COVID.csv"
     )
 )
-&#10;# generate flu dataset
+
+# generate flu dataset
 make_nshn_fitting_dataset(
     dataset="flu",
     nhsn_dataset_path="NHSN_RAW_20240926.csv",
@@ -252,33 +289,38 @@ make_nshn_fitting_dataset(
     )
 )
 ```
-&#10;## Influenza Hospitalizations Forecast(s)
-&#10;Two example forecasts stored in Arviz `InferenceData` objects are included for vignettes and user experimentation. Both are 28 day influenza hospital admissions forecasts for Texas made using a spline regression model fitted to NHSN data between 2022-08-08 and 2022-12-08. The only difference between the forecasts is that `example_flu_forecast_w_dates.nc` has had dates added as its coordinates (this is not a native Arviz feature).
-&#10;The forecast `idata`s are accessed via:
-&#10;::: {.cell execution_count=5}
-``` {.python .cell-code}
+
+## Influenza Hospitalizations Forecast(s)
+
+Two example forecasts stored in Arviz `InferenceData` objects are
+included for vignettes and user experimentation. Both are 28 day
+influenza hospital admissions forecasts for Texas made using a spline
+regression model fitted to NHSN data between 2022-08-08 and 2022-12-08.
+The only difference between the forecasts is that
+`example_flu_forecast_w_dates.nc` has had dates added as its coordinates
+(this is not a native Arviz feature).
+
+The forecast `idata`s are accessed via:
+
+``` python
 # idata with dates as coordinates
 idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
 print(idata_w_dates)
 ```
-&#10;::: {.cell-output .cell-output-stdout}
+
+    Inference data with groups:
+        > posterior
+        > posterior_predictive
+        > log_likelihood
+        > sample_stats
+        > prior
+        > prior_predictive
+        > observed_data
+
+``` python
+# show dates
+print(idata_w_dates["observed_data"]["obs"]["obs_dim_0"][:15])
 ```
-Inference data with groups:
-    >
-
-posterior \> posterior_predictive \> log_likelihood \> sample_stats \>
-prior \> prior_predictive \> observed_data
-
-    :::
-    :::
-
-
-    ::: {.cell execution_count=6}
-    ``` {.python .cell-code}
-    # show dates
-    print(idata_w_dates["observed_data"]["obs"]["obs_dim_0"][:15])
-
-<div class="cell-output cell-output-stdout">
 
     <xarray.DataArray 'obs_dim_0' (obs_dim_0: 15)> Size: 120B
     array(['2022-08-08T00:00:00.000000000', '2022-08-09T00:00:00.000000000',
@@ -291,10 +333,6 @@ prior \> prior_predictive \> observed_data
            '2022-08-22T00:00:00.000000000'], dtype='datetime64[ns]')
     Coordinates:
       * obs_dim_0  (obs_dim_0) datetime64[ns] 120B 2022-08-08 ... 2022-08-22
-
-</div>
-
-:::
 
 ``` python
 # idata without dates as coordinates
