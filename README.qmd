@@ -1,6 +1,8 @@
 ---
 title: CFA Forecast Tools (Python)
-format: gfm # github flavored markdown
+format:
+    gfm: # github flavored markdown
+        df-print: kable
 jupyter: python3
 ---
 
@@ -64,12 +66,18 @@ import forecasttools
 
 Summary of datasets:
 
-* `forecasttools.location_table`: A Polars dataframe of location abbreviations, codes, and names for Hubverse formatted forecast submissions.
-* `forecasttools.example_flusight_submission`: An example Hubverse formatted influenza forecast submission (as a Polars dataframe) submitted to the FluSight Hub.
-* `forecasttools.nhsn_hosp_COVID`: A Polars dataframe of NHSN COVID hospital admissions data.
-* `forecasttools.nhsn_hosp_flu`: A Polars dataframe of NHSN influenza hospital admissions data.
-* `forecasttools.nhsn_flu_forecast_wo_dates`: An `az.InferenceData` object containing a forecast made using NSHN influenza data for Texas.
-* `forecasttools.nhsn_flu_forecast_w_dates`: An modified (with dates as coordinates) `az.InferenceData` object containing a forecast made using NSHN influenza data for Texas.
+* `forecasttools.location_table`
+  * A Polars dataframe of location abbreviations, codes, and names for Hubverse formatted forecast submissions.
+* `forecasttools.example_flusight_submission`
+  * An example Hubverse formatted influenza forecast submission (as a Polars dataframe) submitted to the FluSight Hub.
+* `forecasttools.nhsn_hosp_COVID`
+  * A Polars dataframe of NHSN COVID hospital admissions data.
+* `forecasttools.nhsn_hosp_flu`
+  * A Polars dataframe of NHSN influenza hospital admissions data.
+* `forecasttools.nhsn_flu_forecast_wo_dates`
+  * An `az.InferenceData` object containing a forecast made using NSHN influenza data for Texas.
+* `forecasttools.nhsn_flu_forecast_w_dates`
+  * An modified (with dates as coordinates) `az.InferenceData` object containing a forecast made using NSHN influenza data for Texas.
 
 See below for more information on the datasets.
 
@@ -187,11 +195,15 @@ The forecast `idata`s are accessed via:
 ```{python}
 # idata with dates as coordinates
 idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
+idata_w_dates
+```
 
+```{python}
 # show dates
-print(idata_w_dates)
 print(idata_w_dates["observed_data"]["obs"]["obs_dim_0"][:15])
+```
 
+```{python}
 # idata without dates as coordinates
 idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
 print(idata_wo_dates["observed_data"]["obs"]["obs_dim_0"][:15])
@@ -593,7 +605,7 @@ The forecast looks like:
 * [Code of Conduct](./rules-and-policies/code-of-conduct.md)
 </details>
 
-<details markdown=1>
+```{details markdown=1}
 <summary>
 Public Domain Standard Notice
 </summary>
@@ -605,7 +617,7 @@ the work worldwide are waived through the [CC0 1.0 Universal public domain dedic
 All contributions to this repository will be released under the CC0 dedication. By
 submitting a pull request you are agreeing to comply with this waiver of
 copyright interest.
-</details>
+```
 
 
 <details markdown=1>
