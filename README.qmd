@@ -9,6 +9,16 @@ render a GitHub README, see
 <https://quarto.org/docs/output-formats/gfm.html>
 -->
 
+```{python}
+#| echo: false
+
+# format polars dataframe correctly in the
+# background
+pl.Config.set_tbl_hide_dataframe_shape(False)
+pl.Config.set_tbl_formatting("ASCII_MARKDOWN")
+pl.Config.set_tbl_hide_column_data_types(False)
+```
+
 Summary of `forecasttools-py`:
 
 * A Python package.
@@ -20,7 +30,7 @@ Summary of `forecasttools-py`:
 
 Notes:
 
-* _This repository is a WORK IN PROGRESS._
+* This repository is a _WORK IN PROGRESS_.
 
 
 # Installation
@@ -33,7 +43,10 @@ pip3 install git+https://github.com/CDCgov/forecasttools-py@main
 
 # Vignettes
 
-* Format Arviz Forecast Output For FluSight Submission (In Progress)
+* [Format Arviz Forecast Output For FluSight Submission](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/flusight_from_idata.qmd)
+* [Community Meeting Utilities Demonstration (2024-11-19)](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/forecasttools_community_demo_2024-11-19.qmd)
+
+_Coming soon, with the completion of [Issue 26](https://github.com/CDCgov/forecasttools-py/issues/26)_.
 
 # Datasets
 
@@ -196,8 +209,6 @@ The forecast looks like:
 
 ![Example NHSN-based Influenza forecast](./assets/example_forecast_w_dates.png){ width=75% }
 
----
-
 # CDC Open Source Considerations
 
 **General disclaimer** This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm).  GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.
@@ -290,6 +301,7 @@ published through the [CDC web site](http://www.cdc.gov).
 </details>
 
 <details markdown=1>
+
 <summary>
 Additional Standard Notices
 </summary>
