@@ -19,7 +19,7 @@ Summary of `forecasttools-py`:
 
 Notes:
 
-- This repository is a *WORK IN PROGRESS*.
+- This repository is a WORK IN PROGRESS.
 
 # Installation
 
@@ -34,18 +34,38 @@ Install `forecasttools` via:
 - [Community Meeting Utilities Demonstration
   (2024-11-19)](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/forecasttools_community_demo_2024-11-19.qmd)
 
-*Coming soon, with the completion of [Issue
-26](https://github.com/CDCgov/forecasttools-py/issues/26)*.
+*Coming soon as webpages, once [Issue
+26](https://github.com/CDCgov/forecasttools-py/issues/26) is completed*.
 
 # Datasets
+
+Within `forecasttools-py`, one finds several packaged datasets. These
+datasets can aid with experimentation; some are directly necessary to
+other utilities provided by `forecasttools-py`.
 
 ``` python
 import forecasttools
 ```
 
-`forecasttools` contains several datasets. These datasets aid with
-experimentation or are directly necessary to some of `forecasttools`
-utilities.
+Summary of datasets:
+
+- `forecasttools.location_table`: A Polars dataframe of location
+  abbreviations, codes, and names for Hubverse formatted forecast
+  submissions.
+- `forecasttools.example_flusight_submission`: An example Hubverse
+  formatted influenza forecast submission (as a Polars dataframe)
+  submitted to the FluSight Hub.
+- `forecasttools.nhsn_hosp_COVID`: A Polars dataframe of NHSN COVID
+  hospital admissions data.
+- `forecasttools.nhsn_hosp_flu`: A Polars dataframe of NHSN influenza
+  hospital admissions data.
+- `forecasttools.nhsn_flu_forecast_wo_dates`: An `az.InferenceData`
+  object containing a forecast made using NSHN influenza data for Texas.
+- `forecasttools.nhsn_flu_forecast_w_dates`: An modified (with dates as
+  coordinates) `az.InferenceData` object containing a forecast made
+  using NSHN influenza data for Texas.
+
+See below for more information on the datasets.
 
 ## Location Table
 
@@ -53,8 +73,12 @@ The location table contains abbreviations, codes, and extended names for
 the US jurisdictions for which the FluSight and COVID forecasting hubs
 require users to generate forecasts.
 
+The location table is stored in `forecasttools` as a `polars` dataframe
+and is accessed via:
+
 ``` python
-forecasttools.location_table
+loc_table = forecasttools.location_table
+loc_table
 ```
 
 <div><style>
@@ -64,7 +88,6 @@ forecasttools.location_table
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (58, 3)</small>
 
 | location_code | short_name | long_name                     |
 |---------------|------------|-------------------------------|
@@ -83,20 +106,15 @@ forecasttools.location_table
 
 </div>
 
-The location table is stored in `forecasttools` as a `polars` dataframe
-and is accessed via:
-
-``` python
-import forecasttools
-loc_table = forecasttools.location_table
-```
-
-Using `data.py`, the location table was created by running the
-following:
+Using `./forecasttools/data.py`, the location table was created by
+running the following:
 
 ``` python
 make_census_dataset(
-    file_save_path=os.path.join(os.getcwd(), "location_table.csv"),
+    file_save_path=os.path.join(
+        os.getcwd(),
+        "location_table.csv"
+    ),
 )
 ```
 
@@ -105,8 +123,12 @@ make_census_dataset(
 The example FluSight submission comes from the [following 2023-24
 submission](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv).
 
+The example FluSight submission is stored in `forecasttools` as a
+`polars` dataframe and is accessed via:
+
 ``` python
-forecasttools.example_flusight_submission
+submission = forecasttools.example_flusight_submission
+submission
 ```
 
 <div><style>
@@ -116,7 +138,6 @@ forecasttools.example_flusight_submission
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (4_876, 8)</small>
 
 | reference_date | target | horizon | target_end_date | location | output_type | output_type_id | value |
 |----|----|----|----|----|----|----|----|
@@ -135,58 +156,35 @@ forecasttools.example_flusight_submission
 
 </div>
 
-The example FluSight submission is stored in `forecasttools` as a
-`polars` dataframe and is accessed via:
-
-``` python
-import forecasttools
-submission = forecasttools.example_flusight_submission
-```
-
 Using `data.py`, the example FluSight submission was created by running
 the following:
 
 ``` python
 get_and_save_flusight_submission(
-    file_save_path=os.path.join(os.getcwd(), "example_flusight_submission.csv"),
+    file_save_path=os.path.join(
+        os.getcwd(),
+        "example_flusight_submission.csv"
+    ),
 )
 ```
 
 ## NHSN COVID And Flu Hospital Admissions
 
-Hospital admissions data for fitting from NHSN for COVID and Flu is
-included in `forecasttools` as well, for user experimentation. This data
-is current as of `2024-04-27` and comes from the website [HealthData.gov
-COVID-19 Reported Patient Impact and Hospital Capacity by State
-Timeseries](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh).
+NHSN hospital admissions fitting data for COVID and Flu is included in
+`forecasttools-py` as well, for user experimentation.
+
+This data:
+
+- Is current as of `2024-04-27`
+- Comes from the website [HealthData.gov COVID-19 Reported Patient
+  Impact and Hospital Capacity by State
+  Timeseries](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh).
+
 For influenza, the `previous_day_admission_influenza_confirmed` column
 is retained and for COVID the
 `previous_day_admission_adult_covid_confirmed` column is retained. As
 can be seen in the example below, some early dates for each jurisdiction
 do not have data.
-
-Shape: (81_713, 3)
-
-| state | date       | hosp |
-|-------|------------|------|
-| str   | str        | str  |
-| ——-   | ————       | ——   |
-| AK    | 2020-03-23 | null |
-| AK    | 2020-03-24 | null |
-| AK    | 2020-03-25 | null |
-| AK    | 2020-03-26 | null |
-| AK    | 2020-03-27 | null |
-| AK    | 2020-03-28 | null |
-| AK    | 2020-03-29 | null |
-| AK    | 2020-03-30 | null |
-| …     | …          | …    |
-| WY    | 2024-04-21 | 0    |
-| WY    | 2024-04-22 | 2    |
-| WY    | 2024-04-23 | 1    |
-| WY    | 2024-04-24 | 1    |
-| WY    | 2024-04-25 | 0    |
-| WY    | 2024-04-26 | 0    |
-| WY    | 2024-04-27 | 0    |
 
 The fitting data is stored in `forecasttools` as a `polars` dataframe
 and is accessed via:
@@ -199,7 +197,7 @@ covid_nhsn_data = forecasttools.nhsn_hosp_COVID
 flu_nhsn_data = forecasttools.nhsn_hosp_flu
 
 # display flu data
-covid_nhsn_data
+flu_nhsn_data
 ```
 
 <div><style>
@@ -209,7 +207,6 @@ covid_nhsn_data
   white-space: pre-wrap;
 }
 </style>
-<small>shape: (81_713, 3)</small>
 
 | state | date         | hosp |
 |-------|--------------|------|
@@ -220,16 +217,16 @@ covid_nhsn_data
 | "AK"  | "2020-03-26" | null |
 | "AK"  | "2020-03-27" | null |
 | …     | …            | …    |
-| "WY"  | "2024-04-23" | "2"  |
+| "WY"  | "2024-04-23" | "1"  |
 | "WY"  | "2024-04-24" | "1"  |
 | "WY"  | "2024-04-25" | "0"  |
-| "WY"  | "2024-04-26" | "1"  |
-| "WY"  | "2024-04-27" | "1"  |
+| "WY"  | "2024-04-26" | "0"  |
+| "WY"  | "2024-04-27" | "0"  |
 
 </div>
 
 The data was created by placing a csv file called
-`NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools`
+`NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools/`
 and running, in `data.py`, the following:
 
 ``` python
@@ -237,14 +234,20 @@ and running, in `data.py`, the following:
 make_nshn_fitting_dataset(
     dataset="COVID",
     nhsn_dataset_path="NHSN_RAW_20240926.csv",
-    file_save_path=os.path.join(os.getcwd(),"nhsn_hosp_COVID.csv")
+    file_save_path=os.path.join(
+        os.getcwd(),
+        "nhsn_hosp_COVID.csv"
+    )
 )
 
 # generate flu dataset
 make_nshn_fitting_dataset(
     dataset="flu",
     nhsn_dataset_path="NHSN_RAW_20240926.csv",
-    file_save_path=os.path.join(os.getcwd(),"nhsn_hosp_flu.csv")
+    file_save_path=os.path.join(
+        os.getcwd(),
+        "nhsn_hosp_flu.csv"
+    )
 )
 ```
 
@@ -255,9 +258,9 @@ included for vignettes and user experimentation. Both are 28 day
 influenza hospital admissions forecasts for Texas made using a spline
 regression model fitted to NHSN data between 2022-08-08 and 2022-12-08.
 The only difference between the forecasts is that
-`example_flu_forecast_w_dates.nc` has dates as its coordinates. The
-`idata` objects which includes the observed data and posterior
-predictive samples is given below:
+`example_flu_forecast_w_dates.nc` has had dates added as its coordinates
+(this is not a native Arviz feature). The `idata` objects which includes
+the observed data and posterior predictive samples is given below:
 
     Inference data with groups:
         > posterior
@@ -271,15 +274,34 @@ predictive samples is given below:
 The forecast `idata`s are accessed via:
 
 ``` python
-import forecasttools
-
-
 # idata with dates as coordinates
 idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
 
+# show dates
+print(idata_w_dates)
+print(idata_w_dates["observed_data"]["obs"]["obs_dim_0"][:15])
+
 # idata without dates as coordinates
 idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
+print(idata_wo_dates["observed_data"]["obs"]["obs_dim_0"][:15])
 ```
+
+    Inference data with groups:
+        > posterior
+        > posterior_predictive
+        > log_likelihood
+        > sample_stats
+        > prior
+        > prior_predictive
+        > observed_data
+    <xarray.DataArray 'obs_dim_0' (obs_dim_0: 15)> Size: 120B
+    2022-08-08 2022-08-09 2022-08-10 2022-08-11 ... 2022-08-20 2022-08-21 2022-08-22
+    Coordinates:
+      * obs_dim_0  (obs_dim_0) datetime64[ns] 120B 2022-08-08 ... 2022-08-22
+    <xarray.DataArray 'obs_dim_0' (obs_dim_0: 15)> Size: 120B
+    0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+    Coordinates:
+      * obs_dim_0  (obs_dim_0) int64 120B 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
 
 The forecast was generated following the creation of `nhsn_hosp_flu.csv`
 (see previous section) by running `data.py` with the following added:
@@ -296,6 +318,373 @@ make_forecast(
     use_log=False,
 )
 ```
+
+(note: `make_forecast` is no longer included in `forecasttools-py`,
+given the expectation that no one would ever call it; however, for
+reproducibility’s sake, the following is included here)
+
+<details>
+
+<summary>
+
+Some Of The Forecast Code
+</summary>
+
+``` python
+"""
+Creating a new idata object with
+dates to change the functionality
+of idata_w_dates_to_df.
+"""
+
+# %% IMPORTS
+
+import os
+from datetime import datetime, timedelta
+
+import arviz as az
+import forecasttools
+import jax.numpy as jnp
+import jax.random as jr
+import matplotlib.pyplot as plt
+import numpy as np
+import numpyro
+import numpyro.distributions as dist
+import patsy
+import polars as pl
+from numpy.typing import NDArray
+
+# %% CHECK FILE PATH
+
+
+def check_file_save_path(
+    file_save_path: str,
+) -> None:
+    """
+    Checks whether a file path is valid.
+
+    file_save_path
+        The file path to be checked.
+    """
+    directory = os.path.dirname(file_save_path)
+    if not os.path.exists(directory):
+        raise FileNotFoundError(f"Directory does not exist: {directory}")
+    if not os.access(directory, os.W_OK):
+        raise PermissionError(f"Directory is not writable: {directory}")
+    if os.path.exists(file_save_path):
+        raise FileExistsError(f"File already exists at: {file_save_path}")
+
+
+# %% SPLINE REGRESSION MODEL
+
+
+def model(basis_matrix, y=None):
+    # priors
+    shift = numpyro.sample("shift", dist.Normal(0.0, 2.0))
+    beta_coeffs = numpyro.sample(
+        "beta_coeffs",
+        dist.Normal(jnp.zeros(basis_matrix.shape[1]), 2.0),
+    )
+    shift_mu = jnp.dot(basis_matrix, beta_coeffs) + shift
+    mu_exp = jnp.exp(shift_mu)
+    alpha = numpyro.sample("alpha", dist.Exponential(1.0))
+    # likelihood
+    numpyro.sample(
+        "obs",
+        dist.NegativeBinomial2(mu_exp, alpha),
+        obs=y,
+    )
+
+
+# %% SPLINE BASIS MATRIX
+
+
+def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
+    basis = patsy.dmatrix(
+        "bs(x, df=df, degree=degree, include_intercept=True) - 1",
+        {"x": X, "df": df, "degree": degree},
+        return_type="matrix",
+    )
+    return np.array(basis)
+
+
+# %% PLOT AND OR SAVE FORECAST
+
+
+def plot_and_or_save_forecast(
+    idata: az.InferenceData,
+    X: NDArray,
+    y: NDArray,
+    title: str,
+    start_date: str,
+    end_date: str,
+    last_fit: int,
+    X_act: NDArray,
+    y_act: NDArray,
+    save_to_pdf: bool = False,
+    use_log: bool = False,
+):
+    """
+    Includes hard-coded variables. For the
+    author's testing and no more.
+    """
+    x_data = idata.posterior_predictive["obs_dim_0"]
+    y_data = idata.posterior_predictive["obs"]
+    fig, axes = plt.subplots(1, 1, figsize=(8, 6))
+    az.plot_hdi(
+        x_data,
+        y_data,
+        hdi_prob=0.95,
+        color="skyblue",
+        smooth=False,
+        fill_kwargs={
+            "alpha": 0.2,
+            "label": "95% Credible",
+        },
+        ax=axes,
+    )
+    az.plot_hdi(
+        x_data,
+        y_data,
+        hdi_prob=0.75,
+        color="skyblue",
+        smooth=False,
+        fill_kwargs={
+            "alpha": 0.4,
+            "label": "75% Credible",
+        },
+        ax=axes,
+    )
+    az.plot_hdi(
+        x_data,
+        y_data,
+        hdi_prob=0.5,
+        color="C0",
+        smooth=False,
+        fill_kwargs={
+            "alpha": 0.6,
+            "label": "50% Credible",
+        },
+        ax=axes,
+    )
+    axes.plot(
+        X,
+        y,
+        marker="o",
+        color="black",
+        linewidth=1.0,
+        markersize=3.0,
+        label="Observed",
+    )
+    if (X_act is not None) and (y_act is not None):
+        axes.plot(
+            X_act,
+            y_act,
+            marker="o",
+            color="red",
+            linewidth=1.0,
+            markersize=3.0,
+            label="Actual",
+        )
+    if use_log:
+        axes.set_yscale("log")
+        axes.set_ylabel(
+            "(Log) Hospital Admissions",
+            fontsize=17.5,
+        )
+    if not use_log:
+        axes.set_ylabel("Hospital Admissions", fontsize=17.5)
+    median_ts = y_data.median(dim=["chain", "draw"])
+    axes.plot(
+        x_data,
+        median_ts,
+        color="blue",
+        label="Median",
+    )
+    axes.legend()
+    axes.axvline(last_fit, color="black", linestyle="--")
+    axes.set_title(
+        f"{title}",
+        fontsize=20,
+    )
+    axes.set_xlabel("Time", fontsize=17.5)
+
+    plt.show()
+
+
+# %% ADD DATES TO AN INFERENCE DATA OBJECT
+
+
+def add_dates_to_idata_object(
+    idata: az.InferenceData,
+    start_date: str,
+) -> az.InferenceData:
+    """
+    Takes an InferenceData object w/
+    observed_data and posterior_predictive
+    groups and adds date indexing
+    """
+    pass
+
+
+# %% MAKE A FORECAST
+
+
+def make_forecast(
+    nhsn_data: str,
+    start_date: str,
+    end_date: str,
+    juris_subset: list[str],
+    forecast_days: int,
+    save_path: str = os.path.join(os.getcwd(), "forecast.nc"),
+    show_plot: bool = True,
+    save_idata: bool = False,
+    use_log: bool = False,
+) -> None:
+    """
+    Generates a forecast for specified
+    dates using a spline regression model.
+    """
+    # check dataset path
+    check_file_save_path(save_path)
+    # clean data and organize data, cleaning null values
+    nhsn_data = nhsn_data.with_columns(
+        pl.col("hosp").cast(pl.Int64),
+        pl.col("date").str.strptime(pl.Date, "%Y-%m-%d"),
+    ).filter(
+        pl.col("hosp").is_not_null(),
+        pl.col("state").is_in(juris_subset),
+    )
+    nhsn_data_ready = nhsn_data.filter(
+        (
+            pl.col("date")
+            >= pl.lit(start_date).str.strptime(pl.Date, "%Y-%m-%d")
+        )
+        & (
+            pl.col("date")
+            <= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d")
+        )
+    )
+    # get the actual values, if they exist
+    try:
+        forecast_end_date = datetime.strptime(
+            end_date, "%Y-%m-%d"
+        ) + timedelta(days=forecast_days)
+        nhsn_data_actual = nhsn_data.filter(
+            (
+                pl.col("date")
+                >= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d")
+            )
+            & (pl.col("date") <= pl.lit(forecast_end_date))
+        )
+    except Exception as e:
+        nhsn_data_actual = None
+        print(f"The following error occurred: {e}")
+    # define some shared inference values
+    random_seed = 2134312
+    num_samples = 1000
+    num_warmup = 500
+    # get posterior samples and make forecasts for each selected state
+    for state in juris_subset:
+        # get the state data
+        state_nhsn = nhsn_data_ready.filter(pl.col("state") == state)
+        # get observation (fitting) data y, X
+        y = state_nhsn["hosp"].to_numpy()
+        X = np.arange(y.shape[0])
+        # set up inference, NUTS/MCMC
+        kernel = numpyro.infer.NUTS(
+            model=model,
+            max_tree_depth=12,
+            target_accept_prob=0.85,
+            init_strategy=numpyro.infer.init_to_uniform(),
+        )
+        mcmc = numpyro.infer.MCMC(
+            kernel,
+            num_warmup=num_warmup,
+            num_samples=num_samples,
+        )
+        # create spline basis for obs period and forecast period
+        last = X[-1]
+        X_future = np.hstack(
+            (
+                X,
+                np.arange(
+                    last + 1,
+                    last + 1 + forecast_days,
+                ),
+            )
+        )
+        sbm = spline_basis(X_future)
+        # get posterior samples
+        mcmc.run(
+            rng_key=jr.key(random_seed),
+            basis_matrix=sbm[: len(X)],
+            y=y,
+        )
+        posterior_samples = mcmc.get_samples()
+        # get prior predictive
+        prior_pred = numpyro.infer.Predictive(model, num_samples=num_samples)(
+            rng_key=jr.key(random_seed),
+            basis_matrix=sbm[: len(X)],
+        )
+        # get posterior predictive forecast
+        posterior_pred_for = numpyro.infer.Predictive(
+            model,
+            posterior_samples=posterior_samples,
+        )(
+            rng_key=jr.key(random_seed),
+            basis_matrix=sbm,
+        )
+        # create initial inference data object(s) and store
+        idata = az.from_numpyro(
+            posterior=mcmc,
+            posterior_predictive=posterior_pred_for,
+            prior=prior_pred,
+        )
+        # get actual data, if it exists
+        if isinstance(nhsn_data_actual, pl.DataFrame):
+            actual_data = nhsn_data_actual.filter(pl.col("state") == state)
+            y_act = actual_data["hosp"].to_numpy()
+            X_act = np.arange(last - 1, last + forecast_days)
+        if not isinstance(nhsn_data_actual, pl.DataFrame):
+            y_act = None
+            X_act = None
+        # add dates to idata object
+
+        # save idata object(s)
+        if save_idata:
+            idata.to_netcdf(save_path)
+        # plot forecast (if desired) from idata light
+        if show_plot:
+            plot_and_or_save_forecast(
+                idata=idata,
+                X=X,
+                y=y,
+                title=f"Hospital Admissions ({state}, {start_date}-{end_date})",
+                start_date=start_date,
+                end_date=end_date,
+                last_fit=last,
+                X_act=X_act,
+                y_act=y_act,
+                use_log=use_log,
+            )
+
+
+# %% EXECUTE MODE
+
+make_forecast(
+    nhsn_data=forecasttools.nhsn_hosp_flu,
+    start_date="2022-08-08",
+    end_date="2022-12-08",
+    juris_subset=["TX"],
+    forecast_days=28,
+    save_path="../forecasttools/example_flu_forecast_w_dates.nc",
+    save_idata=False,
+    use_log=True,
+)
+```
+
+</details>
 
 The forecast looks like:
 
