@@ -64,7 +64,7 @@ flowchart TD
     linkStyle default stroke: #808b96
     linkStyle default stroke-width: 2.0px
 ```
-</details
+</details>
 
 # Installation
 
