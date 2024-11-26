@@ -11,4 +11,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
+    - name: Set up Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+    - name: Install Poetry
+      run: pip install poetry
     - uses: ./.github/actions/pre-commit

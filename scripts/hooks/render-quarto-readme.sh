@@ -24,5 +24,5 @@ export QUARTO_PYTHON=$(poetry env info --path)/bin/python
 echo "Rendering README.md from README.qmd..."
 poetry run quarto render README.qmd
 
-# add the generated README.md to the commit
-git add README.md
+# # add the generated README.md to the commit
+# git add README.md
