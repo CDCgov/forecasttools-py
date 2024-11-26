@@ -16,15 +16,6 @@ pl.Config.set_tbl_formatting("ASCII_MARKDOWN")
 pl.Config.set_tbl_hide_column_data_types(False)
 ``` -->
 
-``` {details}
-#| markdown: true
-<summary>Click to reveal content</summary>
-
-This is the content inside the `<details>` block.
-
-[forecasttools](https://github.com/CDCgov/forecasttools).
-```
-
 Summary of `forecasttools-py`:
 
 - A Python package.
