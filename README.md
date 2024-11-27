@@ -1,6 +1,12 @@
 CFA Forecast Tools (Python)
 ================
 
+<!--
+```python
+x = "test"
+```
+-->
+
 Summary of `forecasttools-py`:
 
 - A Python package.
