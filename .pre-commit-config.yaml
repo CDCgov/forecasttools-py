@@ -23,6 +23,7 @@ repos:
         entry: "./scripts/hooks/render-quarto-readme.sh"
         language: script
         always_run: true
+        files: "README.(q|)md"
 ################################################################################
 # PYTHON
 ################################################################################
