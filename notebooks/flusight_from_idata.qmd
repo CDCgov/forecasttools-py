@@ -104,6 +104,7 @@ idata
 
 
 
+
 The `idata` object has several groups associated with it.
 
 Let us examine the observed data group and then plot out the observations.
