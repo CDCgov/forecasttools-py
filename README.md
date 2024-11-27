@@ -239,8 +239,8 @@ covid_nhsn_data = forecasttools.nhsn_hosp_COVID
 # access flu data
 flu_nhsn_data = forecasttools.nhsn_hosp_flu
 
-# display flu data
-print(flu_nhsn_data)
+# display covid data
+print(covid_nhsn_data)
 ```
 
     shape: (81_713, 3)
@@ -255,11 +255,11 @@ print(flu_nhsn_data)
     │ AK    ┆ 2020-03-26 ┆ null │
     │ AK    ┆ 2020-03-27 ┆ null │
     │ …     ┆ …          ┆ …    │
-    │ WY    ┆ 2024-04-23 ┆ 1    │
+    │ WY    ┆ 2024-04-23 ┆ 2    │
     │ WY    ┆ 2024-04-24 ┆ 1    │
     │ WY    ┆ 2024-04-25 ┆ 0    │
-    │ WY    ┆ 2024-04-26 ┆ 0    │
-    │ WY    ┆ 2024-04-27 ┆ 0    │
+    │ WY    ┆ 2024-04-26 ┆ 1    │
+    │ WY    ┆ 2024-04-27 ┆ 1    │
     └───────┴────────────┴──────┘
 
 The data was created by placing a csv file called
