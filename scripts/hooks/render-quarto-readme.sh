@@ -28,8 +28,10 @@ if [[ -f README.md ]]; then
     echo "README.md has been modified."
     git add README.md
     echo "Changes staged. Please commit the updated README.md."
+    exit 1
   else
     echo "README.md is up to date."
+    exit 0
   fi
 else
   echo "README.md not generated. Something went wrong with render."
