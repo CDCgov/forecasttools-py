@@ -24,7 +24,7 @@ poetry run quarto render README.qmd
 # prompt user to stage/commit README
 # if there is a change
 if [[ -f README.md ]]; then
-  if ! git diff --quiet README.md; then
+  if ! git diff README.md; then
     echo "README.md has been modified."
     git add README.md
     echo "Changes staged. Please commit the updated README.md."
