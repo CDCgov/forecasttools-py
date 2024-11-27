@@ -172,8 +172,8 @@ covid_nhsn_data = forecasttools.nhsn_hosp_COVID
 # access flu data
 flu_nhsn_data = forecasttools.nhsn_hosp_flu
 
-# display flu data
-print(flu_nhsn_data)
+# display covid data
+print(covid_nhsn_data)
 ```
 
 The data was created by placing a csv file called `NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools/` and running, in `data.py`, the following:
