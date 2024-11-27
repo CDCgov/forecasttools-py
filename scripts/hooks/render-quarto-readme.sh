@@ -31,7 +31,7 @@ if [[ -f README.md ]]; then
 
   # dont want --cached because want unstaged
   # stages to show up as a diff
-  if ! git diff --quiet  --exit-code README.md; then
+  if ! git diff --quiet --exit-code --ignore-all-space --ignore-space-change README.md; then
 
     echo "README.md has been modified by this hook."
     echo "Changes staged. Please commit the updated README.md."
