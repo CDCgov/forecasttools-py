@@ -14,10 +14,6 @@ if ! command -v poetry &> /dev/null; then
   exit 1
 fi
 
-# set up poetry env
-echo "Installing dependencies with Poetry..."
-poetry install --with dev
-
 echo "Rendering README.md from README.qmd..."
 poetry run quarto render README.qmd
 
