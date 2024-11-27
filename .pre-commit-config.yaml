@@ -22,7 +22,7 @@ repos:
         name: "render README.qmd as README.md"
         entry: "./scripts/hooks/render-quarto-readme.sh"
         language: script
-        always_run: false # only when README.qmd is modified
+        always_run: true # only when README.qmd is modified
         files: "README.qmd"
 ################################################################################
 # PYTHON
