@@ -1,9 +1,20 @@
 # CFA Forecast Tools (Python)
 
 
-<!--
-Test comment
+<!-- To learn more about using Quarto for
+render a GitHub README, see
+<https://quarto.org/docs/output-formats/gfm.html>
 -->
+
+<!-- ```{python}
+#| echo: false
+import polars as pl
+&#10;# format polars dataframe correctly in the
+# background
+pl.Config.set_tbl_hide_dataframe_shape(False)
+pl.Config.set_tbl_formatting("ASCII_MARKDOWN")
+pl.Config.set_tbl_hide_column_data_types(False)
+``` -->
 
 Summary of `forecasttools-py`:
 

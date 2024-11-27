@@ -19,7 +19,7 @@ echo "Installing dependencies with Poetry..."
 poetry install --with dev
 
 echo "Rendering README.md from README.qmd..."
-poetry run quarto render README.qmd --to gfm
+poetry run quarto render README.qmd
 
 # prompt user to stage/commit README
 # if there is a change
@@ -31,7 +31,7 @@ if [[ -f README.md ]]; then
 
   # dont want --cached because want unstaged
   # stages to show up as a diff
-  if ! git diff --quiet --exit-code --ignore-all-space --ignore-space-change README.md; then
+  if ! git diff --quiet --exit-code README.md; then
 
     echo "README.md has been modified by this hook."
     echo "Changes staged. Please commit the updated README.md."
