@@ -14,6 +14,7 @@ if ! command -v poetry &> /dev/null; then
   exit 1
 fi
 
+poetry install --with dev
 echo "Rendering README.md from README.qmd..."
 poetry run quarto render README.qmd
 
@@ -31,8 +32,6 @@ if [[ -f README.md ]]; then
 
     echo "README.md has been modified by this hook."
     echo "Changes staged. Please commit the updated README.md."
-    # the presence of "exit 1" here has been
-    # debated
   else
     echo "README.md is up to date."
   fi
