@@ -17,4 +17,6 @@ jobs:
       uses: quarto-dev/quarto-actions/setup@v2
     - name: Install Poetry
       run: pip install poetry
+    - name: Install packages
+      run: poetry install --with dev
     - uses: ./.github/actions/pre-commit
