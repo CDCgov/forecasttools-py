@@ -21,5 +21,16 @@ poetry install --with dev
 echo "Rendering README.md from README.qmd..."
 poetry run quarto render README.qmd
 
-# # add the generated README.md to the commit
-# git add README.md
+# prompt user to stage/commit README
+# if there is a change
+if [[ -f README.md ]]; then
+  if ! git diff --quiet README.md; then
+    echo "README.md has been modified. Please stage and commit."
+    exit 1
+  else
+    echo "README.md is up to date."
+  fi
+else
+  echo "README.md not generated. Something went wrong with render."
+  exit 1
+fi
