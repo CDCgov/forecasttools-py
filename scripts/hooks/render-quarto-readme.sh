@@ -24,16 +24,23 @@ poetry run quarto render README.qmd
 # prompt user to stage/commit README
 # if there is a change
 if [[ -f README.md ]]; then
-  if ! git diff README.md; then
-    echo "README.md has been modified."
-    git add README.md
+
+  # make sure considered in diff but not
+  # actually staged
+  git add -N README.md
+
+  # dont want --cached because want unstaged
+  # stages to show up as a diff
+  if ! git diff --quiet --exit-code README.md; then
+
+    echo "README.md has been modified by this hook."
     echo "Changes staged. Please commit the updated README.md."
-    exit 1
+    # the presence of "exit 1" here has been
+    # debated
   else
     echo "README.md is up to date."
-    exit 0
   fi
 else
-  echo "README.md not generated. Something went wrong with render."
+  echo "README.md not found. Something went wrong."
   exit 1
 fi
