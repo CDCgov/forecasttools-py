@@ -1,10 +1,11 @@
-CFA Forecast Tools (Python)
-================
+# CFA Forecast Tools (Python)
+
 
 <!--
 ```python
 x = "test"
 ```
+&#10;
 -->
 
 Summary of `forecasttools-py`:
@@ -717,12 +718,8 @@ make_forecast(
 
 The forecast looks like:
 
-<figure>
 <img src="./assets/example_forecast_w_dates.png" style="width:75.0%"
 alt="Example NHSN-based Influenza forecast" />
-<figcaption aria-hidden="true">Example NHSN-based Influenza
-forecast</figcaption>
-</figure>
 
 # CDC Open Source Considerations
 
