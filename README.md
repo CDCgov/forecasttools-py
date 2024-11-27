@@ -5,7 +5,6 @@
 ```python
 x = "test"
 ```
-&#10;
 -->
 
 Summary of `forecasttools-py`:

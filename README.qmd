@@ -8,8 +8,6 @@ jupyter: python3
 ```python
 x = "test"
 ```
-
-
 -->
 
 
