@@ -27,7 +27,7 @@ if [[ -f README.md ]]; then
 
   # make sure considered in diff but not
   # actually staged
-  git add -N README.md
+  git add --intent-to-add README.md
 
   # dont want --cached because want unstaged
   # stages to show up as a diff
