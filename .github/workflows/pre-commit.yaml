@@ -9,6 +9,14 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    - name: Set up Quarto
+      uses: quarto-dev/quarto-actions/setup@v2
+    - name: Install Poetry
+      run: pip install poetry
+    - name: Install packages
+      run: poetry install --with dev
     - uses: ./.github/actions/pre-commit
