@@ -1,0 +1,174 @@
+["High Priority"]
+color = "EB2C98"
+name = "High Priority"
+description = "A task that is of higher relative priority."
+
+["Low Priority"]
+color = "1EA231"
+name = "Low Priority"
+description = "A task that is of lower relative priority."
+
+["Medium Priority"]
+color = "F1CBB5"
+name = "Medium Priority"
+description = "A task that is of medium relative priority."
+
+[actions]
+color = "cfd3d7"
+name = "actions"
+description = "Use of GitHub Actions to facilitate reduction in manual labor."
+
+[aesthetics]
+color = "cfd3d7"
+name = "aesthetics"
+description = "The appearance of items (e.g. website style) in the project."
+
+[automation]
+color = "cfd3d7"
+name = "automation"
+description = "Facilitating automation."
+
+[bug]
+color = "cfd3d7"
+name = "bug"
+description = "Something does not work as expected."
+
+[compliance]
+color = "cfd3d7"
+name = "compliance"
+description = "Must adhere to an external ruleset."
+
+[data]
+color = "cfd3d7"
+name = "data"
+description = "Task involving data handling."
+
+[dependencies]
+color = "cfd3d7"
+name = "dependencies"
+description = "Updates to dependency files."
+
+[deployment]
+color = "cfd3d7"
+name = "deployment"
+description = "Deployment modifications."
+
+[discussion]
+color = "cfd3d7"
+name = "discussion"
+description = "Conversations, postulations, and reflections."
+
+[documentation]
+color = "cfd3d7"
+name = "documentation"
+description = "Explanations for aspects of the project."
+
+[duplicate]
+color = "cfd3d7"
+name = "duplicate"
+description = "This issue or pull request already exists."
+
+[efficiency]
+color = "cfd3d7"
+name = "efficiency"
+description = "Changes that make something more efficient."
+
+[enhancement]
+color = "cfd3d7"
+name = "enhancement"
+description = "Enhancement to existing feature or aspect of the project."
+
+[feature]
+color = "cfd3d7"
+name = "feature"
+description = "A new tool or utility being added."
+
+[first-pass]
+color = "cfd3d7"
+name = "first-pass"
+description = "A first-pass at a specific task; typically evolves into something more substantial later."
+
+["help wanted"]
+color = "cfd3d7"
+name = "help wanted"
+description = "Further attention is desired."
+
+[meta]
+color = "cfd3d7"
+name = "meta"
+description = "Top-level considerations for the projects place and impact in the world."
+
+[presentation]
+color = "cfd3d7"
+name = "presentation"
+description = "Relating to a demo or presentation."
+
+[question]
+color = "cfd3d7"
+name = "question"
+description = "Request for further information."
+
+[reproducibility]
+color = "cfd3d7"
+name = "reproducibility"
+description = "Changes that make something more reproducible."
+
+[resources]
+color = "cfd3d7"
+name = "resources"
+description = "Useful reference material(s)."
+
+[scope]
+color = "cfd3d7"
+name = "scope"
+description = "Decision-making on the scope of a tool, task, or object."
+
+[security]
+color = "cfd3d7"
+name = "security"
+description = "Changes that make something more secure."
+
+[standards]
+color = "cfd3d7"
+name = "standards"
+description = "Related to best practices or standards."
+
+[template]
+color = "cfd3d7"
+name = "template"
+description = "A template for something."
+
+[testing]
+color = "cfd3d7"
+name = "testing"
+description = "Verifying something works as intended."
+
+[tidiness]
+color = "cfd3d7"
+name = "tidiness"
+description = "Improvements that something tidier."
+
+[user-feedback]
+color = "cfd3d7"
+name = "user-feedback"
+description = "Pertaining to user feedback for certain project items."
+
+[visuals]
+color = "cfd3d7"
+name = "visuals"
+description = "Adds or pertains to visualizations."
+
+[warnings]
+color = "cfd3d7"
+name = "warnings"
+description = "Adjustments to project to remove warnings."
+
+[website]
+color = "cfd3d7"
+name = "website"
+description = "Pertaining to a website associated with the project."
+
+[wontfix]
+color = "cfd3d7"
+name = "wontfix"
+description = "This will not be worked on."
