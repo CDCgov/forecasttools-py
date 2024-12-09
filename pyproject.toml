@@ -51,6 +51,7 @@ pytest = "^8.3.3"
 "Repository Issues" = "https://github.com/CDCgov/forecasttools-py/issues"
 "CDCgov Repositories" = "https://github.com/CDCgov"
 "Package That Will Use Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
+"Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
 
 [build-system]
 requires = ["poetry-core"]
