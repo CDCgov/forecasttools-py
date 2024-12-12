@@ -4,17 +4,15 @@ format: gfm
 engine: jupyter
 ---
 
+This notebook covers:
 
+* Use of pre-packaged datasets in `forecasttools-py`.
+* Creation of a spline regression model using `numpyro`.
+* Storage of posterior predictive forecasts in `arviz` `InferenceData` objects.
+
+The following are all the libraries required:
 
 ```{python}
-"""
-Creating a new idata object with
-dates to change the functionality
-of idata_w_dates_to_df.
-"""
-
-# %% IMPORTS
-
 import os
 from datetime import datetime, timedelta
 
@@ -29,7 +27,13 @@ import numpyro.distributions as dist
 import patsy
 import polars as pl
 from numpy.typing import NDArray
+import xarray as xr
 
+xr.set_options(display_expand_data=False, display_expand_attrs=False)
+```
+
+
+```{python}
 # %% CHECK FILE PATH
 
 
@@ -187,22 +191,6 @@ def plot_and_or_save_forecast(
 
     plt.show()
 
-
-# %% ADD DATES TO AN INFERENCE DATA OBJECT
-
-
-def add_dates_to_idata_object(
-    idata: az.InferenceData,
-    start_date: str,
-) -> az.InferenceData:
-    """
-    Takes an InferenceData object w/
-    observed_data and posterior_predictive
-    groups and adds date indexing
-    """
-    pass
-
-
 # %% MAKE A FORECAST
 
 
@@ -325,8 +313,6 @@ def make_forecast(
         if not isinstance(nhsn_data_actual, pl.DataFrame):
             y_act = None
             X_act = None
-        # add dates to idata object
-
         # save idata object(s)
         if save_idata:
             idata.to_netcdf(save_path)
