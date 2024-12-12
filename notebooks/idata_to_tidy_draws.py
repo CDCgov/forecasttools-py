@@ -7,6 +7,7 @@ idata to tidy_draws.
 # %% LIBRARY IMPORTS
 
 import os
+import re
 import subprocess
 import tempfile
 
@@ -207,6 +208,46 @@ postp_tidy_df = option_2_convert_idata_to_tidy_draws(
     idata=idata_w_dates, idata_group_name="posterior_predictive"
 )
 print(postp_tidy_df)
+
+# %% Another attempt
+
+
+# load csv
+inference_data_path = "idata.csv"
+df = pl.read_csv(inference_data_path)
+
+# clean
+df = df.rename({col: re.sub(r"[()'|, \d+]", "", col) for col in df.columns})
+
+# rename and mutate cols
+df = df.with_columns(
+    [
+        pl.col("chain").alias(".chain").cast(pl.Int32),
+        pl.col("draw").alias(".iteration").cast(pl.Int32),
+    ]
+)
+
+# create .draw column
+df = df.with_columns((df[".chain"] * 1000 + df[".iteration"]).alias(".draw"))
+
+# pivot longer
+df = df.melt(
+    id_vars=[".chain", ".iteration", ".draw"],
+    variable_name="name",
+    value_name="value",
+)
+
+# extract cols
+df = df.with_columns(
+    [
+        pl.col("name")
+        .str.extract(r"([^,]+), ([^,]+)", 1)
+        .alias("distribution"),
+        pl.col("name").str.extract(r"([^,]+), ([^,]+)", 2).alias("name"),
+    ]
+)
+
+df.write_csv("tidy_draws_ready.csv")
 
 
 # DAMON'S R CODE FOR THIS DATA (FROM IDATA CSV)
