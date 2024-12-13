@@ -32,11 +32,155 @@ import xarray as xr
 xr.set_options(display_expand_data=False, display_expand_attrs=False)
 ```
 
+As per the [README](), `forecasttools-py` comes with several pre-packaged datasets.
+
+<details markdown-1>
+<summary>
+Description Of The Datasets In Forecasttools
+</summary>
+
+Summary of datasets:
+
+* `forecasttools.location_table`
+  * A Polars dataframe of location abbreviations, codes, and names for Hubverse formatted forecast submissions.
+* `forecasttools.example_flusight_submission`
+  * An example Hubverse formatted influenza forecast submission (as a Polars dataframe) submitted to the FluSight Hub.
+* `forecasttools.nhsn_hosp_COVID`
+  * A Polars dataframe of NHSN COVID hospital admissions data.
+* `forecasttools.nhsn_hosp_flu`
+  * A Polars dataframe of NHSN influenza hospital admissions data.
+* `forecasttools.nhsn_flu_forecast_wo_dates`
+  * An `az.InferenceData` object containing a forecast made using NSHN influenza data for Texas.
+* `forecasttools.nhsn_flu_forecast_w_dates`
+  * An modified (with dates as coordinates) `az.InferenceData` object containing a forecast made using NSHN influenza data for Texas.
+
+See below for more information on the datasets.
+
+## Location Table
+
+The location table contains abbreviations, codes, and extended names for the US jurisdictions for which the FluSight and COVID forecasting hubs require users to generate forecasts.
+
+
+The location table is stored in `forecasttools-py` as a `polars` dataframe and is accessed via:
 
 ```{python}
-# %% CHECK FILE PATH
+loc_table = forecasttools.location_table
+print(loc_table)
+```
 
+Using `./forecasttools/data.py`, the location table was created by running the following:
 
+```python
+make_census_dataset(
+    file_save_path=os.path.join(
+        os.getcwd(),
+        "location_table.csv"
+    ),
+)
+```
+
+## Example FluSight Hub Submission
+
+The example FluSight submission comes from the [following 2023-24 submission](https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv).
+
+The example FluSight submission is stored in `forecasttools-py` as a `polars` dataframe and is accessed via:
+
+```{python}
+submission = forecasttools.example_flusight_submission
+print(submission)
+```
+
+Using `data.py`, the example FluSight submission was created by running the following:
+
+```python
+get_and_save_flusight_submission(
+    file_save_path=os.path.join(
+        os.getcwd(),
+        "example_flusight_submission.csv"
+    ),
+)
+```
+
+## NHSN COVID And Flu Hospital Admissions
+
+NHSN hospital admissions fitting data for COVID and Flu is included in `forecasttools-py` as well, for user experimentation.
+
+This data:
+
+* Is current as of `2024-04-27`.
+* Comes from the website [HealthData.gov COVID-19 Reported Patient Impact and Hospital Capacity by State Timeseries](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh).
+
+For influenza, the `previous_day_admission_influenza_confirmed` column is retained and for COVID the `previous_day_admission_adult_covid_confirmed` column is retained. As can be seen in the example below, some early dates for each jurisdiction do not have data.
+
+The fitting data is stored in `forecasttools-py` as a `polars` dataframe and is accessed via:
+
+```{python}
+# access COVID data
+covid_nhsn_data = forecasttools.nhsn_hosp_COVID
+
+# access flu data
+flu_nhsn_data = forecasttools.nhsn_hosp_flu
+
+# display flu data
+print(flu_nhsn_data)
+```
+
+The data was created by placing a csv file called `NHSN_RAW_20240926.csv` (the full NHSN dataset) into `./forecasttools/` and running, in `data.py`, the following:
+
+```python
+# generate COVID dataset
+make_nshn_fitting_dataset(
+    dataset="COVID",
+    nhsn_dataset_path="NHSN_RAW_20240926.csv",
+    file_save_path=os.path.join(
+        os.getcwd(),
+        "nhsn_hosp_COVID.csv"
+    )
+)
+
+# generate flu dataset
+make_nshn_fitting_dataset(
+    dataset="flu",
+    nhsn_dataset_path="NHSN_RAW_20240926.csv",
+    file_save_path=os.path.join(
+        os.getcwd(),
+        "nhsn_hosp_flu.csv"
+    )
+)
+```
+
+## Influenza Hospitalizations Forecast(s)
+
+Two example forecasts stored in Arviz `InferenceData` objects are included for vignettes and user experimentation. Both are 28 day influenza hospital admissions forecasts for Texas made using a spline regression model fitted to NHSN data between 2022-08-08 and 2022-12-08. The only difference between the forecasts is that `example_flu_forecast_w_dates.nc` has had dates added as its coordinates (this is not a native Arviz feature).
+
+The forecast `idata`s are accessed via:
+
+```{python}
+# idata with dates as coordinates
+idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
+print(idata_w_dates)
+```
+
+```{python}
+# show dates
+print(idata_w_dates["observed_data"]["obs"]["obs_dim_0"][:15])
+```
+
+```{python}
+# idata without dates as coordinates
+idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
+print(idata_wo_dates["observed_data"]["obs"]["obs_dim_0"][:15])
+```
+
+The forecast was generated following the creation of `nhsn_hosp_flu.csv` (see previous section) by running `data.py` with the following added:
+
+</details>
+
+In the remainder of this notebook, the author will demonstrate the use NHSN COVID and influenza data, or `forecasttools.nhsn_hosp_COVID` and `forecasttools.nhsn_hosp_flu`, respectively, in making forecasts using a spline regression model.
+
+Before proceeding further, the author has re-instantiates some helper functions not exposed to the user in `forecasttools-py`:
+
+```{python}
 def check_file_save_path(
     file_save_path: str,
 ) -> None:
@@ -48,47 +192,14 @@ def check_file_save_path(
     """
     directory = os.path.dirname(file_save_path)
     if not os.path.exists(directory):
-        raise FileNotFoundError(f"Directory does not exist: {directory}")
+        raise FileNotFoundError(
+            f"Directory does not exist: {directory}")
     if not os.access(directory, os.W_OK):
-        raise PermissionError(f"Directory is not writable: {directory}")
+        raise PermissionError(
+            f"Directory is not writable: {directory}")
     if os.path.exists(file_save_path):
-        raise FileExistsError(f"File already exists at: {file_save_path}")
-
-
-# %% SPLINE REGRESSION MODEL
-
-
-def model(basis_matrix, y=None):
-    # priors
-    shift = numpyro.sample("shift", dist.Normal(0.0, 2.0))
-    beta_coeffs = numpyro.sample(
-        "beta_coeffs",
-        dist.Normal(jnp.zeros(basis_matrix.shape[1]), 2.0),
-    )
-    shift_mu = jnp.dot(basis_matrix, beta_coeffs) + shift
-    mu_exp = jnp.exp(shift_mu)
-    alpha = numpyro.sample("alpha", dist.Exponential(1.0))
-    # likelihood
-    numpyro.sample(
-        "obs",
-        dist.NegativeBinomial2(mu_exp, alpha),
-        obs=y,
-    )
-
-
-# %% SPLINE BASIS MATRIX
-
-
-def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
-    basis = patsy.dmatrix(
-        "bs(x, df=df, degree=degree, include_intercept=True) - 1",
-        {"x": X, "df": df, "degree": degree},
-        return_type="matrix",
-    )
-    return np.array(basis)
-
-
-# %% PLOT AND OR SAVE FORECAST
+        raise FileExistsError(
+            f"File already exists at: {file_save_path}")
 
 
 def plot_and_or_save_forecast(
@@ -190,6 +301,45 @@ def plot_and_or_save_forecast(
     axes.set_xlabel("Time", fontsize=17.5)
 
     plt.show()
+```
+
+# %% SPLINE REGRESSION MODEL
+
+```{python}
+def model(basis_matrix, y=None):
+    # priors
+    shift = numpyro.sample("shift", dist.Normal(0.0, 2.0))
+    beta_coeffs = numpyro.sample(
+        "beta_coeffs",
+        dist.Normal(jnp.zeros(basis_matrix.shape[1]), 2.0),
+    )
+    shift_mu = jnp.dot(basis_matrix, beta_coeffs) + shift
+    mu_exp = jnp.exp(shift_mu)
+    alpha = numpyro.sample("alpha", dist.Exponential(1.0))
+    # likelihood
+    numpyro.sample(
+        "obs",
+        dist.NegativeBinomial2(mu_exp, alpha),
+        obs=y,
+    )
+
+
+# %% SPLINE BASIS MATRIX
+
+
+def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
+    basis = patsy.dmatrix(
+        "bs(x, df=df, degree=degree, include_intercept=True) - 1",
+        {"x": X, "df": df, "degree": degree},
+        return_type="matrix",
+    )
+    return np.array(basis)
+
+
+# %% PLOT AND OR SAVE FORECAST
+
+
+
 
 # %% MAKE A FORECAST
 
