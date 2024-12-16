@@ -32,7 +32,7 @@ import xarray as xr
 xr.set_options(display_expand_data=False, display_expand_attrs=False)
 ```
 
-As per the [README](), `forecasttools-py` comes with several pre-packaged datasets.
+As per the [README](https://github.com/CDCgov/forecasttools-py/blob/main/README.md), `forecasttools-py` comes with several pre-packaged datasets.
 
 <details markdown-1>
 <summary>
@@ -176,7 +176,7 @@ The forecast was generated following the creation of `nhsn_hosp_flu.csv` (see pr
 
 </details>
 
-In the remainder of this notebook, the author will demonstrate the use NHSN COVID and influenza data, or `forecasttools.nhsn_hosp_COVID` and `forecasttools.nhsn_hosp_flu`, respectively, in making forecasts using a spline regression model.
+In the remainder of this notebook, the author demonstrates use of the NHSN COVID and influenza data, or `forecasttools.nhsn_hosp_COVID` and `forecasttools.nhsn_hosp_flu`, respectively, in making forecasts using a spline regression model.
 
 Before proceeding further, the author has re-instantiates some helper functions not exposed to the user in `forecasttools-py`:
 
@@ -187,7 +187,9 @@ def check_file_save_path(
     """
     Checks whether a file path is valid.
 
-    file_save_path
+    Parameters
+    ----------
+    file_save_path : str
         The file path to be checked.
     """
     directory = os.path.dirname(file_save_path)
@@ -303,7 +305,7 @@ def plot_and_or_save_forecast(
     plt.show()
 ```
 
-# %% SPLINE REGRESSION MODEL
+Now, the spline regression model and its associated basis function:
 
 ```{python}
 def model(basis_matrix, y=None):
@@ -323,10 +325,6 @@ def model(basis_matrix, y=None):
         obs=y,
     )
 
-
-# %% SPLINE BASIS MATRIX
-
-
 def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
     basis = patsy.dmatrix(
         "bs(x, df=df, degree=degree, include_intercept=True) - 1",
@@ -334,16 +332,11 @@ def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
         return_type="matrix",
     )
     return np.array(basis)
+```
 
+The function to run the spline regression model:
 
-# %% PLOT AND OR SAVE FORECAST
-
-
-
-
-# %% MAKE A FORECAST
-
-
+```{python}
 def make_forecast(
     nhsn_data: str,
     start_date: str,
@@ -359,8 +352,9 @@ def make_forecast(
     Generates a forecast for specified
     dates using a spline regression model.
     """
+    # (commented out for demonstration purposes)
     # check dataset path
-    check_file_save_path(save_path)
+    # check_file_save_path(save_path)
     # clean data and organize data, cleaning null values
     nhsn_data = nhsn_data.with_columns(
         pl.col("hosp").cast(pl.Int64),
@@ -480,10 +474,12 @@ def make_forecast(
                 y_act=y_act,
                 use_log=use_log,
             )
+        return idata
+```
 
+Generate the forecast and display:
 
-# %% EXECUTE MODE
-
+```{python}
 make_forecast(
     nhsn_data=forecasttools.nhsn_hosp_flu,
     start_date="2022-08-08",
@@ -492,6 +488,7 @@ make_forecast(
     forecast_days=28,
     save_path="../forecasttools/example_flu_forecast_w_dates.nc",
     save_idata=False,
-    use_log=True,
+    show_plot=True,
+    use_log=False
 )
 ```
