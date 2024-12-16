@@ -1,94 +1,43 @@
 ---
-title: CFA Forecast Tools (Python)
+title: Creating InferenceData Objects and Using Forecasttools Datasets
 format: gfm
-jupyter: python3
+engine: jupyter
 ---
 
-<!-- To learn more about using Quarto for
-render a GitHub README, see
-<https://quarto.org/docs/output-formats/gfm.html>
--->
+This notebook covers:
 
-<!-- ```{python}
-#| echo: false
-import polars as pl
+* Use of pre-packaged datasets in `forecasttools-py`.
+* Creation of a spline regression model using `numpyro`.
+* Storage of posterior predictive forecasts in `arviz` `InferenceData` objects.
 
-# format polars dataframe correctly in the
-# background
-pl.Config.set_tbl_hide_dataframe_shape(False)
-pl.Config.set_tbl_formatting("ASCII_MARKDOWN")
-pl.Config.set_tbl_hide_column_data_types(False)
-``` -->
-
-
-Summary of `forecasttools-py`:
-
-* A Python package.
-* Primarily supports the Short Term Forecast's team.
-* Intended to support wider Real Time Monitoring branch operations.
-* Has tools for pre- and post-processing.
-  * Conversion of `az.InferenceData` forecast to Hubverse format.
-  * Addition of time and or dates to `az.InferenceData`.
-
-Notes:
-
-* This repository is a WORK IN PROGRESS.
-* For the R version of this toolkit, see [forecasttools](https://github.com/CDCgov/forecasttools).
-* For CDC project expected to use `forecasttools-py`, see [pyrenew-hew](https://github.com/CDCgov/pyrenew-hew).
-
-<details markdown=1>
-<summary>
-A Tentative Utilities Diagram
-</summary>
-
-```mermaid
-%%{init: {"theme": "neutral", "themeVariables": { "fontFamily": "Iosevka", "fontSize": "25px", "lineColor": "#808b96", "arrowheadColor": "#808b96", "edgeStrokeWidth": "10px", "arrowheadLength": "20px"}}}%%
-flowchart TD
-    A1[COVID-19 Data _from forecasttools_] --> A4[NumPyro Model]
-    A2[Influenza Data _from forecasttools_] --> A4[NumPyro Model]
-    A3[External Dataset] --> A4[NumPyro Model]
-    A4[NumPyro Model] -->|_arviz.from_numpyro_| A5[Forecast As InferenceData Object wo/ Dates]
-    A5[Forecast As InferenceData Object wo/ Dates] -->|_Add Dates To InferenceData_ - done| A6[InferenceData Object w/ Dates]
-    A6[InferenceData Object w/ Dates] -->|_Convert To Tidy-Like Dataframe_ - done| A7[Polars Forecast Dataframe w/ Draws]
-    A7[Polars Forecast Dataframe w/ Draws] -->|_Convert To Hubverse Formatted Dataframe_ - done| A8[FluSight Submission Dataframe]
-    A7[Polars Forecast Dataframe w/ Draws] -->|_Convert To ScoringUtils Formatted Dataframe_ - in progress| A9[ScoringUtils DataFrame]
-    A7[Polars Forecast Dataframe w/ Draws] -->|_Save_| A10[Parquet File]
-    A8[FluSight Submission Dataframe] -->|_Save_| A11[Parquet File]
-    A9[ScoringUtils DataFrame] -->|_Save_| A12[Parquet File]
-    A8[FluSight Submission Dataframe] -->|_Convert To ScoringUtils Formatted Dataframe_ - in progress| A9[ScoringUtils DataFrame]
-    A12[Parquet File] -->|_Get scores in R_| A13[Forecast Scores]
-    A11[Parquet File] -->|_Model Forecast Hypothesis Testing_| A14[Model Comparison Report]
-
-    B1[Pulled Parquet Hubverse Submissions] -->|_Model Forecast Hypothesis Testing_| A14[Model Comparison Report]
-
-    linkStyle default stroke: #808b96
-    linkStyle default stroke-width: 2.0px
-```
-</details>
-
-# Installation
-
-Install `forecasttools-py` via:
-
-```
-pip3 install git+https://github.com/CDCgov/forecasttools-py@main
-```
-
-# Vignettes
-
-* [Format Arviz Forecast Output For FluSight Submission](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/flusight_from_idata.qmd)
-* [Community Meeting Utilities Demonstration (2024-11-19)](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/forecasttools_community_demo_2024-11-19.qmd)
-* [Creating InferenceData Objects and Using Forecasttools Datasets](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/datasets_and_idata_creation.qmd)
-
-_Coming soon as webpages, once [Issue 26](https://github.com/CDCgov/forecasttools-py/issues/26) is completed_.
-
-# Datasets
-
-Within `forecasttools-py`, one finds several packaged datasets. These datasets can aid with experimentation; some are directly necessary to other utilities provided by `forecasttools-py`.
+The following are all the libraries required:
 
 ```{python}
+import os
+from datetime import datetime, timedelta
+
+import arviz as az
 import forecasttools
+import jax.numpy as jnp
+import jax.random as jr
+import matplotlib.pyplot as plt
+import numpy as np
+import numpyro
+import numpyro.distributions as dist
+import patsy
+import polars as pl
+from numpy.typing import NDArray
+import xarray as xr
+
+xr.set_options(display_expand_data=False, display_expand_attrs=False)
 ```
+
+As per the [README](https://github.com/CDCgov/forecasttools-py/blob/main/README.md), `forecasttools-py` comes with several pre-packaged datasets.
+
+<details markdown-1>
+<summary>
+Description Of The Datasets In Forecasttools
+</summary>
 
 Summary of datasets:
 
@@ -152,14 +101,13 @@ get_and_save_flusight_submission(
 )
 ```
 
-
 ## NHSN COVID And Flu Hospital Admissions
 
 NHSN hospital admissions fitting data for COVID and Flu is included in `forecasttools-py` as well, for user experimentation.
 
 This data:
 
-* Is current as of `2024-04-27`
+* Is current as of `2024-04-27`.
 * Comes from the website [HealthData.gov COVID-19 Reported Patient Impact and Hospital Capacity by State Timeseries](https://healthdata.gov/Hospital/COVID-19-Reported-Patient-Impact-and-Hospital-Capa/g62h-syeh).
 
 For influenza, the `previous_day_admission_influenza_confirmed` column is retained and for COVID the `previous_day_admission_adult_covid_confirmed` column is retained. As can be seen in the example below, some early dates for each jurisdiction do not have data.
@@ -226,105 +174,34 @@ print(idata_wo_dates["observed_data"]["obs"]["obs_dim_0"][:15])
 
 The forecast was generated following the creation of `nhsn_hosp_flu.csv` (see previous section) by running `data.py` with the following added:
 
-```python
-make_forecast(
-    nhsn_data=forecasttools.nhsn_hosp_flu,
-    start_date="2022-08-08",
-    end_date="2022-12-08",
-    juris_subset=["TX"],
-    forecast_days=28,
-    save_path="../forecasttools/example_flu_forecast_w_dates.nc",
-    save_idata=True,
-    use_log=False,
-)
-```
+</details>
 
-(note: `make_forecast` is no longer included in `forecasttools-py`, given the expectation that no one would ever call it; however, for reproducibility's sake, the following is included here)
+In the remainder of this notebook, the author demonstrates use of the NHSN COVID and influenza data, or `forecasttools.nhsn_hosp_COVID` and `forecasttools.nhsn_hosp_flu`, respectively, in making forecasts using a spline regression model.
 
-<details markdown=1>
-<summary>
-Some Of The Forecast Code
-</summary>
+Before proceeding further, the author has re-instantiates some helper functions not exposed to the user in `forecasttools-py`:
 
-```python
-"""
-Creating a new idata object with
-dates to change the functionality
-of idata_w_dates_to_df.
-"""
-
-# %% IMPORTS
-
-import os
-from datetime import datetime, timedelta
-
-import arviz as az
-import forecasttools
-import jax.numpy as jnp
-import jax.random as jr
-import matplotlib.pyplot as plt
-import numpy as np
-import numpyro
-import numpyro.distributions as dist
-import patsy
-import polars as pl
-from numpy.typing import NDArray
-
-# %% CHECK FILE PATH
-
-
+```{python}
 def check_file_save_path(
     file_save_path: str,
 ) -> None:
     """
     Checks whether a file path is valid.
 
-    file_save_path
+    Parameters
+    ----------
+    file_save_path : str
         The file path to be checked.
     """
     directory = os.path.dirname(file_save_path)
     if not os.path.exists(directory):
-        raise FileNotFoundError(f"Directory does not exist: {directory}")
+        raise FileNotFoundError(
+            f"Directory does not exist: {directory}")
     if not os.access(directory, os.W_OK):
-        raise PermissionError(f"Directory is not writable: {directory}")
+        raise PermissionError(
+            f"Directory is not writable: {directory}")
     if os.path.exists(file_save_path):
-        raise FileExistsError(f"File already exists at: {file_save_path}")
-
-
-# %% SPLINE REGRESSION MODEL
-
-
-def model(basis_matrix, y=None):
-    # priors
-    shift = numpyro.sample("shift", dist.Normal(0.0, 2.0))
-    beta_coeffs = numpyro.sample(
-        "beta_coeffs",
-        dist.Normal(jnp.zeros(basis_matrix.shape[1]), 2.0),
-    )
-    shift_mu = jnp.dot(basis_matrix, beta_coeffs) + shift
-    mu_exp = jnp.exp(shift_mu)
-    alpha = numpyro.sample("alpha", dist.Exponential(1.0))
-    # likelihood
-    numpyro.sample(
-        "obs",
-        dist.NegativeBinomial2(mu_exp, alpha),
-        obs=y,
-    )
-
-
-# %% SPLINE BASIS MATRIX
-
-
-def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
-    basis = patsy.dmatrix(
-        "bs(x, df=df, degree=degree, include_intercept=True) - 1",
-        {"x": X, "df": df, "degree": degree},
-        return_type="matrix",
-    )
-    return np.array(basis)
-
-
-# %% PLOT AND OR SAVE FORECAST
+        raise FileExistsError(
+            f"File already exists at: {file_save_path}")
 
 
 def plot_and_or_save_forecast(
@@ -426,26 +303,40 @@ def plot_and_or_save_forecast(
     axes.set_xlabel("Time", fontsize=17.5)
 
     plt.show()
+```
 
+Now, the spline regression model and its associated basis function:
 
-# %% ADD DATES TO AN INFERENCE DATA OBJECT
+```{python}
+def model(basis_matrix, y=None):
+    # priors
+    shift = numpyro.sample("shift", dist.Normal(0.0, 2.0))
+    beta_coeffs = numpyro.sample(
+        "beta_coeffs",
+        dist.Normal(jnp.zeros(basis_matrix.shape[1]), 2.0),
+    )
+    shift_mu = jnp.dot(basis_matrix, beta_coeffs) + shift
+    mu_exp = jnp.exp(shift_mu)
+    alpha = numpyro.sample("alpha", dist.Exponential(1.0))
+    # likelihood
+    numpyro.sample(
+        "obs",
+        dist.NegativeBinomial2(mu_exp, alpha),
+        obs=y,
+    )
 
+def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
+    basis = patsy.dmatrix(
+        "bs(x, df=df, degree=degree, include_intercept=True) - 1",
+        {"x": X, "df": df, "degree": degree},
+        return_type="matrix",
+    )
+    return np.array(basis)
+```
 
-def add_dates_to_idata_object(
-    idata: az.InferenceData,
-    start_date: str,
-) -> az.InferenceData:
-    """
-    Takes an InferenceData object w/
-    observed_data and posterior_predictive
-    groups and adds date indexing
-    """
-    pass
+The function to run the spline regression model:
 
-
-# %% MAKE A FORECAST
-
-
+```{python}
 def make_forecast(
     nhsn_data: str,
     start_date: str,
@@ -461,8 +352,9 @@ def make_forecast(
     Generates a forecast for specified
     dates using a spline regression model.
     """
+    # (commented out for demonstration purposes)
     # check dataset path
-    check_file_save_path(save_path)
+    # check_file_save_path(save_path)
     # clean data and organize data, cleaning null values
     nhsn_data = nhsn_data.with_columns(
         pl.col("hosp").cast(pl.Int64),
@@ -565,8 +457,6 @@ def make_forecast(
         if not isinstance(nhsn_data_actual, pl.DataFrame):
             y_act = None
             X_act = None
-        # add dates to idata object
-
         # save idata object(s)
         if save_idata:
             idata.to_netcdf(save_path)
@@ -584,10 +474,12 @@ def make_forecast(
                 y_act=y_act,
                 use_log=use_log,
             )
+        return idata
+```
 
+Generate the forecast and display:
 
-# %% EXECUTE MODE
-
+```{python}
 make_forecast(
     nhsn_data=forecasttools.nhsn_hosp_flu,
     start_date="2022-08-08",
@@ -596,111 +488,7 @@ make_forecast(
     forecast_days=28,
     save_path="../forecasttools/example_flu_forecast_w_dates.nc",
     save_idata=False,
-    use_log=True,
+    show_plot=True,
+    use_log=False
 )
 ```
-</details>
-
-The forecast looks like:
-
-![Example NHSN-based Influenza forecast](./assets/example_forecast_w_dates.png){ width=75% }
-
-# CDC Open Source Considerations
-
-**General disclaimer** This repository was created for use by CDC programs to collaborate on public health related projects in support of the [CDC mission](https://www.cdc.gov/about/organization/mission.htm).  GitHub is not hosted by the CDC, but is a third party website used by CDC and its partners to share information and collaborate on software. CDC use of GitHub does not imply an endorsement of any one particular service, product, or enterprise.
-
-<details markdown=1>
-<summary>Rules, Policy, And Collaboration</summary>
-
-* [Open Practices](./rules-and-policies/open_practices.md)
-* [Rules of Behavior](./rules-and-policies/rules_of_behavior.md)
-* [Thanks and Acknowledgements](./rules-and-policies/thanks.md)
-* [Disclaimer](DISCLAIMER.md)
-* [Contribution Notice](CONTRIBUTING.md)
-* [Code of Conduct](./rules-and-policies/code-of-conduct.md)
-</details>
-
-<details markdown=1>
-<summary>
-Public Domain Standard Notice
-</summary>
-
-This repository constitutes a work of the United States Government and is not
-subject to domestic copyright protection under 17 USC § 105. This repository is in
-the public domain within the United States, and copyright and related rights in
-the work worldwide are waived through the [CC0 1.0 Universal public domain dedication](https://creativecommons.org/publicdomain/zero/1.0/).
-All contributions to this repository will be released under the CC0 dedication. By
-submitting a pull request you are agreeing to comply with this waiver of
-copyright interest.
-</details>
-
-
-<details markdown=1>
-<summary>
-License Standard Notice
-</summary>
-
-The repository utilizes code licensed under the terms of the Apache Software
-License and therefore is licensed under ASL v2 or later.
-
-This source code in this repository is free: you can redistribute it and/or modify it under
-the terms of the Apache Software License version 2, or (at your option) any
-later version.
-
-This source code in this repository is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE. See the Apache Software License for more details.
-
-You should have received a copy of the Apache Software License along with this
-program. If not, see http://www.apache.org/licenses/LICENSE-2.0.html
-
-The source code forked from other open source projects will inherit its license.
-</details>
-
-<details markdown=1>
-<summary>
-Privacy Standard Notice
-</summary>
-
-This repository contains only non-sensitive, publicly available data and
-information. All material and community participation is covered by the
-[Disclaimer](DISCLAIMER.md)
-and [Code of Conduct](code-of-conduct.md).
-For more information about CDC's privacy policy, please visit [http://www.cdc.gov/other/privacy.html](https://www.cdc.gov/other/privacy.html).
-</details>
-
-<details markdown=1>
-<summary>
-Contributing Standard Notice
-</summary>
-
-Anyone is encouraged to contribute to the repository by [forking](https://help.github.com/articles/fork-a-repo)
-and submitting a pull request. (If you are new to GitHub, you might start with a
-[basic tutorial](https://help.github.com/articles/set-up-git).) By contributing
-to this project, you grant a world-wide, royalty-free, perpetual, irrevocable,
-non-exclusive, transferable license to all users under the terms of the
-[Apache Software License v2](http://www.apache.org/licenses/LICENSE-2.0.html) or
-later.
-
-All comments, messages, pull requests, and other submissions received through
-CDC including this GitHub page may be subject to applicable federal law, including but not limited to the Federal Records Act, and may be archived. Learn more at [http://www.cdc.gov/other/privacy.html](http://www.cdc.gov/other/privacy.html).
-</details>
-
-<details markdown=1>
-<summary>
-Records Management Standard Notice
-</summary>
-
-This repository is not a source of government records, but is a copy to increase
-collaboration and collaborative potential. All government records will be
-published through the [CDC web site](http://www.cdc.gov).
-</details>
-
-<details markdown=1>
-
-<summary>
-Additional Standard Notices
-</summary>
-
-Please refer to [CDC's Template Repository](https://github.com/CDCgov/template) for more information about [contributing to this repository](https://github.com/CDCgov/template/blob/main/CONTRIBUTING.md), [public domain notices and disclaimers](https://github.com/CDCgov/template/blob/main/DISCLAIMER.md), and [code of conduct](https://github.com/CDCgov/template/blob/main/code-of-conduct.md).
-</details>

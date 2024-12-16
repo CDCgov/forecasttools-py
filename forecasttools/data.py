@@ -20,8 +20,15 @@ def check_url(url: str) -> bool:
     example FluSight submission and the
     US 2020 Census data.
 
-    url
+    Parameters
+    ----------
+    url : str
         The url to be checked.
+
+    Returns
+    -------
+    bool
+        Whether the URL is valid.
     """
     try:
         response = request.urlopen(url)
@@ -40,7 +47,9 @@ def check_file_save_path(
     """
     Checks whether a file path is valid.
 
-    file_save_path
+    Parameters
+    ----------
+    file_save_path : str
         The file path to be checked.
     """
     directory = os.path.dirname(file_save_path)
@@ -61,7 +70,9 @@ def make_census_dataset(
     saves the dataset as a csv in a given
     directory, if it does not already exist.
 
-    file_save_path
+    Parameters
+    ----------
+    file_save_path : str
         The path for where to save the output file.
     """
     # check that file and directory paths are valid
@@ -103,12 +114,14 @@ def make_nshn_fitting_dataset(
     NOT use the API endpoint, and instead expects
     a CSV.
 
-    dataset
+    Parameters
+    ----------
+    dataset : str
         Name of the dataset to create. Either
         "COVID" or "flu".
-    nhsn_dataset_path
+    nhsn_dataset_path : str
         Path to the NHSN dataset (csv file).
-    file_save_path
+    file_save_path : str
         The path for where to save the output file.
     """
     # check that dataset parameter is possible
@@ -178,7 +191,9 @@ def get_and_save_flusight_submission(
     """
     Saves an example FluSight submission as a csv.
 
-    file_save_path
+    Parameters
+    ----------
+    file_save_path : str
         The path for where to save the output file.
     """
     # check if the save file exists
