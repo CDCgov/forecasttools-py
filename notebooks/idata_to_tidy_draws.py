@@ -23,65 +23,6 @@ xr.set_options(
     display_expand_attrs=False,
 )
 
-
-# %% EXAMPLE IDATA W/ AND WO/ DATES
-
-idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
-idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
-print(idata_w_dates)
-
-print(idata_w_dates.observed_data)
-
-
-# %% WHEN IDATA IS CONVERTED TO DF THEN CSV
-
-idata_wod_pandas_df = idata_wo_dates.to_dataframe()
-idata_wod_pols_df = pl.from_pandas(idata_wod_pandas_df)
-print(idata_wod_pols_df)
-
-example_output = """
-shape: (1_000, 1_515)
-┌───────┬──────┬─────────────┬─────────────┬───┬────────────┬────────────┬────────────┬────────────┐
-│ chain ┆ draw ┆ ('posterior ┆ ('posterior ┆ … ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr │
-│ ---   ┆ ---  ┆ ', 'alpha') ┆ ', 'beta_co ┆   ┆ edictive', ┆ edictive', ┆ edictive', ┆ edictive', │
-│ i64   ┆ i64  ┆ ---         ┆ effs[0]'…   ┆   ┆ 'obs[97]'… ┆ 'obs[98]'… ┆ 'obs[99]'… ┆ 'obs[9]',… │
-│       ┆      ┆ f32         ┆ ---         ┆   ┆ ---        ┆ ---        ┆ ---        ┆ ---        │
-│       ┆      ┆             ┆ f32         ┆   ┆ i32        ┆ i32        ┆ i32        ┆ i32        │
-╞═══════╪══════╪═════════════╪═════════════╪═══╪════════════╪════════════╪════════════╪════════════╡
-│ 0     ┆ 0    ┆ 20.363588   ┆ 0.334427    ┆ … ┆ 0          ┆ 13         ┆ 0          ┆ 46         │
-│ 0     ┆ 1    ┆ 20.399645   ┆ 0.535402    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 21         │
-│ 0     ┆ 2    ┆ 22.719585   ┆ 0.777795    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 5          │
-│ 0     ┆ 3    ┆ 25.212839   ┆ 1.238166    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 203        │
-│ 0     ┆ 4    ┆ 24.964491   ┆ 0.912391    ┆ … ┆ 0          ┆ 1          ┆ 0          ┆ 33         │
-│ …     ┆ …    ┆ …           ┆ …           ┆ … ┆ …          ┆ …          ┆ …          ┆ …          │
-│ 0     ┆ 995  ┆ 23.382603   ┆ 0.688199    ┆ … ┆ 2          ┆ 2          ┆ 0          ┆ 1          │
-│ 0     ┆ 996  ┆ 23.979273   ┆ 0.565145    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
-│ 0     ┆ 997  ┆ 23.99214    ┆ 0.743872    ┆ … ┆ 0          ┆ 109        ┆ 202        ┆ 1          │
-│ 0     ┆ 998  ┆ 23.530113   ┆ 0.954449    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
-│ 0     ┆ 999  ┆ 22.403072   ┆ 1.035949    ┆ … ┆ 14         ┆ 2          ┆ 18         ┆ 0          │
-└───────┴──────┴─────────────┴─────────────┴───┴────────────┴────────────┴────────────┴────────────┘
-"""
-
-# # doesn't immediately work with dates,
-# # KeyError: Timestamp('2022-08-08 00:00:00')
-# idata_pandas_df = idata_w_dates.to_dataframe()
-# idata_pols_df = pl.from_pandas(idata_pandas_df)
-# print(idata_pols_df)
-
-
-# %% TRANSFORMATION PRIOR TO CSV CONVERSION
-
-
-# %% CONVERSION OF DATAFRAME TO CSV
-
-current_date_as_str = dt.datetime.now().date().isoformat()
-save_dir = os.getcwd()
-save_name = f"test_csv_idata_{current_date_as_str}.csv"
-out_file = os.path.join(save_dir, save_name)
-if not os.file.exists(out_file):
-    idata_wod_pols_df.write_csv(out_file)
-
-
 # %% FUNCTION FOR RUNNING R CODE VIA TEMPORARY FILES
 
 
@@ -114,10 +55,192 @@ print(line)
 # use tidy_draws() on line
 tidy_data <- line %>%
   tidybayes::tidy_draws()
-print(tidy_data)
+# print(tidy_data)
 """
 
 light_r_runner(r_code_example_from_docs)
+
+example_output_line = """
+$line1
+       alpha       beta     sigma
+1   7.173130 -1.5662000 11.233100
+2   2.952530  1.5033700  4.886490
+3   3.669890  0.6281570  1.397340
+4   3.315220  1.1827200  0.662879
+5   3.705440  0.4904370  1.362130
+6   3.579100  0.2069700  1.043500
+7   2.702060  0.8825530  1.290430
+8   2.961360  1.0851500  0.459322
+9   3.534060  1.0692600  0.634257
+10  2.094710  1.4807700  0.912919
+11  3.065240  0.3783490  1.188500
+12  2.739010  0.4447120  0.576963
+13  3.089290 -0.0130600  2.400330
+14  2.704130  1.1558500  1.794230
+15  2.521740  0.8563680  0.943078
+16  3.732160  0.6574610  0.903465
+17  2.673390  0.5944110  0.731041
+18  3.017790  0.8877700  0.622143
+19  2.701230  0.7459180  0.790993
+20  2.978370  0.9936190  0.740969
+21  2.876460  1.0280600  0.582580
+22  3.191340  0.5536110  0.710707
+23  2.797080  1.0188600  0.870071
+...
+[1] "mcmc"
+
+attr(,"class")
+[1] "mcmc.list"
+"""
+
+example_out_tidy_data = """
+# A tibble: 400 × 6
+   .chain .iteration .draw alpha   beta  sigma
+    <int>      <int> <int> <dbl>  <dbl>  <dbl>
+ 1      1          1     1  7.17 -1.57  11.2
+ 2      1          2     2  2.95  1.50   4.89
+ 3      1          3     3  3.67  0.628  1.40
+ 4      1          4     4  3.32  1.18   0.663
+ 5      1          5     5  3.71  0.490  1.36
+ 6      1          6     6  3.58  0.207  1.04
+ 7      1          7     7  2.70  0.883  1.29
+ 8      1          8     8  2.96  1.09   0.459
+ 9      1          9     9  3.53  1.07   0.634
+10      1         10    10  2.09  1.48   0.913
+# ℹ 390 more rows
+"""
+
+
+# %% EXAMPLE IDATA W/ AND WO/ DATES
+
+idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
+idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
+
+print(idata_w_dates)
+print(idata_w_dates.observed_data)
+
+
+# %% WHEN IDATA IS CONVERTED TO DF THEN CSV
+
+idata_wod_pandas_df = idata_wo_dates.to_dataframe()
+idata_wod_pols_df = pl.from_pandas(idata_wod_pandas_df)
+print(idata_wod_pols_df)
+
+example_output = """
+shape: (1_000, 1_515)
+┌───────┬──────┬─────────────┬─────────────┬───┬────────────┬────────────┬────────────┬────────────┐
+│ chain ┆ draw ┆ ('posterior ┆ ('posterior ┆ … ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr │
+│ ---   ┆ ---  ┆ ', 'alpha') ┆ ', 'beta_co ┆   ┆ edictive', ┆ edictive', ┆ edictive', ┆ edictive', │
+│ i64   ┆ i64  ┆ ---         ┆ effs[0]'…   ┆   ┆ 'obs[97]'… ┆ 'obs[98]'… ┆ 'obs[99]'… ┆ 'obs[9]',… │
+│       ┆      ┆ f32         ┆ ---         ┆   ┆ ---        ┆ ---        ┆ ---        ┆ ---        │
+│       ┆      ┆             ┆ f32         ┆   ┆ i32        ┆ i32        ┆ i32        ┆ i32        │
+╞═══════╪══════╪═════════════╪═════════════╪═══╪════════════╪════════════╪════════════╪════════════╡
+│ 0     ┆ 0    ┆ 20.363588   ┆ 0.334427    ┆ … ┆ 0          ┆ 13         ┆ 0          ┆ 46         │
+│ 0     ┆ 1    ┆ 20.399645   ┆ 0.535402    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 21         │
+│ 0     ┆ 2    ┆ 22.719585   ┆ 0.777795    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 5          │
+│ 0     ┆ 3    ┆ 25.212839   ┆ 1.238166    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 203        │
+│ 0     ┆ 4    ┆ 24.964491   ┆ 0.912391    ┆ … ┆ 0          ┆ 1          ┆ 0          ┆ 33         │
+│ …     ┆ …    ┆ …           ┆ …           ┆ … ┆ …          ┆ …          ┆ …          ┆ …          │
+│ 0     ┆ 995  ┆ 23.382603   ┆ 0.688199    ┆ … ┆ 2          ┆ 2          ┆ 0          ┆ 1          │
+│ 0     ┆ 996  ┆ 23.979273   ┆ 0.565145    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
+│ 0     ┆ 997  ┆ 23.99214    ┆ 0.743872    ┆ … ┆ 0          ┆ 109        ┆ 202        ┆ 1          │
+│ 0     ┆ 998  ┆ 23.530113   ┆ 0.954449    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
+│ 0     ┆ 999  ┆ 22.403072   ┆ 1.035949    ┆ … ┆ 14         ┆ 2          ┆ 18         ┆ 0          │
+└───────┴──────┴─────────────┴─────────────┴───┴────────────┴────────────┴────────────┴────────────┘
+"""
+
+print(
+    sorted(idata_wod_pols_df.columns)
+)  # e.g. "('posterior_predictive', 'obs[138]', 138)"
+
+# # doesn't immediately work with dates,
+# # KeyError: Timestamp('2022-08-08 00:00:00')
+# idata_pandas_df = idata_w_dates.to_dataframe()
+# idata_pols_df = pl.from_pandas(idata_pandas_df)
+# print(idata_pols_df)
+
+# %% TRANSFORMATION TO
+
+
+def convert_idata_forecast_to_tidy(
+    idata_wo_dates: az.InferenceData,
+) -> pl.DataFrame:
+    """
+    Takes an Arviz InferenceData object and
+    converts it to a polars dataframe that
+    resemble MCMC data once
+    `tidybayes::tidy_draws()` has been called
+    on it, i.e. contains the posterior
+    predictive columns along with columns
+    .chain .iteration .draw.
+    """
+    # convert idata to pandas then polars df
+    idata_wod_pandas_df = idata_wo_dates.to_dataframe()
+    idata_wod_pols_df = pl.from_pandas(idata_wod_pandas_df)
+    # extract and rename relevant columns (
+    # i.e. those for chain, iteration, and
+    # posterior predictive without punctuation)
+    acceptable_cols = ["chain", "draw", "iteration", "posterior_predictive"]
+    relevant_cols = [
+        col
+        for col in idata_wod_pols_df.columns
+        if any(accept in col for accept in acceptable_cols)
+    ]
+    idata_wod_pols_df = idata_wod_pols_df.select(sorted(relevant_cols))
+
+    def clean_column_names(cols):
+        cleaned_cols = {}
+        for col in cols:
+            if "posterior_predictive" in col:
+                # split by comma, take the
+                # second part and strip
+                # extra whitespace
+                new_col = re.sub(r"[()\[\]]", "", col.split(",")[1].strip())
+            else:
+                # keep col (chain, iter)
+                new_col = col
+            cleaned_cols[col] = new_col
+        return cleaned_cols
+
+    idata_wod_pols_df = idata_wod_pols_df.rename(
+        clean_column_names(relevant_cols)
+    )
+    # create iteration column from draw and
+    # chain columns
+    num_iterations_per_chain = idata_wod_pols_df.shape[0]
+    idata_wod_pols_df = idata_wod_pols_df.with_columns(
+        ((pl.col("draw") - 1) % num_iterations_per_chain + 1).alias(
+            "iteration"
+        )
+    )
+    # unpivot along value col
+    idata_wod_pols_df = idata_wod_pols_df.unpivot(
+        index=idata_wod_pols_df.columns,  # exclude non-posterior columns
+        variable_name="distribution_name",
+        value_name="value",
+    )
+
+    # df_out = idata_wod_pols_df.unpivot(
+    #     on=pl.col("*").exclude(["chain", "iteration", "draw"]),  # Unpivot all columns except chain, iteration, and draw
+    #     variable_name="observation",  # New column for observation names (e.g., obs1, obs2)
+    #     value_name="value"           # New column for observation values
+    # )
+
+    return idata_wod_pols_df
+
+
+print(convert_idata_forecast_to_tidy(idata_wo_dates))
+
+
+# %% CONVERSION OF DATAFRAME TO CSV
+
+current_date_as_str = dt.datetime.now().date().isoformat()
+save_dir = os.getcwd()
+save_name = f"test_csv_idata_{current_date_as_str}.csv"
+out_file = os.path.join(save_dir, save_name)
+if not os.file.exists(out_file):
+    idata_wod_pols_df.write_csv(out_file)
+
 
 # %% EXAMPLE TIDY_DRAWS (2)
 
@@ -277,7 +400,8 @@ df = df.with_columns(
 # create .draw column
 df = df.with_columns((df[".chain"] * 1000 + df[".iteration"]).alias(".draw"))
 
-# pivot longer
+# pivot longer, TODO: use unpivot again, get
+# out of melt mentality
 df = df.melt(
     id_vars=[".chain", ".iteration", ".draw"],
     variable_name="name",
@@ -305,3 +429,8 @@ df.write_csv("tidy_draws_ready.csv")
 # https://python.arviz.org/en/v0.11.4/api/generated/arviz.InferenceData.from_netcdf.html
 # https://docs.pola.rs/api/python/stable/reference/api/polars.from_pandas.html
 # https://docs.pola.rs/api/python/stable/reference/dataframe/api/polars.DataFrame.unpivot.html#polars.DataFrame.unpivot
+
+# Reminders
+# Chain: one MCMC run used to sample from posterior distribution.
+# Draw: single parameter sample from posterior distribution at a specific iteration of the MCMC process.
+# Iteration: single step in MCMC run; each iter corresponds to single draw from the chain at that step.
