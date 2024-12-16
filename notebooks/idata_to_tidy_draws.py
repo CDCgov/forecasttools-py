@@ -221,9 +221,21 @@ def convert_idata_forecast_to_tidy(
     )
 
     # df_out = idata_wod_pols_df.unpivot(
-    #     on=pl.col("*").exclude(["chain", "iteration", "draw"]),  # Unpivot all columns except chain, iteration, and draw
-    #     variable_name="observation",  # New column for observation names (e.g., obs1, obs2)
-    #     value_name="value"           # New column for observation values
+    #     on=pl.col("*").exclude(["chain", "draw"]),
+    #     variable_name="iteration",
+    #     value_name="obs"
+    # )
+    # df_out = df_out.with_columns(
+    #     pl.col("iteration")
+    #     .str.extract(r"obs(\d+)", 1)
+    #     .cast(pl.Int64)
+    #     .alias("iteration")
+    # )
+
+    # df_out = idata_wod_pols_df.unpivot(
+    #     on=pl.col("*").exclude(["chain", "iteration", "draw"]),
+    #     variable_name="observation",
+    #     value_name="value"
     # )
 
     return idata_wod_pols_df
