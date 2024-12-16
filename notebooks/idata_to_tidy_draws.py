@@ -4,8 +4,9 @@ conversion of Arviz InferenceData objects
 (idata objects) to tidy_draws.
 """
 
-# %% LIBRARY IMPORTS
+# %% LIBRARIES USED
 
+import datetime as dt
 import os
 import re
 import subprocess
@@ -22,16 +23,64 @@ xr.set_options(
     display_expand_attrs=False,
 )
 
-# %% EXAMPLE IDATA W/ DATES
+
+# %% EXAMPLE IDATA W/ AND WO/ DATES
 
 idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
-
+idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
 print(idata_w_dates)
 
 print(idata_w_dates.observed_data)
 
 
-# %% WHEN IDATA IS CONVERT TO A CSV
+# %% WHEN IDATA IS CONVERTED TO DF THEN CSV
+
+idata_wod_pandas_df = idata_wo_dates.to_dataframe()
+idata_wod_pols_df = pl.from_pandas(idata_wod_pandas_df)
+print(idata_wod_pols_df)
+
+example_output = """
+shape: (1_000, 1_515)
+┌───────┬──────┬─────────────┬─────────────┬───┬────────────┬────────────┬────────────┬────────────┐
+│ chain ┆ draw ┆ ('posterior ┆ ('posterior ┆ … ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr │
+│ ---   ┆ ---  ┆ ', 'alpha') ┆ ', 'beta_co ┆   ┆ edictive', ┆ edictive', ┆ edictive', ┆ edictive', │
+│ i64   ┆ i64  ┆ ---         ┆ effs[0]'…   ┆   ┆ 'obs[97]'… ┆ 'obs[98]'… ┆ 'obs[99]'… ┆ 'obs[9]',… │
+│       ┆      ┆ f32         ┆ ---         ┆   ┆ ---        ┆ ---        ┆ ---        ┆ ---        │
+│       ┆      ┆             ┆ f32         ┆   ┆ i32        ┆ i32        ┆ i32        ┆ i32        │
+╞═══════╪══════╪═════════════╪═════════════╪═══╪════════════╪════════════╪════════════╪════════════╡
+│ 0     ┆ 0    ┆ 20.363588   ┆ 0.334427    ┆ … ┆ 0          ┆ 13         ┆ 0          ┆ 46         │
+│ 0     ┆ 1    ┆ 20.399645   ┆ 0.535402    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 21         │
+│ 0     ┆ 2    ┆ 22.719585   ┆ 0.777795    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 5          │
+│ 0     ┆ 3    ┆ 25.212839   ┆ 1.238166    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 203        │
+│ 0     ┆ 4    ┆ 24.964491   ┆ 0.912391    ┆ … ┆ 0          ┆ 1          ┆ 0          ┆ 33         │
+│ …     ┆ …    ┆ …           ┆ …           ┆ … ┆ …          ┆ …          ┆ …          ┆ …          │
+│ 0     ┆ 995  ┆ 23.382603   ┆ 0.688199    ┆ … ┆ 2          ┆ 2          ┆ 0          ┆ 1          │
+│ 0     ┆ 996  ┆ 23.979273   ┆ 0.565145    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
+│ 0     ┆ 997  ┆ 23.99214    ┆ 0.743872    ┆ … ┆ 0          ┆ 109        ┆ 202        ┆ 1          │
+│ 0     ┆ 998  ┆ 23.530113   ┆ 0.954449    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
+│ 0     ┆ 999  ┆ 22.403072   ┆ 1.035949    ┆ … ┆ 14         ┆ 2          ┆ 18         ┆ 0          │
+└───────┴──────┴─────────────┴─────────────┴───┴────────────┴────────────┴────────────┴────────────┘
+"""
+
+# # doesn't immediately work with dates,
+# # KeyError: Timestamp('2022-08-08 00:00:00')
+# idata_pandas_df = idata_w_dates.to_dataframe()
+# idata_pols_df = pl.from_pandas(idata_pandas_df)
+# print(idata_pols_df)
+
+
+# %% TRANSFORMATION PRIOR TO CSV CONVERSION
+
+
+# %% CONVERSION OF DATAFRAME TO CSV
+
+current_date_as_str = dt.datetime.now().date().isoformat()
+save_dir = os.getcwd()
+save_name = f"test_csv_idata_{current_date_as_str}.csv"
+out_file = os.path.join(save_dir, save_name)
+if not os.file.exists(out_file):
+    idata_wod_pols_df.write_csv(out_file)
+
 
 # %% FUNCTION FOR RUNNING R CODE VIA TEMPORARY FILES
 
@@ -58,7 +107,6 @@ def light_r_runner(r_code: str) -> None:
 r_code_example_from_docs = """
 library(magrittr)
 
-
 # load example dataset called line
 data(line, package = "coda")
 print(line)
@@ -74,11 +122,7 @@ light_r_runner(r_code_example_from_docs)
 # %% EXAMPLE TIDY_DRAWS (2)
 
 
-#
 r_code_spread_draws = """
-
-
-
 # example posterior samples
 posterior_samples <- dplyr::tibble(
   .chain = c(1, 1, 1, 2, 2, 2),
@@ -253,31 +297,11 @@ df = df.with_columns(
 df.write_csv("tidy_draws_ready.csv")
 
 
-# DAMON'S R CODE FOR THIS DATA (FROM IDATA CSV)
+# %% NOTES
 
-# arviz_split <- function(x) {
-# x %>%
-#     select(-distribution) %>%
-#     split(f = as.factor(x$distribution))
-# }
-
-# pyrenew_samples <-
-# read_csv(inference_data_path) %>%
-# rename_with(\(varname) str_remove_all(varname, "\\(|\\)|\\'|(, \\d+)")) |>
-# rename(
-#     .chain = chain,
-#     .iteration = draw
-# ) |>
-# mutate(across(c(.chain, .iteration), \(x) as.integer(x + 1))) |>
-# mutate(
-#     .draw = tidybayes:::draw_from_chain_and_iteration_(.chain, .iteration),
-#     .after = .iteration
-# ) |>
-# pivot_longer(-starts_with("."),
-#     names_sep = ", ",
-#     names_to = c("distribution", "name")
-# ) |>
-# arviz_split() |>
-# map(\(x) pivot_wider(x, names_from = name) |> tidy_draws())
-
-# %%
+# https://python.arviz.org/en/v0.11.4/api/generated/arviz.from_numpyro.html
+# https://python.arviz.org/en/v0.11.4/api/generated/arviz.InferenceData.to_json.html
+# https://python.arviz.org/en/v0.11.4/api/generated/arviz.InferenceData.to_dataframe.html
+# https://python.arviz.org/en/v0.11.4/api/generated/arviz.InferenceData.from_netcdf.html
+# https://docs.pola.rs/api/python/stable/reference/api/polars.from_pandas.html
+# https://docs.pola.rs/api/python/stable/reference/dataframe/api/polars.DataFrame.unpivot.html#polars.DataFrame.unpivot
