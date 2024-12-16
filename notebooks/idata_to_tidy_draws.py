@@ -1,7 +1,7 @@
 """
-Experiment file for testing
-group agnostic conversion of
-idata to tidy_draws.
+Experiment file for testing group agnostic
+conversion of Arviz InferenceData objects
+(idata objects) to tidy_draws.
 """
 
 # %% LIBRARY IMPORTS
@@ -29,6 +29,9 @@ idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
 print(idata_w_dates)
 
 print(idata_w_dates.observed_data)
+
+
+# %% WHEN IDATA IS CONVERT TO A CSV
 
 # %% FUNCTION FOR RUNNING R CODE VIA TEMPORARY FILES
 
