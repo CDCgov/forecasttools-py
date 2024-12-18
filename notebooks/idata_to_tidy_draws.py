@@ -55,7 +55,7 @@ print(line)
 # use tidy_draws() on line
 tidy_data <- line %>%
   tidybayes::tidy_draws()
-# print(tidy_data)
+print(tidy_data)
 """
 
 light_r_runner(r_code_example_from_docs)
@@ -178,8 +178,8 @@ def convert_idata_forecast_to_tidy(
     idata_wod_pandas_df = idata_wo_dates.to_dataframe()
     idata_wod_pols_df = pl.from_pandas(idata_wod_pandas_df)
     # extract and rename relevant columns (
-    # i.e. those for chain, iteration, and
-    # posterior predictive without punctuation)
+    # i.e. those for chain, draw, and
+    # posterior predictive, without punctuation)
     acceptable_cols = ["chain", "draw", "iteration", "posterior_predictive"]
     relevant_cols = [
         col
