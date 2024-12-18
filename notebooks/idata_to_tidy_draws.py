@@ -1,7 +1,8 @@
 """
-Experiment file for testing group agnostic
-conversion of Arviz InferenceData objects
-(idata objects) to tidy_draws.
+The following is an experimental file for
+testing that forecasttools-py can be used to
+convert an Arviz InferenceData object to a
+tibble that has had tidy_draws() called on it.
 """
 
 # %% LIBRARIES USED
@@ -43,8 +44,6 @@ def light_r_runner(r_code: str) -> None:
 
 # %% EXAMPLE TIDY_DRAWS (1)
 
-
-# see: https://www.rdocumentation.org/packages/tidybayes/versions/3.0.7/topics/tidy_draws
 r_code_example_from_docs = """
 library(magrittr)
 
@@ -57,9 +56,11 @@ tidy_data <- line %>%
   tidybayes::tidy_draws()
 print(tidy_data)
 """
+# see: https://www.rdocumentation.org/packages/tidybayes/versions/3.0.7/topics/tidy_draws
 
+
+# output saved below as a docstring
 light_r_runner(r_code_example_from_docs)
-
 example_output_line = """
 $line1
        alpha       beta     sigma
@@ -92,7 +93,6 @@ $line1
 attr(,"class")
 [1] "mcmc.list"
 """
-
 example_out_tidy_data = """
 # A tibble: 400 × 6
    .chain .iteration .draw alpha   beta  sigma
@@ -125,7 +125,6 @@ print(idata_w_dates.observed_data)
 idata_wod_pandas_df = idata_wo_dates.to_dataframe()
 idata_wod_pols_df = pl.from_pandas(idata_wod_pandas_df)
 print(idata_wod_pols_df)
-
 example_output = """
 shape: (1_000, 1_515)
 ┌───────┬──────┬─────────────┬─────────────┬───┬────────────┬────────────┬────────────┬────────────┐
@@ -159,19 +158,28 @@ print(
 # idata_pols_df = pl.from_pandas(idata_pandas_df)
 # print(idata_pols_df)
 
-# %% TRANSFORMATION TO
+# %% TRANSFORMATION TO TIDY DATA
 
 
-def convert_idata_forecast_to_tidy(
+def save_tidydraws_polars_forecast_df(tidydraws_like_df: pl.DataFrame):
+    # adds dots to the column name
+    # save the file as a csv in the specified
+    # location
+    pass
+
+
+def convert_idata_forecast_to_tidydraws(
     idata_wo_dates: az.InferenceData,
 ) -> pl.DataFrame:
     """
-    Takes an Arviz InferenceData object and
-    converts it to a polars dataframe that
-    resemble MCMC data once
+    Takes an Arviz InferenceData object
+    containing a forecast (i.e. has posterior
+    predictive column) and converts it to a
+    polars dataframe that resembles an MCMC
+    data object in R once
     `tidybayes::tidy_draws()` has been called
-    on it, i.e. contains the posterior
-    predictive columns along with columns
+    on it, i.e. the object contains the posterior
+    predictive column along with the columns
     .chain .iteration .draw.
     """
     # convert idata to pandas then polars df
@@ -241,7 +249,7 @@ def convert_idata_forecast_to_tidy(
     return idata_wod_pols_df
 
 
-print(convert_idata_forecast_to_tidy(idata_wo_dates))
+print(convert_idata_forecast_to_tidydraws(idata_wo_dates))
 
 
 # %% CONVERSION OF DATAFRAME TO CSV
@@ -394,43 +402,43 @@ print(postp_tidy_df)
 # %% Another attempt
 
 
-# load csv
-inference_data_path = "idata.csv"
-df = pl.read_csv(inference_data_path)
+# # load csv
+# inference_data_path = "idata.csv"
+# df = pl.read_csv(inference_data_path)
 
-# clean
-df = df.rename({col: re.sub(r"[()'|, \d+]", "", col) for col in df.columns})
+# # clean
+# df = df.rename({col: re.sub(r"[()'|, \d+]", "", col) for col in df.columns})
 
-# rename and mutate cols
-df = df.with_columns(
-    [
-        pl.col("chain").alias(".chain").cast(pl.Int32),
-        pl.col("draw").alias(".iteration").cast(pl.Int32),
-    ]
-)
+# # rename and mutate cols
+# df = df.with_columns(
+#     [
+#         pl.col("chain").alias(".chain").cast(pl.Int32),
+#         pl.col("draw").alias(".iteration").cast(pl.Int32),
+#     ]
+# )
 
-# create .draw column
-df = df.with_columns((df[".chain"] * 1000 + df[".iteration"]).alias(".draw"))
+# # create .draw column
+# df = df.with_columns((df[".chain"] * 1000 + df[".iteration"]).alias(".draw"))
 
-# pivot longer, TODO: use unpivot again, get
-# out of melt mentality
-df = df.melt(
-    id_vars=[".chain", ".iteration", ".draw"],
-    variable_name="name",
-    value_name="value",
-)
+# # pivot longer, TODO: use unpivot again, get
+# # out of melt mentality
+# df = df.melt(
+#     id_vars=[".chain", ".iteration", ".draw"],
+#     variable_name="name",
+#     value_name="value",
+# )
 
-# extract cols
-df = df.with_columns(
-    [
-        pl.col("name")
-        .str.extract(r"([^,]+), ([^,]+)", 1)
-        .alias("distribution"),
-        pl.col("name").str.extract(r"([^,]+), ([^,]+)", 2).alias("name"),
-    ]
-)
+# # extract cols
+# df = df.with_columns(
+#     [
+#         pl.col("name")
+#         .str.extract(r"([^,]+), ([^,]+)", 1)
+#         .alias("distribution"),
+#         pl.col("name").str.extract(r"([^,]+), ([^,]+)", 2).alias("name"),
+#     ]
+# )
 
-df.write_csv("tidy_draws_ready.csv")
+# df.write_csv("tidy_draws_ready.csv")
 
 
 # %% NOTES
