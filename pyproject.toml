@@ -6,6 +6,8 @@ authors = ["CFA"]
 license = "Apache-2.0"
 readme = "README.md"
 packages = [{include = "forecasttools"}]
+repository = "https://github.com/CDCgov/forecasttools-py/"
+keywords = ["forecasting", "infrastructure", "infectious-disease-modeling", "python"]
 include = [
     { path = "forecasttools/location_table.parquet", format = "sdist" },
     { path = "forecasttools/location_table.parquet", format = "wheel" },
@@ -30,6 +32,7 @@ xarray = "^2024.9.0"
 matplotlib = "^3.9.2"
 epiweeks = "^2.3.0"
 
+
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"
 ipykernel = "^6.29.5"
@@ -41,9 +44,15 @@ nbclient = "^0.10.0"
 jupyter = "^1.1.1"
 
 
-
 [tool.poetry.group.test.dependencies]
 pytest = "^8.3.3"
+
+
+[tool.poetry.urls]
+"Repository Issues" = "https://github.com/CDCgov/forecasttools-py/issues"
+"CDCgov Repositories" = "https://github.com/CDCgov"
+"Package That Will Use Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
+"Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
 
 [build-system]
 requires = ["poetry-core"]

@@ -78,6 +78,8 @@ Install `forecasttools-py` via:
   Submission](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/flusight_from_idata.qmd)
 - [Community Meeting Utilities Demonstration
   (2024-11-19)](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/forecasttools_community_demo_2024-11-19.qmd)
+- [Creating InferenceData Objects and Using Forecasttools
+  Datasets](https://github.com/CDCgov/forecasttools-py/blob/main/notebooks/datasets_and_idata_creation.qmd)
 
 *Coming soon as webpages, once [Issue
 26](https://github.com/CDCgov/forecasttools-py/issues/26) is completed*.
