@@ -288,6 +288,74 @@ spread_vars <- posterior_samples %>%
 dplyr::glimpse(spread_vars)
 """
 
+# %% OPTION # FOR IDATA TO TIDY DRAWS
+
+
+def format_split_text(x, concat_char="|"):
+    group = x[0]
+    non_group = x[1:]
+    if "[" in non_group[0]:
+        pre_bracket = non_group[0].split("[")[0]
+        bracket_contents = [elem.replace(" ", "_") for elem in non_group[1:]]
+        formatted_text = (
+            f"{group}{concat_char}{pre_bracket}[{','.join(bracket_contents)}]"
+        )
+    else:
+        formatted_text = f"{group}{concat_char}{''.join(non_group)}"
+    return formatted_text
+
+
+def idata_names_to_tidy_names(column_names):
+    tidy_names = []
+    for col in column_names:
+        cleaned = col.strip("()").replace("'", "").replace('"', "")
+        parts = [part.strip() for part in cleaned.split(",")]
+        tidy_names.append(format_split_text(parts))
+    return tidy_names
+
+
+def inferencedata_to_tidy_draws(idata_df):
+    idata_df = idata_df.rename(
+        columns={"chain": ".chain", "draw": ".iteration"}
+    )
+    idata_df[".chain"] = idata_df[".chain"].astype(int) + 1
+    idata_df[".iteration"] = idata_df[".iteration"].astype(int) + 1
+
+    idata_df[".draw"] = (idata_df[".chain"] - 1) * idata_df[
+        ".iteration"
+    ].max() + idata_df[".iteration"]
+
+    tidy_column_names = idata_names_to_tidy_names(idata_df.columns)
+    idata_df.columns = tidy_column_names
+
+    long_df = idata_df.melt(
+        id_vars=[".chain", ".iteration", ".draw"],
+        var_name="group|name",
+        value_name="value",
+    )
+    long_df[["group", "name"]] = long_df["group|name"].str.split(
+        "|", expand=True
+    )
+    long_df = long_df.drop(columns=["group|name"])
+
+    nested = (
+        long_df.groupby("group")
+        .apply(
+            lambda g: g.pivot(
+                index=".draw", columns="name", values="value"
+            ).reset_index()
+        )
+        .reset_index()
+    )
+    return nested
+
+
+print(idata_w_dates.posterior_predictive)
+postp_tidy_df = inferencedata_to_tidy_draws(
+    idata_df=idata_wo_dates, idata_group_name="posterior_predictive"
+)
+print(postp_tidy_df)
+
 
 # %% OPTION 1 FOR IDATA TO TIDY_DRAWS
 
