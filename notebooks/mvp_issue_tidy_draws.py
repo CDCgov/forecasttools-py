@@ -13,23 +13,27 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+import forecasttools
+
 # %% DEMONSTRATION OF EXPECTED BEHAVIOR
 
-obs_data = np.random.normal(loc=0, scale=1, size=(1,))
+num_days = 1
+obs_data = np.random.normal(loc=0, scale=1, size=(num_days,))
 obs_dim_name = "obs_dim_0"
 start_date = "2023-01-01"
 interval_dates = pd.date_range(start=start_date, periods=1, freq="D")
 obs_group = xr.Dataset(
-    {"obs": ([obs_dim_name], obs_data)}, coords={obs_dim_name: np.arange(1)}
+    {"obs": ([obs_dim_name], obs_data)},
+    coords={obs_dim_name: np.arange(num_days)},
 )
 idata = az.from_dict(observed_data={"obs": obs_group["obs"].values})
 idata.observed_data = idata.observed_data.assign_coords(
     {obs_dim_name: interval_dates}
 )
-df = idata.observed_data.to_dataframe()
-print(df)
+obs_df = idata.observed_data.to_dataframe()
+print(obs_df)
 
-# %% FAILED EXAMPLE
+# %% FAILED? EXAMPLE
 
 
 def convert_date_or_datetime_to_np(
@@ -115,7 +119,15 @@ print(idata["observed_data"])
 idata.observed_data = idata.observed_data.assign_coords(
     {obs_dim_name: interval_dates}
 )
-df = idata.observed_data.to_dataframe()
-print(df)
+obs_df = idata.observed_data.to_dataframe()
+print(obs_df)
+
+# %% FINAL EXAMPLE
+
+idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
+obs_df = idata_w_dates.observed_data.to_dataframe()
+print(obs_df)
+idata_df = idata_w_dates.to_dataframe()
+print(idata_df.columns)
 
 # %%
