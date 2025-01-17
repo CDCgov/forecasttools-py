@@ -100,8 +100,6 @@ def generate_time_range_for_dim(
 num_days = 11
 obs_data = np.random.normal(loc=0, scale=1, size=(num_days,))
 obs_dim_name = "obs_dim_0"
-
-
 start_date = datetime(2023, 1, 1)
 time_step = timedelta(days=2)
 interval_dates = generate_time_range_for_dim(
