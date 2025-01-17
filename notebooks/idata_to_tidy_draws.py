@@ -117,7 +117,7 @@ idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
 idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
 
 print(idata_w_dates)
-print(idata_w_dates.observed_data)
+print(idata_w_dates.observed_data.dims)
 
 
 # %% WHEN IDATA IS CONVERTED TO DF THEN CSV
