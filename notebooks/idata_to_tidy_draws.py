@@ -8,9 +8,11 @@ tibble that has had tidy_draws() called on it.
 # %% LIBRARIES USED
 
 import os
+import re
 import subprocess
 import tempfile
 
+import arviz as az
 import polars as pl
 import xarray as xr
 
@@ -20,6 +22,106 @@ xr.set_options(
     display_expand_data=False,
     display_expand_attrs=False,
 )
+
+# %% EXAMPLE IDATA W/ AND WO/ DATES
+
+idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
+idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
+
+print(idata_w_dates)
+print(idata_w_dates.observed_data.dims)
+
+
+# %% WHEN IDATA IS CONVERTED TO DF THEN CSV
+
+idata_wod_pandas_df = idata_wo_dates.to_dataframe()
+idata_wod_pols_df = pl.from_pandas(idata_wod_pandas_df)
+print(idata_wod_pols_df)
+example_output = """
+shape: (1_000, 1_515)
+┌───────┬──────┬─────────────┬─────────────┬───┬────────────┬────────────┬────────────┬────────────┐
+│ chain ┆ draw ┆ ('posterior ┆ ('posterior ┆ … ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr │
+│ ---   ┆ ---  ┆ ', 'alpha') ┆ ', 'beta_co ┆   ┆ edictive', ┆ edictive', ┆ edictive', ┆ edictive', │
+│ i64   ┆ i64  ┆ ---         ┆ effs[0]'…   ┆   ┆ 'obs[97]'… ┆ 'obs[98]'… ┆ 'obs[99]'… ┆ 'obs[9]',… │
+│       ┆      ┆ f32         ┆ ---         ┆   ┆ ---        ┆ ---        ┆ ---        ┆ ---        │
+│       ┆      ┆             ┆ f32         ┆   ┆ i32        ┆ i32        ┆ i32        ┆ i32        │
+╞═══════╪══════╪═════════════╪═════════════╪═══╪════════════╪════════════╪════════════╪════════════╡
+│ 0     ┆ 0    ┆ 20.363588   ┆ 0.334427    ┆ … ┆ 0          ┆ 13         ┆ 0          ┆ 46         │
+│ 0     ┆ 1    ┆ 20.399645   ┆ 0.535402    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 21         │
+│ 0     ┆ 2    ┆ 22.719585   ┆ 0.777795    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 5          │
+│ 0     ┆ 3    ┆ 25.212839   ┆ 1.238166    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 203        │
+│ 0     ┆ 4    ┆ 24.964491   ┆ 0.912391    ┆ … ┆ 0          ┆ 1          ┆ 0          ┆ 33         │
+│ …     ┆ …    ┆ …           ┆ …           ┆ … ┆ …          ┆ …          ┆ …          ┆ …          │
+│ 0     ┆ 995  ┆ 23.382603   ┆ 0.688199    ┆ … ┆ 2          ┆ 2          ┆ 0          ┆ 1          │
+│ 0     ┆ 996  ┆ 23.979273   ┆ 0.565145    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
+│ 0     ┆ 997  ┆ 23.99214    ┆ 0.743872    ┆ … ┆ 0          ┆ 109        ┆ 202        ┆ 1          │
+│ 0     ┆ 998  ┆ 23.530113   ┆ 0.954449    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
+│ 0     ┆ 999  ┆ 22.403072   ┆ 1.035949    ┆ … ┆ 14         ┆ 2          ┆ 18         ┆ 0          │
+└───────┴──────┴─────────────┴─────────────┴───┴────────────┴────────────┴────────────┴────────────┘
+"""
+
+print(
+    sorted(idata_wod_pols_df.columns)
+)  # e.g. "('posterior_predictive', 'obs[138]', 138)"
+
+# # doesn't immediately work with dates,
+# # KeyError: Timestamp('2022-08-08 00:00:00')
+# idata_pandas_df = idata_w_dates.to_dataframe()
+# idata_pols_df = pl.from_pandas(idata_pandas_df)
+# print(idata_pols_df)
+
+# %% FUNCTION FOR CONVERSION
+
+def convert_idata_forecast_to_tidydraws(
+    idata: az.InferenceData,
+    groups: list[str]
+) -> dict[str, pl.DataFrame]:
+    tidy_dfs = {}
+    idata_df = idata.to_dataframe()
+    for group in groups:
+        group_columns = [
+            col for col in idata_df.columns
+            if isinstance(col, tuple) and col[0] == group
+        ]
+        meta_columns = ["chain", "draw"]
+        group_df = idata_df[meta_columns + group_columns]
+        group_df.columns = [
+            col[1] if isinstance(col, tuple) else col
+            for col in group_df.columns
+        ]
+        group_pols_df = pl.from_pandas(group_df)
+        value_columns = [col for col in group_pols_df.columns if col not in meta_columns]
+        group_pols_df = group_pols_df.melt(
+            id_vars=meta_columns,
+            value_vars=value_columns,
+            variable_name="variable",
+            value_name="value"
+        )
+        group_pols_df = group_pols_df.with_columns(
+            pl.col("variable").map_elements(lambda x: re.sub(r"\[.*\]", "", x)).alias("variable")
+        )
+        group_pols_df = group_pols_df.with_columns(
+            ((pl.col("draw") - 1) % group_pols_df["draw"].n_unique() + 1).alias(".iteration")
+        )
+        group_pols_df = group_pols_df.rename({"chain": ".chain", "draw": ".draw"})
+        tidy_dfs[group] = group_pols_df.select([".chain", ".draw", ".iteration", "variable", "value"])
+
+    return tidy_dfs
+
+
+
+
+# %% RUN CONVERSION OF TIDY COLS
+
+groups = ["posterior", "posterior_predictive"]
+tidy_draws_dict = convert_idata_forecast_to_tidydraws(
+  idata_wo_dates,
+  groups)
+
+print(tidy_draws_dict)
+
+
+
 
 # %% FUNCTION FOR RUNNING R CODE VIA TEMPORARY FILES
 
@@ -108,53 +210,6 @@ example_out_tidy_data = """
 """
 
 
-# %% EXAMPLE IDATA W/ AND WO/ DATES
-
-idata_w_dates = forecasttools.nhsn_flu_forecast_w_dates
-idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
-
-print(idata_w_dates)
-print(idata_w_dates.observed_data.dims)
-
-
-# %% WHEN IDATA IS CONVERTED TO DF THEN CSV
-
-idata_wod_pandas_df = idata_wo_dates.to_dataframe()
-idata_wod_pols_df = pl.from_pandas(idata_wod_pandas_df)
-print(idata_wod_pols_df)
-example_output = """
-shape: (1_000, 1_515)
-┌───────┬──────┬─────────────┬─────────────┬───┬────────────┬────────────┬────────────┬────────────┐
-│ chain ┆ draw ┆ ('posterior ┆ ('posterior ┆ … ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr ┆ ('prior_pr │
-│ ---   ┆ ---  ┆ ', 'alpha') ┆ ', 'beta_co ┆   ┆ edictive', ┆ edictive', ┆ edictive', ┆ edictive', │
-│ i64   ┆ i64  ┆ ---         ┆ effs[0]'…   ┆   ┆ 'obs[97]'… ┆ 'obs[98]'… ┆ 'obs[99]'… ┆ 'obs[9]',… │
-│       ┆      ┆ f32         ┆ ---         ┆   ┆ ---        ┆ ---        ┆ ---        ┆ ---        │
-│       ┆      ┆             ┆ f32         ┆   ┆ i32        ┆ i32        ┆ i32        ┆ i32        │
-╞═══════╪══════╪═════════════╪═════════════╪═══╪════════════╪════════════╪════════════╪════════════╡
-│ 0     ┆ 0    ┆ 20.363588   ┆ 0.334427    ┆ … ┆ 0          ┆ 13         ┆ 0          ┆ 46         │
-│ 0     ┆ 1    ┆ 20.399645   ┆ 0.535402    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 21         │
-│ 0     ┆ 2    ┆ 22.719585   ┆ 0.777795    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 5          │
-│ 0     ┆ 3    ┆ 25.212839   ┆ 1.238166    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 203        │
-│ 0     ┆ 4    ┆ 24.964491   ┆ 0.912391    ┆ … ┆ 0          ┆ 1          ┆ 0          ┆ 33         │
-│ …     ┆ …    ┆ …           ┆ …           ┆ … ┆ …          ┆ …          ┆ …          ┆ …          │
-│ 0     ┆ 995  ┆ 23.382603   ┆ 0.688199    ┆ … ┆ 2          ┆ 2          ┆ 0          ┆ 1          │
-│ 0     ┆ 996  ┆ 23.979273   ┆ 0.565145    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
-│ 0     ┆ 997  ┆ 23.99214    ┆ 0.743872    ┆ … ┆ 0          ┆ 109        ┆ 202        ┆ 1          │
-│ 0     ┆ 998  ┆ 23.530113   ┆ 0.954449    ┆ … ┆ 0          ┆ 0          ┆ 0          ┆ 0          │
-│ 0     ┆ 999  ┆ 22.403072   ┆ 1.035949    ┆ … ┆ 14         ┆ 2          ┆ 18         ┆ 0          │
-└───────┴──────┴─────────────┴─────────────┴───┴────────────┴────────────┴────────────┴────────────┘
-"""
-
-print(
-    sorted(idata_wod_pols_df.columns)
-)  # e.g. "('posterior_predictive', 'obs[138]', 138)"
-
-# # doesn't immediately work with dates,
-# # KeyError: Timestamp('2022-08-08 00:00:00')
-# idata_pandas_df = idata_w_dates.to_dataframe()
-# idata_pols_df = pl.from_pandas(idata_pandas_df)
-# print(idata_pols_df)
-
 
 # %% EXAMPLE TIDY_DRAWS (2)
 
@@ -181,3 +236,50 @@ spread_vars <- posterior_samples %>%
   tidybayes::spread_draws(alpha, beta)
 dplyr::glimpse(spread_vars)
 """
+# %% FUNCTION TO CONVERT IDATA GROUPS TO TIDY
+
+
+def convert_idata_forecast_to_tidydraws(
+    idata: az.InferenceData, groups: list[str]
+) -> dict[str, pl.DataFrame]:
+    tidy_dfs = {}
+
+    for group in groups:
+        # Convert the specified group to a Pandas DataFrame
+        group_df = idata[group].to_dataframe()
+        group_pols_df = pl.from_pandas(group_df)
+
+        # Extract chain, draw, and group-specific variable columns
+        group_columns = [col for col in group_pols_df.columns if group in col]
+        meta_columns = ["chain", "draw"]
+        relevant_cols = meta_columns + group_columns
+
+        group_pols_df = group_pols_df.select(relevant_cols)
+
+        # Clean variable column names
+        def clean_column_names(cols):
+            cleaned_cols = {}
+            for col in cols:
+                if group in col:
+                    new_col = re.sub(r"[()\[\]]", "", col.split(",")[1].strip()) if "," in col else col
+                else:
+                    new_col = col
+                cleaned_cols[col] = new_col
+            return cleaned_cols
+
+        group_pols_df = group_pols_df.rename(clean_column_names(group_pols_df.columns))
+
+        # Create .iteration column
+        group_pols_df = group_pols_df.with_columns(
+            ((pl.col("draw") - 1) % group_pols_df["draw"].n_unique() + 1).alias(".iteration")
+        )
+
+        # Reorder columns: .chain, .draw, .iteration, followed by variables
+        variable_columns = [col for col in group_pols_df.columns if col not in meta_columns + [".iteration"]]
+        tidy_cols = [".chain", ".draw", ".iteration"] + variable_columns
+        group_pols_df = group_pols_df.select(tidy_cols)
+
+        # Store in the dictionary
+        tidy_dfs[group] = group_pols_df
+
+    return tidy_dfs
