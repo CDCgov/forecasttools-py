@@ -109,6 +109,16 @@ def convert_idata_forecast_to_tidydraws(
     return tidy_dfs
 
 
+# These are some errors received:
+
+# <ipython-input-26-ba2c53f5dbbf>:27: DeprecationWarning: `DataFrame.melt` is deprecated. Use `unpivot` instead, with `index` instead of `id_vars` and `on` instead of `value_vars`
+#   group_pols_df = group_pols_df.melt(
+# <ipython-input-26-ba2c53f5dbbf>:34: MapWithoutReturnDtypeWarning: Calling `map_elements` without specifying `return_dtype` can lead to unpredictable results. Specify `return_dtype` to silence this warning.
+#   group_pols_df = group_pols_df.with_columns(
+# <ipython-input-26-ba2c53f5dbbf>:27: DeprecationWarning: `DataFrame.melt` is deprecated. Use `unpivot` instead, with `index` instead of `id_vars` and `on` instead of `value_vars`
+#   group_pols_df = group_pols_df.melt(
+# <ipython-input-26-ba2c53f5dbbf>:34: MapWithoutReturnDtypeWarning: Calling `map_elements` without specifying `return_dtype` can lead to unpredictable results. Specify `return_dtype` to silence this warning.
+#   group_pols_df = group_pols_df.with_columns(
 
 
 # %% RUN CONVERSION OF TIDY COLS
