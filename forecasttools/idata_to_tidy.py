@@ -1,3 +1,10 @@
+"""
+Contains functions for interfacing between
+the tidy-verse and arviz, which includes
+the conversion of idata objects (and hence
+their groups) in tidy-usable objects.
+"""
+
 import re
 
 import arviz as az
@@ -8,6 +15,29 @@ def convert_idata_forecast_to_tidydraws(
     idata: az.InferenceData,
     groups: list[str]
 ) -> dict[str, pl.DataFrame]:
+    """
+    Creates a dictionary of polars dataframes
+    from the groups of an arviz InferenceData
+    object that when converted to a csv(s)
+    and read in R is tidy-usable.
+
+    Parameters
+    ----------
+    idata : az.InferenceData
+        An InferenceData object generated
+        from a numpyro forecast. Typically
+        has the groups observed_data and
+        posterior_predictive.
+    groups : list[str]
+        A list of groups belonging to the
+        idata object.
+
+    Returns
+    -------
+    dict[str, pl.DataFrame]
+        A dictionary of groups from the idata
+        convert to tidy-usable polars dataframe.
+    """
     tidy_dfs = {}
     idata_df = idata.to_dataframe()
     for group in groups:
