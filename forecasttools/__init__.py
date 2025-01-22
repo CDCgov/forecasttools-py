@@ -4,6 +4,7 @@ import arviz as az
 import polars as pl
 
 from forecasttools.daily_to_epiweekly import df_aggregate_to_epiweekly
+from forecasttools.idata_to_tidy import convert_idata_forecast_to_tidydraws
 from forecasttools.idata_w_dates_to_df import (
     add_time_coords_to_idata_dimension,
     add_time_coords_to_idata_dimensions,
@@ -95,4 +96,5 @@ __all__ = [
     "generate_time_range_for_dim",
     "validate_iter_has_expected_types",
     "ensure_listlike",
+    "convert_idata_forecast_to_tidydraws"
 ]

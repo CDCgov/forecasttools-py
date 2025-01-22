@@ -60,12 +60,12 @@ def convert_idata_forecast_to_tidydraws(
             value_name="value"
         )
         group_pols_df = group_pols_df.with_columns(
-            pl.col("variable").map_elements(lambda x: re.sub(r"\[.*\]", "", x)).alias("variable")
+            pl.col("variable").map_elements(
+                lambda x: re.sub(r"\[.*\]", "", x)).alias("variable")
         )
         group_pols_df = group_pols_df.with_columns(
             ((pl.col("draw") - 1) % group_pols_df["draw"].n_unique() + 1).alias(".iteration")
         )
         group_pols_df = group_pols_df.rename({"chain": ".chain", "draw": ".draw"})
         tidy_dfs[group] = group_pols_df.select([".chain", ".draw", ".iteration", "variable", "value"])
-
     return tidy_dfs

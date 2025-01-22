@@ -1,0 +1,41 @@
+---
+title: Add Dates To Pyrenew Idata And Use In Tidy-Verse
+format: gfm
+engine: jupyter
+---
+
+_The following notebook illustrates the addition of dates to an external `idata` object before demonstrating the tidy-usable capabilities in R._
+
+__Load In Packages And External Pyrenew InferenceData Object__
+
+```{python}
+#| echo: true
+import forecasttools
+import arviz as az
+import xarray as xr
+
+xr.set_options(display_expand_data=False, display_expand_attrs=False)
+
+
+pyrenew_idata_path = "../assets/external/inference_data_1.nc"
+pyrenew_idata = az.from_netcdf(pyrenew_idata_path)
+pyrenew_idata
+```
+
+__Define Groups To Save And Convert__
+
+```{python}
+#| echo: true
+
+pyrenew_groups = ["posterior_predictive"]
+tidy_usable_groups = forecasttools.convert_idata_forecast_to_tidydraws(
+    idata=pyrenew_idata,
+    groups=pyrenew_groups
+)
+
+# show variables
+print(tidy_usable_groups["posterior_predictive"]["variable"].unique())
+
+# show output
+tidy_usable_groups
+```
