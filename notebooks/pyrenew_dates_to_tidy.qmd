@@ -39,3 +39,31 @@ print(tidy_usable_groups["posterior_predictive"]["variable"].unique())
 # show output
 tidy_usable_groups
 ```
+
+__Add Dates To Pyrenew InferenceData__
+
+```{python}
+start_time_as_dt = date(2022, 8, 1)
+
+variable_data = idata_wo_dates["posterior_predictive"]["obs"]
+
+as_dates_idata = forecasttools.generate_time_range_for_dim(
+    start_time_as_dt=start_time_as_dt,
+    variable_data=variable_data,
+    dimension="obs_dim_0",
+    time_step=timedelta(days=1),
+)
+print(as_dates_idata[:5], type(as_dates_idata[0]))
+
+as_time_idata = forecasttools.generate_time_range_for_dim(
+    start_time_as_dt=start_time_as_dt,
+    variable_data=variable_data,
+    dimension="obs_dim_0",
+    time_step=timedelta(days=1.5),
+)
+print(as_time_idata[:5], type(as_time_idata[0]))
+```
+
+__Again Convert The Dated Pyrenew InferenceData To Tidy-Usable__
+
+__Examine The Dataframe In The Tidyverse__
