@@ -10,9 +10,14 @@ __Load In Packages And External Pyrenew InferenceData Object__
 
 ```{python}
 #| echo: true
+
 import forecasttools
 import arviz as az
 import xarray as xr
+import os
+import subprocess
+import tempfile
+from datetime import date, timedelta
 
 xr.set_options(display_expand_data=False, display_expand_attrs=False)
 
@@ -40,30 +45,112 @@ print(tidy_usable_groups["posterior_predictive"]["variable"].unique())
 tidy_usable_groups
 ```
 
+__Demonstrate Adding Time To Pyrenew InferenceData__
+
+```{python}
+#| echo: true
+
+start_time_as_dt = date(2022, 8, 1) # arbitrary
+
+pyrenew_target_var = pyrenew_idata["posterior_predictive"]["observed_hospital_admissions"]
+print(pyrenew_target_var)
+
+pyrenew_var_w_dates = forecasttools.generate_time_range_for_dim(
+    start_time_as_dt=start_time_as_dt,
+    variable_data=pyrenew_target_var,
+    dimension="observed_hospital_admissions_dim_0",
+    time_step=timedelta(days=1),
+)
+print(pyrenew_var_w_dates[:5], type(pyrenew_var_w_dates[0]))
+```
+
 __Add Dates To Pyrenew InferenceData__
 
 ```{python}
-start_time_as_dt = date(2022, 8, 1)
+#| echo: true
 
-variable_data = idata_wo_dates["posterior_predictive"]["obs"]
-
-as_dates_idata = forecasttools.generate_time_range_for_dim(
-    start_time_as_dt=start_time_as_dt,
-    variable_data=variable_data,
-    dimension="obs_dim_0",
+pyrenew_idata_w_dates = forecasttools.add_time_coords_to_idata_dimension(
+    idata=pyrenew_idata,
+    group="posterior_predictive",
+    variable="observed_hospital_admissions",
+    dimension="observed_hospital_admissions_dim_0",
+    start_date_iso=start_time_as_dt,
     time_step=timedelta(days=1),
 )
-print(as_dates_idata[:5], type(as_dates_idata[0]))
 
-as_time_idata = forecasttools.generate_time_range_for_dim(
-    start_time_as_dt=start_time_as_dt,
-    variable_data=variable_data,
-    dimension="obs_dim_0",
-    time_step=timedelta(days=1.5),
-)
-print(as_time_idata[:5], type(as_time_idata[0]))
+print(pyrenew_idata_w_dates["posterior_predictive"]["observed_hospital_admissions"]["observed_hospital_admissions_dim_0"])
+pyrenew_idata_w_dates
 ```
 
 __Again Convert The Dated Pyrenew InferenceData To Tidy-Usable__
 
+
+```{python}
+
+pyrenew_groups = ["posterior_predictive"]
+tidy_usable_groups_w_dates = forecasttools.convert_idata_forecast_to_tidydraws(
+    idata=pyrenew_idata_w_dates,
+    groups=pyrenew_groups
+)
+tidy_usable_groups_w_dates
+```
+
 __Examine The Dataframe In The Tidyverse__
+
+```{python}
+def light_r_runner(r_code: str) -> None:
+    """
+    Run R code from Python as a temp file.
+    """
+    with tempfile.NamedTemporaryFile(suffix=".R", delete=False) as temp_r_file:
+        temp_r_file.write(r_code.encode("utf-8"))
+        temp_r_file_path = temp_r_file.name
+    try:
+        subprocess.run(["Rscript", temp_r_file_path], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"R script failed with error: {e}")
+    finally:
+        os.remove(temp_r_file_path)
+
+
+for key, tidy_df in tidy_usable_groups_w_dates.items():
+    file_name = f"{key}.csv"
+    if not os.path.exists(file_name):
+        tidy_df.write_csv(file_name)
+        print(f"Saved {file_name}")
+
+
+r_code_to_verify_tibble = """
+library(magrittr)
+library(tidyverse)
+library(tidybayes)
+
+csv_files <- c("posterior_predictive.csv")
+
+for (csv_file in csv_files) {
+  tibble_data <- read_csv(csv_file)
+
+  print(paste("Tibble from", csv_file))
+  print(tibble_data)
+
+  tidy_data <- tibble_data %>%
+    tidybayes::tidy_draws()
+  print(tidy_data)
+}
+"""
+light_r_runner(r_code_to_verify_tibble)
+```
+
+The output of the last cell is:
+
+```
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+Error: To use a data frame directly with `tidy_draws()`, it must already be a
+  tidy-format data frame of draws: it must have integer-like `.chain`
+  `.iteration`, and `.draw` columns with one row per draw.
+
+  The `.draw` column in the input data frame has more than one row per draw
+  (its values are not unique).
+Execution halted
+```
