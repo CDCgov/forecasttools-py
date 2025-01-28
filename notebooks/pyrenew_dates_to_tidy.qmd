@@ -53,9 +53,9 @@ def convert_inference_data_to_tidydraws(
         has the groups observed_data and
         posterior_predictive.
     groups : list[str]
-        A list of groups belonging to the
-        idata object. Defaults to all groups
-        in the InferenceData.
+        A list of groups to transform to
+        tidy draws format. Defaults to all
+        groups in the InferenceData.
 
     Returns
     -------
@@ -66,38 +66,22 @@ def convert_inference_data_to_tidydraws(
     if groups is None:
         groups = list(idata.groups())
     idata_df = pl.DataFrame(idata.to_dataframe())
-    # idata_df = idata_df.rename({
-    #     col: eval(col) if col.startswith("(") and col.endswith(")") else col
-    #     for col in idata_df.columns
-    #     if col not in ["chain", "draw"]
-    # })
-    # column_mapping = {}
-    # for col in idata_df.columns:
-    #     if col.startswith("(") and col.endswith(")") and col not in ["chain", "draw"]:
-    #         try:
-    #             column_mapping[col] = eval(col)
-    #         except Exception:
-    #             pass
-    # idata_df = idata_df.rename(
-    #     {old: str(new) for old, new in column_mapping.items()})
+
+
     tidy_dfs = {
         group: (
             idata_df
-            .select(["chain", "draw"] + [col for col in idata_df.columns if col.startswith(f"('{group}',")])
-            .rename({col: col.split(", ")[1].strip("')") for col in idata_df.columns if col.startswith(f"('{group}',")})
-            .melt(
+            .select(
+        ["chain", "draw"] + [col for col in idata_df.columns if col.startswith(f"('{group}',")]).rename(
+            {col: col.split(", ")[1].strip("')") for col in idata_df.columns if col.startswith(f"('{group}',")}).melt(
                 id_vars=["chain", "draw"],
                 variable_name="variable",
                 value_name="value"
-            )
-            .with_columns(
+            ).with_columns(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
-            )
-            .with_columns(
-                ((pl.col("draw") - 1) % idata_df.select(pl.col("draw").n_unique()).item(0) + 1).alias(".iteration")
-            )
-            .rename({"chain": ".chain", "draw": ".draw"})
-            .select([".chain", ".draw", ".iteration", "variable", "value"])
+            ).with_columns(
+                ((pl.col("draw") - 1) % pl.col("draw").n_unique() + 1).alias(".iteration")
+            ).rename({"chain": ".chain", "draw": ".draw"}).select([".chain", ".draw", ".iteration", "variable", "value"])
         )
         for group in groups if any(isinstance(col, tuple) and col[0] == group for col in idata_df.columns)
     }
