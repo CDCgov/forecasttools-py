@@ -67,7 +67,6 @@ def convert_inference_data_to_tidydraws(
         groups = list(idata.groups())
     idata_df = pl.DataFrame(idata.to_dataframe())
 
-
     tidy_dfs = {
         group: (
             idata_df
@@ -83,7 +82,7 @@ def convert_inference_data_to_tidydraws(
                 ((pl.col("draw") - 1) % pl.col("draw").n_unique() + 1).alias(".iteration")
             ).rename({"chain": ".chain", "draw": ".draw"}).select([".chain", ".draw", ".iteration", "variable", "value"])
         )
-        for group in groups if any(isinstance(col, tuple) and col[0] == group for col in idata_df.columns)
+        for group in groups
     }
     return tidy_dfs
 ```

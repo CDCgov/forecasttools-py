@@ -35,7 +35,7 @@ def convert_inference_data_to_tidydraws(
     -------
     dict[str, pl.DataFrame]
         A dictionary of groups from the idata
-        convert to tidy-usable polars dataframe.
+        for use with the tidybayes API.
     """
     if groups is None:
         groups = list(idata.groups())
@@ -44,22 +44,18 @@ def convert_inference_data_to_tidydraws(
     tidy_dfs = {
         group: (
             idata_df
-            .select(["chain", "draw"] + [col for col in idata_df.columns if isinstance(col, tuple) and col[0] == group])
-            .rename({col: col[1] for col in idata_df.columns if isinstance(col, tuple) and col[0] == group})
-            .melt(
+            .select(
+        ["chain", "draw"] + [col for col in idata_df.columns if col.startswith(f"('{group}',")]).rename(
+            {col: col.split(", ")[1].strip("')") for col in idata_df.columns if col.startswith(f"('{group}',")}).melt(
                 id_vars=["chain", "draw"],
                 variable_name="variable",
                 value_name="value"
-            )
-            .with_columns(
+            ).with_columns(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
-            )
-            .with_columns(
-                ((pl.col("draw") - 1) % idata_df.select(pl.col("draw").n_unique()).item(0) + 1).alias(".iteration")
-            )
-            .rename({"chain": ".chain", "draw": ".draw"})
-            .select([".chain", ".draw", ".iteration", "variable", "value"])
+            ).with_columns(
+                ((pl.col("draw") - 1) % pl.col("draw").n_unique() + 1).alias(".iteration")
+            ).rename({"chain": ".chain", "draw": ".draw"}).select([".chain", ".draw", ".iteration", "variable", "value"])
         )
-        for group in groups if any(isinstance(col, tuple) and col[0] == group for col in idata_df.columns)
+        for group in groups
     }
     return tidy_dfs
