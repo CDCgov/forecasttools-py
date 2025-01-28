@@ -27,9 +27,9 @@ def convert_inference_data_to_tidydraws(
         has the groups observed_data and
         posterior_predictive.
     groups : list[str]
-        A list of groups belonging to the
-        idata object. Defaults to all groups
-        in the InferenceData.
+        A list of groups to transform to
+        tidy draws format. Defaults to all
+        groups in the InferenceData.
 
     Returns
     -------
