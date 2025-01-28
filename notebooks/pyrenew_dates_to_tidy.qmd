@@ -33,7 +33,7 @@ __Define Groups To Save And Convert__
 #| echo: true
 
 pyrenew_groups = ["posterior_predictive"]
-tidy_usable_groups = forecasttools.convert_idata_forecast_to_tidydraws(
+tidy_usable_groups = forecasttools.convert_inference_data_to_tidydraws(
     idata=pyrenew_idata,
     groups=pyrenew_groups
 )
@@ -88,7 +88,7 @@ __Again Convert The Dated Pyrenew InferenceData To Tidy-Usable__
 ```{python}
 
 pyrenew_groups = ["posterior_predictive"]
-tidy_usable_groups_w_dates = forecasttools.convert_idata_forecast_to_tidydraws(
+tidy_usable_groups_w_dates = forecasttools.convert_inference_data_to_tidydraws(
     idata=pyrenew_idata_w_dates,
     groups=pyrenew_groups
 )

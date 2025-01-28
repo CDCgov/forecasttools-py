@@ -11,7 +11,7 @@ import arviz as az
 import polars as pl
 
 
-def convert_idata_forecast_to_tidydraws(
+def convert_inference_data_to_tidydraws(
     idata: az.InferenceData,
     groups: list[str]
 ) -> dict[str, pl.DataFrame]:
