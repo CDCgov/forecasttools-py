@@ -18,8 +18,7 @@ def convert_inference_data_to_tidydraws(
     """
     Creates a dictionary of polars dataframes
     from the groups of an arviz InferenceData
-    object that when converted to a csv(s)
-    and read in R is tidy-usable.
+    object for use with the tidybayes API.
 
     Parameters
     ----------
