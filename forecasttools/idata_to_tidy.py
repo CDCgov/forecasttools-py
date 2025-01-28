@@ -5,7 +5,6 @@ the conversion of idata objects (and hence
 their groups) in tidy-usable objects.
 """
 
-import re
 
 import arviz as az
 import polars as pl
@@ -29,7 +28,8 @@ def convert_inference_data_to_tidydraws(
         posterior_predictive.
     groups : list[str]
         A list of groups belonging to the
-        idata object.
+        idata object. Defaults to all groups
+        in the InferenceData.
 
     Returns
     -------
@@ -37,34 +37,29 @@ def convert_inference_data_to_tidydraws(
         A dictionary of groups from the idata
         convert to tidy-usable polars dataframe.
     """
-    tidy_dfs = {}
-    idata_df = idata.to_dataframe()
-    for group in groups:
-        group_columns = [
-            col for col in idata_df.columns
-            if isinstance(col, tuple) and col[0] == group
-        ]
-        meta_columns = ["chain", "draw"]
-        group_df = idata_df[meta_columns + group_columns]
-        group_df.columns = [
-            col[1] if isinstance(col, tuple) else col
-            for col in group_df.columns
-        ]
-        group_pols_df = pl.from_pandas(group_df)
-        value_columns = [col for col in group_pols_df.columns if col not in meta_columns]
-        group_pols_df = group_pols_df.melt(
-            id_vars=meta_columns,
-            value_vars=value_columns,
-            variable_name="variable",
-            value_name="value"
+    if groups is None:
+        groups = list(idata.groups())
+    idata_df = pl.DataFrame(idata.to_dataframe())
+
+    tidy_dfs = {
+        group: (
+            idata_df
+            .select(["chain", "draw"] + [col for col in idata_df.columns if isinstance(col, tuple) and col[0] == group])
+            .rename({col: col[1] for col in idata_df.columns if isinstance(col, tuple) and col[0] == group})
+            .melt(
+                id_vars=["chain", "draw"],
+                variable_name="variable",
+                value_name="value"
+            )
+            .with_columns(
+                pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
+            )
+            .with_columns(
+                ((pl.col("draw") - 1) % idata_df.select(pl.col("draw").n_unique()).item(0) + 1).alias(".iteration")
+            )
+            .rename({"chain": ".chain", "draw": ".draw"})
+            .select([".chain", ".draw", ".iteration", "variable", "value"])
         )
-        group_pols_df = group_pols_df.with_columns(
-            pl.col("variable").map_elements(
-                lambda x: re.sub(r"\[.*\]", "", x)).alias("variable")
-        )
-        group_pols_df = group_pols_df.with_columns(
-            ((pl.col("draw") - 1) % group_pols_df["draw"].n_unique() + 1).alias(".iteration")
-        )
-        group_pols_df = group_pols_df.rename({"chain": ".chain", "draw": ".draw"})
-        tidy_dfs[group] = group_pols_df.select([".chain", ".draw", ".iteration", "variable", "value"])
+        for group in groups if any(isinstance(col, tuple) and col[0] == group for col in idata_df.columns)
+    }
     return tidy_dfs
