@@ -37,8 +37,14 @@ def convert_inference_data_to_tidydraws(
         A dictionary of groups from the idata
         for use with the tidybayes API.
     """
+    available_groups = list(idata.groups())
     if groups is None:
-        groups = list(idata.groups())
+        groups = available_groups
+    else:
+        invalid_groups = [group for group in groups if group not in available_groups]
+        if invalid_groups:
+            raise ValueError(f"Invalid groups provided: {invalid_groups}. Available groups: {available_groups}")
+
     idata_df = pl.DataFrame(idata.to_dataframe())
 
     tidy_dfs = {
