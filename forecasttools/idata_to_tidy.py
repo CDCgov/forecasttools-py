@@ -60,7 +60,7 @@ def convert_inference_data_to_tidydraws(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
             ).with_columns(
                 ((pl.col("draw") - 1) % pl.col("draw").n_unique() + 1).alias(".iteration")
-            ).rename({"chain": ".chain", "draw": ".draw"}).select([".chain", ".draw", ".iteration", "variable", "value"])
+            ).rename({"chain": ".chain", "draw": ".draw"}).select([".chain", ".iteration", ".draw", "variable", "value"])
         )
         for group in groups
     }

@@ -15,6 +15,7 @@ import forecasttools
 import arviz as az
 import xarray as xr
 import os
+import polars as pl
 import subprocess
 import tempfile
 from datetime import date, timedelta
@@ -39,11 +40,17 @@ tidy_usable_groups = forecasttools.convert_inference_data_to_tidydraws(
     groups=pyrenew_groups
 )
 
-# # show variables
-# print(tidy_usable_groups["posterior_predictive"]["variable"].unique())
-
 # show output
 tidy_usable_groups
+```
+
+```{python}
+# TO DELETE
+nested_tidy_dfs = {
+        group: {var: df.filter(pl.col("variable") == var) for var in df["variable"].unique().to_list()}
+        for group, df in tidy_usable_groups.items()
+    }
+print(nested_tidy_dfs)
 ```
 
 __Demonstrate Adding Time To Pyrenew InferenceData__
