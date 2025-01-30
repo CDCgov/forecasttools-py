@@ -50,7 +50,7 @@ nested_tidy_dfs = {
         group: {var: df.filter(pl.col("variable") == var) for var in df["variable"].unique().to_list()}
         for group, df in tidy_usable_groups.items()
     }
-print(nested_tidy_dfs)
+nested_tidy_dfs
 ```
 
 __Demonstrate Adding Time To Pyrenew InferenceData__
@@ -120,12 +120,18 @@ def light_r_runner(r_code: str) -> None:
     finally:
         os.remove(temp_r_file_path)
 
+#for key, tidy_df in tidy_usable_groups_w_dates.items():
+#     file_name = f"{key}.csv"
+#     if not os.path.exists(file_name):
+#         tidy_df.write_csv(file_name)
+#         print(f"Saved {file_name}")
 
-for key, tidy_df in tidy_usable_groups_w_dates.items():
-    file_name = f"{key}.csv"
-    if not os.path.exists(file_name):
-        tidy_df.write_csv(file_name)
-        print(f"Saved {file_name}")
+for group, var in nested_tidy_dfs.items():
+    for var_name, tidy_data in var.items():
+        file_name = f"{var_name}.csv"
+        if not os.path.exists(file_name):
+            tidy_data.write_csv(file_name)
+            print(f"Saved {file_name}")
 
 
 r_code_to_verify_tibble = """
@@ -133,7 +139,7 @@ library(magrittr)
 library(tidyverse)
 library(tidybayes)
 
-csv_files <- c("posterior_predictive.csv")
+csv_files <- c("observed_hospital_admissions.csv")
 
 for (csv_file in csv_files) {
   tibble_data <- read_csv(csv_file)
