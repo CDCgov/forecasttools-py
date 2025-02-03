@@ -5,14 +5,12 @@ the conversion of idata objects (and hence
 their groups) in tidy-usable objects.
 """
 
-
 import arviz as az
 import polars as pl
 
 
 def convert_inference_data_to_tidydraws(
-    idata: az.InferenceData,
-    groups: list[str]
+    idata: az.InferenceData, groups: list[str]
 ) -> dict[str, pl.DataFrame]:
     """
     Creates a dictionary of polars dataframes
@@ -43,24 +41,38 @@ def convert_inference_data_to_tidydraws(
     else:
         invalid_groups = [group for group in groups if group not in available_groups]
         if invalid_groups:
-            raise ValueError(f"Invalid groups provided: {invalid_groups}. Available groups: {available_groups}")
+            raise ValueError(
+                f"Invalid groups provided: {invalid_groups}. Available groups: {available_groups}"
+            )
 
     idata_df = pl.DataFrame(idata.to_dataframe())
 
     tidy_dfs = {
         group: (
-            idata_df
-            .select(
-        ["chain", "draw"] + [col for col in idata_df.columns if col.startswith(f"('{group}',")]).rename(
-            {col: col.split(", ")[1].strip("')") for col in idata_df.columns if col.startswith(f"('{group}',")}).melt(
-                id_vars=["chain", "draw"],
-                variable_name="variable",
-                value_name="value"
-            ).with_columns(
+            idata_df.select(
+                ["chain", "draw"]
+                + [col for col in idata_df.columns if col.startswith(f"('{group}',")]
+            )
+            .rename(
+                {
+                    col: col.split(", ")[1].strip("')")
+                    for col in idata_df.columns
+                    if col.startswith(f"('{group}',")
+                }
+            )
+            .melt(
+                id_vars=["chain", "draw"], variable_name="variable", value_name="value"
+            )
+            .with_columns(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
-            ).with_columns(
-                ((pl.col("draw") - 1) % pl.col("draw").n_unique() + 1).alias(".iteration")
-            ).rename({"chain": ".chain", "draw": ".draw"}).select([".chain", ".iteration", ".draw", "variable", "value"])
+            )
+            .with_columns(
+                ((pl.col("draw") - 1) % pl.col("draw").n_unique() + 1).alias(
+                    ".iteration"
+                )
+            )
+            .rename({"chain": ".chain", "draw": ".draw"})
+            .select([".chain", ".iteration", ".draw", "variable", "value"])
         )
         for group in groups
     }

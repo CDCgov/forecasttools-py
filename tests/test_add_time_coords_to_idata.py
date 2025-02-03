@@ -42,9 +42,7 @@ IDATA_WO_DATES = forecasttools.nhsn_flu_forecast_wo_dates
         ),  # time_step can't be 0
     ],
 )
-def test_add_time_coords_to_idata_dimension(
-    start_date_iso, time_step, expected_error
-):
+def test_add_time_coords_to_idata_dimension(start_date_iso, time_step, expected_error):
     """
     Tests instances where invalid start_iso_date
     (as str and datetime dates)
@@ -373,9 +371,7 @@ def test_ensure_listlike(input_value, expected_output):
     unchanged.
     """
     out = forecasttools.ensure_listlike(input_value)
-    assert (
-        out == expected_output
-    ), f"Expected {expected_output}, but got {out}."
+    assert out == expected_output, f"Expected {expected_output}, but got {out}."
 
 
 @pytest.mark.parametrize(
@@ -397,9 +393,7 @@ def test_ensure_listlike(input_value, expected_output):
         ),  # invalid, non-string in list
     ],
 )
-def test_validate_iter_has_expected_types(
-    input_value, expected_error, param_name
-):
+def test_validate_iter_has_expected_types(input_value, expected_error, param_name):
     """
     Test that validate_iter_has_expected_types
     properly validates that all entries in
@@ -408,13 +402,9 @@ def test_validate_iter_has_expected_types(
     """
     if expected_error:
         with pytest.raises(expected_error):
-            forecasttools.validate_iter_has_expected_types(
-                input_value, str, param_name
-            )
+            forecasttools.validate_iter_has_expected_types(input_value, str, param_name)
     else:
-        forecasttools.validate_iter_has_expected_types(
-            input_value, str, param_name
-        )
+        forecasttools.validate_iter_has_expected_types(input_value, str, param_name)
 
 
 @pytest.mark.parametrize(

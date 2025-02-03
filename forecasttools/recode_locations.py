@@ -9,9 +9,7 @@ import polars as pl
 import forecasttools
 
 
-def loc_abbr_to_hubverse_code(
-    df: pl.DataFrame, location_col: str
-) -> pl.DataFrame:
+def loc_abbr_to_hubverse_code(df: pl.DataFrame, location_col: str) -> pl.DataFrame:
     """
     Takes the location column of a Polars
     dataframe (formatted as US two-letter
@@ -75,9 +73,7 @@ def loc_abbr_to_hubverse_code(
     return loc_recoded_df
 
 
-def loc_hubverse_code_to_abbr(
-    df: pl.DataFrame, location_col: str
-) -> pl.DataFrame:
+def loc_hubverse_code_to_abbr(df: pl.DataFrame, location_col: str) -> pl.DataFrame:
     """
     Takes the location columns of a Polars
     dataframe (formatted as hubverse codes for
@@ -161,9 +157,9 @@ def to_location_table_column(location_format: str) -> str:
         from the location table.
     """
     # check inputted variable type
-    assert isinstance(
-        location_format, str
-    ), f"Expected a string; got {type(location_format)}."
+    assert isinstance(location_format, str), (
+        f"Expected a string; got {type(location_format)}."
+    )
     # return proper column name from input format
     col_dict = {
         "abbr": "short_name",
@@ -178,9 +174,7 @@ def to_location_table_column(location_format: str) -> str:
     return col
 
 
-def location_lookup(
-    location_vector: list[str], location_format: str
-) -> pl.DataFrame:
+def location_lookup(location_vector: list[str], location_format: str) -> pl.DataFrame:
     """
     Look up rows of the hubverse location
     table corresponding to the entries
