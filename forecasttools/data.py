@@ -133,7 +133,9 @@ def make_nshn_fitting_dataset(
     check_file_save_path(file_save_path)
     # check that a data file exists
     if not os.path.exists(nhsn_dataset_path):
-        raise FileNotFoundError(f"The file {nhsn_dataset_path} does not exist.")
+        raise FileNotFoundError(
+            f"The file {nhsn_dataset_path} does not exist."
+        )
     else:
         # check that the loaded CSV has the needed columns
         df_cols = pl.scan_csv(nhsn_dataset_path).columns
@@ -161,7 +163,9 @@ def make_nshn_fitting_dataset(
                         "previous_day_admission_adult_covid_confirmed",
                     ]
                 )
-                .rename({"previous_day_admission_adult_covid_confirmed": "hosp"})
+                .rename(
+                    {"previous_day_admission_adult_covid_confirmed": "hosp"}
+                )
                 .sort(["state", "date"])
             )
             df_covid.write_csv(file_save_path)

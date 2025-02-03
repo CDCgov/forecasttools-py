@@ -48,7 +48,9 @@ def get_hubverse_target_end_dates(
                     "reference_date": reference_date,
                     "target": "wk inc flu hosp",
                     "horizon": h,
-                    "target_end_date": (reference_date_dt + timedelta(weeks=h)).date(),
+                    "target_end_date": (
+                        reference_date_dt + timedelta(weeks=h)
+                    ).date(),
                     "epidate": epiweeks.Week.fromdate(
                         reference_date_dt + timedelta(weeks=h)
                     ),

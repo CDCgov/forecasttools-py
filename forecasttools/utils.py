@@ -9,7 +9,9 @@ import arviz as az
 import xarray as xr
 
 
-def validate_input_type(value: any, expected_type: type | tuple[type], param_name: str):
+def validate_input_type(
+    value: any, expected_type: type | tuple[type], param_name: str
+):
     """Checks the type of a variable and
     raises a TypeError if it does not match
     the expected type."""
@@ -42,7 +44,9 @@ def validate_and_get_idata_group_var(
     """Retrieves the variable from the group
     and validates its existence."""
     if variable not in idata_group.data_vars:
-        raise ValueError(f"Variable '{variable}' not found in group '{group}'.")
+        raise ValueError(
+            f"Variable '{variable}' not found in group '{group}'."
+        )
     return idata_group[variable]
 
 

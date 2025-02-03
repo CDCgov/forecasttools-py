@@ -39,7 +39,9 @@ def convert_inference_data_to_tidydraws(
     if groups is None:
         groups = available_groups
     else:
-        invalid_groups = [group for group in groups if group not in available_groups]
+        invalid_groups = [
+            group for group in groups if group not in available_groups
+        ]
         if invalid_groups:
             raise ValueError(
                 f"Invalid groups provided: {invalid_groups}. Available groups: {available_groups}"
@@ -51,7 +53,11 @@ def convert_inference_data_to_tidydraws(
         group: (
             idata_df.select(
                 ["chain", "draw"]
-                + [col for col in idata_df.columns if col.startswith(f"('{group}',")]
+                + [
+                    col
+                    for col in idata_df.columns
+                    if col.startswith(f"('{group}',")
+                ]
             )
             .rename(
                 {
@@ -61,7 +67,9 @@ def convert_inference_data_to_tidydraws(
                 }
             )
             .melt(
-                id_vars=["chain", "draw"], variable_name="variable", value_name="value"
+                id_vars=["chain", "draw"],
+                variable_name="variable",
+                value_name="value",
             )
             .with_columns(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
