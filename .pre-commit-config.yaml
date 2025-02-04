@@ -68,14 +68,51 @@ repos:
 ################################################################################
 # PYTHON
 ################################################################################
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.9.4
-  hooks:
-  # run the linter.
-  -   id: ruff
-  # run the formatter.
-  -   id: ruff-format
-      args: ["--line-length", "79"]
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.4
+    hooks:
+    # "currently, the Ruff formatter does not sort imports.
+    # In order to both sort imports and format, call
+    # the Ruff linter and then the formatter:"
+    -   id: ruff
+        args: [
+          "check",
+          "--select",
+          # isort
+          "I",
+          "--fix"]
+    # run ruff linter; the Ruff Linter is an extremely fast Python linter
+    # designed as a drop-in replacement for Flake8 (plus dozens of plugins),
+    # isort, pydocstyle, pyupgrade, autoflake, and more
+    -   id: ruff
+        args: [
+          # ambiguous variable name: {name}
+          "--ignore=E741",
+          # do not assign a lambda expression, use a def
+          "--ignore=E731",
+          # indentation contains tabs (sorry, I like tabs)
+          "--ignore=W191",
+          # found useless expression. ignore since .qmd displays
+          "--ignore=B018",
+          # {name} is too complex ({complexity} > {max_complexity})
+          # note: ignored on select repositories
+          "--ignore=C901",
+          # E and W: pycodestyle, standard PEP8 errors and pycodestyle warnings.
+          # F: pyflakes warnings (e.g., unused variables, undefined names).,
+          # B: flake8-bugbear (useful best practices).
+          # SIM: flake8-simplify
+          # C90: McCabe complexity (cyclomatic complexity).
+          # UP: pyupgrade, Python version compatibility
+          "--select=E,W,F,B,C90,UP,SIM",
+          "--line-length=79",
+          # lint all files in the current directory, and fix any fixable errors.
+          "--fix"]
+    # run the ruff-formatter; the Ruff formatter is an extremely fast
+    # Python code formatter designed as a drop-in replacement for Black
+    -   id: ruff-format
+        args: [
+          "--line-length=79",
+        ]
 ################################################################################
 # GITHUB ACTIONS
 ################################################################################

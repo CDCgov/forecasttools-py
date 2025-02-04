@@ -139,7 +139,8 @@ def test_to_location_table_column_correct_input(
     """
     result_column = forecasttools.to_location_table_column(location_format)
     assert result_column == expected_column, (
-        f"Expected column '{expected_column}' for format '{location_format}', but got '{result_column}'"
+        f"Expected column '{expected_column}'"
+        f" for format '{location_format}', but got '{result_column}'."
     )
 
 

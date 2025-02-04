@@ -147,7 +147,8 @@ def make_nshn_fitting_dataset(
         ]
         if not set(required_cols).issubset(set(df_cols)):
             raise ValueError(
-                f"NHSN dataset missing required columns: {set(required_cols) - set(df_cols)}"
+                f"NHSN dataset missing required columns:"
+                f" {set(required_cols) - set(df_cols)}"
             )
         # fully load and save NHSN dataframe
         df = pl.read_csv(nhsn_dataset_path)
@@ -199,7 +200,11 @@ def get_and_save_flusight_submission(
     # check if the save file exists
     check_file_save_path(file_save_path)
     # check if the FluSight example url is still valid
-    url = "https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv"
+    url = (
+        "https://raw.githubusercontent.com/cdcepi/"
+        "FluSight-forecast-hub/main/model-output/"
+        "cfa-flumech/2023-10-14-cfa-flumech.csv"
+    )
     check_url(url)
     # read csv from URL, convert to polars
     submission_df = pl.read_csv(url, infer_schema_length=7500)

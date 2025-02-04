@@ -44,11 +44,11 @@ def convert_inference_data_to_tidydraws(
         ]
         if invalid_groups:
             raise ValueError(
-                f"Invalid groups provided: {invalid_groups}. Available groups: {available_groups}"
+                f"Invalid groups provided: {invalid_groups}."
+                f" Available groups: {available_groups}"
             )
 
     idata_df = pl.DataFrame(idata.to_dataframe())
-
     tidy_dfs = {
         group: (
             idata_df.select(
