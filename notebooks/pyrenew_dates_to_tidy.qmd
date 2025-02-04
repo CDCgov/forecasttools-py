@@ -51,9 +51,13 @@ tidy_usable_groups
 ```{python}
 # TO DELETE
 nested_tidy_dfs = {
-        group: {var: df.filter(pl.col("variable") == var) for var in df["variable"].unique().to_list()}
-        for group, df in tidy_usable_groups.items()
+    group: {
+        var: df.select([".chain", ".iteration", ".draw", var])
+        for var in [col for col in df.columns if col not in [".chain", ".iteration", ".draw"]]
     }
+    for group, df in tidy_usable_groups.items()
+}
+
 nested_tidy_dfs
 ```
 

@@ -74,7 +74,14 @@ def convert_inference_data_to_tidydraws(
                 )
             )
             .rename({"chain": ".chain", "draw": ".draw"})
-            .select([".chain", ".iteration", ".draw", "variable", "value"])
+            .pivot(
+                values="value",
+                index=[".chain", ".iteration", ".draw"],
+                columns="variable",
+                aggregate_function="first",
+            )
+            .sort([".chain", ".iteration", ".draw"])
+            # .select([".chain", ".iteration", ".draw", "variable", "value"])
         )
         for group in groups
     }
