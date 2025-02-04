@@ -11,7 +11,6 @@ import polars as pl
 import forecasttools
 
 
-
 def calculate_epi_week_and_year(date: str):
     """
     Converts an ISO8601 formatted
