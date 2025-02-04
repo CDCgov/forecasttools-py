@@ -147,7 +147,7 @@ library(magrittr)
 library(tidyverse)
 library(tidybayes)
 
-csv_files <- c("observed_hospital_admissions.csv")
+csv_files <- c("rt.csv")
 
 for (csv_file in csv_files) {
   tibble_data <- read_csv(csv_file)

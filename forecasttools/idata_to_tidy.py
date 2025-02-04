@@ -50,6 +50,7 @@ def convert_inference_data_to_tidydraws(
             )
 
     idata_df = pl.DataFrame(idata.to_dataframe())
+
     tidy_dfs = {
         group: (
             idata_df.select("chain", "draw", cs.starts_with(f"('{group}',"))
