@@ -7,6 +7,7 @@ their groups) in tidy-usable objects.
 
 import arviz as az
 import polars as pl
+import polars.selectors as cs
 
 
 def convert_inference_data_to_tidydraws(
@@ -51,14 +52,7 @@ def convert_inference_data_to_tidydraws(
     idata_df = pl.DataFrame(idata.to_dataframe())
     tidy_dfs = {
         group: (
-            idata_df.select(
-                ["chain", "draw"]
-                + [
-                    col
-                    for col in idata_df.columns
-                    if col.startswith(f"('{group}',")
-                ]
-            )
+            idata_df.select("chain", "draw", cs.starts_with(f"('{group}',"))
             .rename(
                 {
                     col: col.split(", ")[1].strip("')")

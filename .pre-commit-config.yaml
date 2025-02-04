@@ -104,6 +104,7 @@ repos:
           # C90: McCabe complexity (cyclomatic complexity).
           # UP: pyupgrade, Python version compatibility
           "--select=E,W,F,B,C90,UP,SIM",
+          # linter checks for lines, but doesn't fix, default is 88
           "--line-length=79",
           # lint all files in the current directory, and fix any fixable errors.
           "--fix"]
