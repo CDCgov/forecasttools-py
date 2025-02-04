@@ -25,7 +25,7 @@ include = [
 
 
 [tool.poetry.dependencies]
-python = "^3.12.6"
+python = "^3.12"
 arviz = "^0.20.0"
 polars = "^1.8.2"
 xarray = "^2024.9.0"
