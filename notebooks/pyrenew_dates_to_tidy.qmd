@@ -28,10 +28,6 @@ pyrenew_idata = az.from_netcdf(pyrenew_idata_path)
 pyrenew_idata
 ```
 
-
-
-
-
 __Define Groups To Save And Convert__
 
 
@@ -161,18 +157,4 @@ for (csv_file in csv_files) {
 }
 """
 light_r_runner(r_code_to_verify_tibble)
-```
-
-The output of the last cell is:
-
-```
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-Error: To use a data frame directly with `tidy_draws()`, it must already be a
-  tidy-format data frame of draws: it must have integer-like `.chain`
-  `.iteration`, and `.draw` columns with one row per draw.
-
-  The `.draw` column in the input data frame has more than one row per draw
-  (its values are not unique).
-Execution halted
 ```

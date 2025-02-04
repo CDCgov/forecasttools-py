@@ -61,8 +61,10 @@ def convert_inference_data_to_tidydraws(
                     if col.startswith(f"('{group}',")
                 }
             )
+            # draw in arviz is iteration in tidybayes
+            .rename({"draw": ".iteration", "chain": ".chain"})
             .melt(
-                id_vars=["chain", "draw"],
+                id_vars=[".chain", ".iteration"],
                 variable_name="variable",
                 value_name="value",
             )
@@ -70,11 +72,18 @@ def convert_inference_data_to_tidydraws(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
             )
             .with_columns(
-                ((pl.col("draw") - 1) % pl.col("draw").n_unique() + 1).alias(
-                    ".iteration"
-                )
+                (pl.col(".iteration") + 1).alias(".iteration"),
+                (pl.col(".chain") + 1).alias(".chain"),
             )
-            .rename({"chain": ".chain", "draw": ".draw"})
+            .with_columns(
+                (pl.col(".iteration").n_unique()).alias("draws_per_chain"),
+            )
+            .with_columns(
+                (
+                    ((pl.col(".chain") - 1) * pl.col("draws_per_chain"))
+                    + pl.col(".iteration")
+                ).alias(".draw")
+            )
             .pivot(
                 values="value",
                 index=[".chain", ".iteration", ".draw"],
@@ -82,6 +91,7 @@ def convert_inference_data_to_tidydraws(
                 aggregate_function="first",
             )
             .sort([".chain", ".iteration", ".draw"])
+            # .drop(["n_chains", "draws_per_chain"])
             # .select([".chain", ".iteration", ".draw", "variable", "value"])
         )
         for group in groups
