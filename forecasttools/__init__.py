@@ -28,11 +28,14 @@ from forecasttools.utils import (
     validate_iter_has_expected_types,
 )
 
-# location table (from Census data)
+# location table (from Census data; contains territory data)
 location_table_path = importlib.resources.files(__package__).joinpath(
     "location_table.parquet"
 )
 location_table = pl.read_parquet(location_table_path)
+united_states = (
+    location_table.filter(pl.col("is_state")).get_column("long_name").to_list()
+)
 
 # united states (also from Census data)
 united_states_path = importlib.resources.files(__package__).joinpath(
