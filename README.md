@@ -135,7 +135,7 @@ print(loc_table)
     │ ---           ┆ ---        ┆ ---                         ┆ ---        │
     │ str           ┆ str        ┆ str                         ┆ i64        │
     ╞═══════════════╪════════════╪═════════════════════════════╪════════════╡
-    │ US            ┆ US         ┆ United States               ┆ 330759736  │
+    │ US            ┆ US         ┆ United States               ┆ 334735155  │
     │ 01            ┆ AL         ┆ Alabama                     ┆ 5024279    │
     │ 02            ┆ AK         ┆ Alaska                      ┆ 733391     │
     │ 04            ┆ AZ         ┆ Arizona                     ┆ 7151502    │

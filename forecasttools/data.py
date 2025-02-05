@@ -7,6 +7,7 @@ hospitalization counts, and
 an example FluSight submission.
 """
 
+# %%
 import os
 import pathlib
 from urllib import error, request
@@ -114,13 +115,8 @@ def merge_pop_data_and_loc_data(
     )
     loc_df = pl.read_parquet(locations_path)  # should have "long_name"
     merged_df = loc_df.join(pop_df, on="long_name", how="left")
-    # US total is not included by default; get US total
-    # us_states = make_united_states_dataset(
-    #     file_save_path="united_states.parquet"
-    # )
-    # us_population = merged_df.filter(pl.col("long_name").is_in(us_states))[
-    #     "population"
-    # ].sum()
+    # US total is not included by default; get US total from
+    # non-null territories & states
     us_population = merged_df["population"].sum()
     merged_df = merged_df.with_columns(
         pl.when(pl.col("long_name") == "United States")
