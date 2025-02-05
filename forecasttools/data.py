@@ -7,7 +7,10 @@ hospitalization counts, and
 an example FluSight submission.
 """
 
+
+
 import os
+import pathlib
 from urllib import error, request
 
 import polars as pl
@@ -61,14 +64,99 @@ def check_file_save_path(
         raise FileExistsError(f"File already exists at: {file_save_path}")
 
 
+
+def merge_pop_data_and_loc_data(
+    file_save_path: str,
+    population_file_path: str,
+    locations_file_path: str,
+    overwrite: bool = False,
+) -> None:
+    """
+    Takes a location table parquet and a census
+    populations parquet and adds the population
+    values from the populations data to the
+    location table.
+
+    Parameters
+    ----------
+    file_save_path : str
+        Where to save the outputted parquet file.
+    population_file_path : str
+        From where to load the populations table.
+    locations_file_path : str
+        From where to load the locations table.
+    overwrite : bool
+        Whether or not to overwrite the location
+        table, should one already exist. Defaults
+        to False.
+
+    Returns
+    -------
+    None
+        Saves the outputted parquet file at the
+        given file save path.
+    """
+    population_path = pathlib.Path(population_file_path)
+    locations_path = pathlib.Path(locations_file_path)
+    save_path = pathlib.Path(file_save_path)
+    if not population_path.exists():
+        raise FileNotFoundError(
+            f"Population file not found: {population_path}"
+        )
+    if not locations_path.exists():
+        raise FileNotFoundError(f"Locations file not found: {locations_path}")
+    if save_path.exists() and not overwrite:
+        print(f"File already exists at {save_path}. Skipping writing.")
+        return
+    us_states = [
+        "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",
+        "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho",
+        "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana",
+        "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota",
+        "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada",
+        "New Hampshire", "New Jersey", "New Mexico", "New York",
+        "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon",
+        "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+        "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington",
+        "West Virginia", "Wisconsin", "Wyoming"
+    ]
+    pop_df = pl.read_parquet(population_path).select(
+        [
+            pl.col("STNAME").alias("long_name"),
+            pl.col("POPULATION").alias("population"),
+        ]
+    )
+    loc_df = pl.read_parquet(locations_path)  # should have "long_name"
+    merged_df = loc_df.join(pop_df, on="long_name", how="left")
+    # US total is not included by default; get US total from
+    # non-null territories & states
+    us_population = merged_df["population"].sum()
+    merged_df = merged_df.with_columns(
+        pl.when(pl.col("long_name") == "United States")
+        .then(us_population)
+        .otherwise(pl.col("population"))
+        .alias("population")
+    )
+    merged_df = merged_df.with_columns(
+        pl.col("long_name").is_in(us_states).alias("is_state")
+    )
+    merged_df.write_parquet(save_path)
+    print(f"File successfully written to {save_path}")
+
+
+
 def make_census_dataset(
     file_save_path: str,
 ) -> None:
     """
     Retrieves US 2020 Census data in a
     three column Polars dataframe, then
-    saves the dataset as a csv in a given
+    saves the dataset as a parquet in a given
     directory, if it does not already exist.
+    Note: As of 2025-01-05, the Census link
+    below is not available, so the existing
+    parquet file in forecasttools must instead
+    be relied upon.
 
     Parameters
     ----------
@@ -147,7 +235,8 @@ def make_nshn_fitting_dataset(
         ]
         if not set(required_cols).issubset(set(df_cols)):
             raise ValueError(
-                f"NHSN dataset missing required columns: {set(required_cols) - set(df_cols)}"
+                f"NHSN dataset missing required columns:"
+                f" {set(required_cols) - set(df_cols)}"
             )
         # fully load and save NHSN dataframe
         df = pl.read_csv(nhsn_dataset_path)
@@ -199,7 +288,11 @@ def get_and_save_flusight_submission(
     # check if the save file exists
     check_file_save_path(file_save_path)
     # check if the FluSight example url is still valid
-    url = "https://raw.githubusercontent.com/cdcepi/FluSight-forecast-hub/main/model-output/cfa-flumech/2023-10-14-cfa-flumech.csv"
+    url = (
+        "https://raw.githubusercontent.com/cdcepi/"
+        "FluSight-forecast-hub/main/model-output/"
+        "cfa-flumech/2023-10-14-cfa-flumech.csv"
+    )
     check_url(url)
     # read csv from URL, convert to polars
     submission_df = pl.read_csv(url, infer_schema_length=7500)
