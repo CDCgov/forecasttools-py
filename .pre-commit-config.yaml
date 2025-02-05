@@ -69,12 +69,6 @@ repos:
 ################################################################################
 # PYTHON
 ################################################################################
--   repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 24.10.0
-    hooks:
-    -   id: black
-        args: ["--line-length", "79"]
-        language_version: python3
 -   repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
