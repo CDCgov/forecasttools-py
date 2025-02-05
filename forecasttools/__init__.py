@@ -33,6 +33,13 @@ location_table_path = importlib.resources.files(__package__).joinpath(
 )
 location_table = pl.read_parquet(location_table_path)
 
+# united states (also from Census data)
+united_states_path = importlib.resources.files(__package__).joinpath(
+    "united_states.parquet"
+)
+united_states = pl.read_parquet(united_states_path)["STATES"].to_list()
+
+
 # load example flusight submission
 example_flusight_submission_path = importlib.resources.files(
     __package__
@@ -71,6 +78,7 @@ nhsn_flu_forecast_w_dates = az.from_netcdf(example_flu_forecast_w_dates_path)
 
 __all__ = [
     "location_table",
+    "united_states",
     "example_flusight_submission",
     "nhsn_hosp_COVID",
     "nhsn_hosp_flu",
