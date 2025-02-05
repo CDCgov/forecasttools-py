@@ -32,13 +32,7 @@ location_table_path = importlib.resources.files(__package__).joinpath(
     "location_table.parquet"
 )
 location_table = pl.read_parquet(location_table_path)
-
-# united states (also from Census data)
-united_states_path = importlib.resources.files(__package__).joinpath(
-    "united_states.parquet"
-)
-united_states = pl.read_parquet(united_states_path)["STATES"].to_list()
-
+united_states = location_table["long_name"].to_list()
 
 # load example flusight submission
 example_flusight_submission_path = importlib.resources.files(

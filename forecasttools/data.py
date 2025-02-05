@@ -62,91 +62,6 @@ def check_file_save_path(
         raise FileExistsError(f"File already exists at: {file_save_path}")
 
 
-def make_united_states_dataset(
-    file_save_path: str, overwrite: bool = False
-) -> list[str]:
-    """
-    Write the 50 United States to a polars
-    dataframe. This is useful for filtering
-    out territories.
-
-    Parameters
-    ----------
-    file_save_path : str
-        Where to save the outputted parquet file.
-    overwrite : bool
-        Whether or not to overwrite the location
-        table, should one already exist. Defaults
-        to False.
-
-    Returns
-    -------
-    list[str]
-        A list of the fifty United States.
-    """
-    us_states = [
-        "Alabama",
-        "Alaska",
-        "Arizona",
-        "Arkansas",
-        "California",
-        "Colorado",
-        "Connecticut",
-        "Delaware",
-        "Florida",
-        "Georgia",
-        "Hawaii",
-        "Idaho",
-        "Illinois",
-        "Indiana",
-        "Iowa",
-        "Kansas",
-        "Kentucky",
-        "Louisiana",
-        "Maine",
-        "Maryland",
-        "Massachusetts",
-        "Michigan",
-        "Minnesota",
-        "Mississippi",
-        "Missouri",
-        "Montana",
-        "Nebraska",
-        "Nevada",
-        "New Hampshire",
-        "New Jersey",
-        "New Mexico",
-        "New York",
-        "North Carolina",
-        "North Dakota",
-        "Ohio",
-        "Oklahoma",
-        "Oregon",
-        "Pennsylvania",
-        "Rhode Island",
-        "South Carolina",
-        "South Dakota",
-        "Tennessee",
-        "Texas",
-        "Utah",
-        "Vermont",
-        "Virginia",
-        "Washington",
-        "West Virginia",
-        "Wisconsin",
-        "Wyoming",
-    ]
-    save_path = pathlib.Path(file_save_path)
-    if save_path.exists() and not overwrite:
-        print(
-            f"File already exists at {save_path}.\n"
-            "Skipping writing, just returning."
-        )
-        return us_states
-    df = pl.DataFrame({"STATES": us_states})
-    df.write_parquet(save_path)
-    return us_states
-
 
 def merge_pop_data_and_loc_data(
     file_save_path: str,
@@ -200,12 +115,13 @@ def merge_pop_data_and_loc_data(
     loc_df = pl.read_parquet(locations_path)  # should have "long_name"
     merged_df = loc_df.join(pop_df, on="long_name", how="left")
     # US total is not included by default; get US total
-    us_states = make_united_states_dataset(
-        file_save_path="united_states.parquet"
-    )
-    us_population = merged_df.filter(pl.col("long_name").is_in(us_states))[
-        "population"
-    ].sum()
+    # us_states = make_united_states_dataset(
+    #     file_save_path="united_states.parquet"
+    # )
+    # us_population = merged_df.filter(pl.col("long_name").is_in(us_states))[
+    #     "population"
+    # ].sum()
+    us_population = merged_df["population"].sum()
     merged_df = merged_df.with_columns(
         pl.when(pl.col("long_name") == "United States")
         .then(us_population)
