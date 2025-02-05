@@ -27,12 +27,12 @@ from forecasttools.utils import (
     validate_iter_has_expected_types,
 )
 
-# location table (from Census data)
+# location table (from Census data; contains territory data)
 location_table_path = importlib.resources.files(__package__).joinpath(
     "location_table.parquet"
 )
 location_table = pl.read_parquet(location_table_path)
-united_states = location_table["long_name"].to_list()
+united_states = location_table.filter(pl.col("is_state")).select("long_name").to_series().to_list()
 
 # load example flusight submission
 example_flusight_submission_path = importlib.resources.files(

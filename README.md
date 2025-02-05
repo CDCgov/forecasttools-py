@@ -131,24 +131,24 @@ loc_table = forecasttools.location_table
 print(loc_table)
 ```
 
-    shape: (58, 4)
-    ┌───────────────┬────────────┬─────────────────────────────┬────────────┐
-    │ location_code ┆ short_name ┆ long_name                   ┆ population │
-    │ ---           ┆ ---        ┆ ---                         ┆ ---        │
-    │ str           ┆ str        ┆ str                         ┆ i64        │
-    ╞═══════════════╪════════════╪═════════════════════════════╪════════════╡
-    │ US            ┆ US         ┆ United States               ┆ 334735155  │
-    │ 01            ┆ AL         ┆ Alabama                     ┆ 5024279    │
-    │ 02            ┆ AK         ┆ Alaska                      ┆ 733391     │
-    │ 04            ┆ AZ         ┆ Arizona                     ┆ 7151502    │
-    │ 05            ┆ AR         ┆ Arkansas                    ┆ 3011524    │
-    │ …             ┆ …          ┆ …                           ┆ …          │
-    │ 66            ┆ GU         ┆ Guam                        ┆ null       │
-    │ 69            ┆ MP         ┆ Northern Mariana Islands    ┆ null       │
-    │ 72            ┆ PR         ┆ Puerto Rico                 ┆ 3285874    │
-    │ 74            ┆ UM         ┆ U.S. Minor Outlying Islands ┆ null       │
-    │ 78            ┆ VI         ┆ U.S. Virgin Islands         ┆ null       │
-    └───────────────┴────────────┴─────────────────────────────┴────────────┘
+    shape: (58, 5)
+    ┌───────────────┬────────────┬─────────────────────────────┬────────────┬──────────┐
+    │ location_code ┆ short_name ┆ long_name                   ┆ population ┆ is_state │
+    │ ---           ┆ ---        ┆ ---                         ┆ ---        ┆ ---      │
+    │ str           ┆ str        ┆ str                         ┆ i64        ┆ bool     │
+    ╞═══════════════╪════════════╪═════════════════════════════╪════════════╪══════════╡
+    │ US            ┆ US         ┆ United States               ┆ 334735155  ┆ false    │
+    │ 01            ┆ AL         ┆ Alabama                     ┆ 5024279    ┆ true     │
+    │ 02            ┆ AK         ┆ Alaska                      ┆ 733391     ┆ true     │
+    │ 04            ┆ AZ         ┆ Arizona                     ┆ 7151502    ┆ true     │
+    │ 05            ┆ AR         ┆ Arkansas                    ┆ 3011524    ┆ true     │
+    │ …             ┆ …          ┆ …                           ┆ …          ┆ …        │
+    │ 66            ┆ GU         ┆ Guam                        ┆ null       ┆ false    │
+    │ 69            ┆ MP         ┆ Northern Mariana Islands    ┆ null       ┆ false    │
+    │ 72            ┆ PR         ┆ Puerto Rico                 ┆ 3285874    ┆ false    │
+    │ 74            ┆ UM         ┆ U.S. Minor Outlying Islands ┆ null       ┆ false    │
+    │ 78            ┆ VI         ┆ U.S. Virgin Islands         ┆ null       ┆ false    │
+    └───────────────┴────────────┴─────────────────────────────┴────────────┴──────────┘
 
 Using `./forecasttools/data.py`, the location table was created by
 running the following:
@@ -174,7 +174,7 @@ united_states = forecasttools.united_states
 print(united_states)
 ```
 
-    ['United States', 'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'District of Columbia', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming', 'American Samoa', 'Guam', 'Northern Mariana Islands', 'Puerto Rico', 'U.S. Minor Outlying Islands', 'U.S. Virgin Islands']
+    ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
 
 ## Example FluSight Hub Submission
 
