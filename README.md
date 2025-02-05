@@ -117,9 +117,9 @@ See below for more information on the datasets.
 
 ## Location Table
 
-The location table contains abbreviations, codes, and extended names for
-the US jurisdictions for which the FluSight and COVID forecasting hubs
-require users to generate forecasts.
+The location table contains abbreviations, codes, extended names, and
+populations for the jurisdictions of the United States that the FluSight
+and COVID forecasting hubs require users to generate forecasts.
 
 The location table is stored in `forecasttools-py` as a `polars`
 dataframe and is accessed via:
@@ -129,24 +129,24 @@ loc_table = forecasttools.location_table
 print(loc_table)
 ```
 
-    shape: (58, 3)
-    ┌───────────────┬────────────┬─────────────────────────────┐
-    │ location_code ┆ short_name ┆ long_name                   │
-    │ ---           ┆ ---        ┆ ---                         │
-    │ str           ┆ str        ┆ str                         │
-    ╞═══════════════╪════════════╪═════════════════════════════╡
-    │ US            ┆ US         ┆ United States               │
-    │ 01            ┆ AL         ┆ Alabama                     │
-    │ 02            ┆ AK         ┆ Alaska                      │
-    │ 04            ┆ AZ         ┆ Arizona                     │
-    │ 05            ┆ AR         ┆ Arkansas                    │
-    │ …             ┆ …          ┆ …                           │
-    │ 66            ┆ GU         ┆ Guam                        │
-    │ 69            ┆ MP         ┆ Northern Mariana Islands    │
-    │ 72            ┆ PR         ┆ Puerto Rico                 │
-    │ 74            ┆ UM         ┆ U.S. Minor Outlying Islands │
-    │ 78            ┆ VI         ┆ U.S. Virgin Islands         │
-    └───────────────┴────────────┴─────────────────────────────┘
+    shape: (58, 4)
+    ┌───────────────┬────────────┬─────────────────────────────┬────────────┐
+    │ location_code ┆ short_name ┆ long_name                   ┆ population │
+    │ ---           ┆ ---        ┆ ---                         ┆ ---        │
+    │ str           ┆ str        ┆ str                         ┆ i64        │
+    ╞═══════════════╪════════════╪═════════════════════════════╪════════════╡
+    │ US            ┆ US         ┆ United States               ┆ 330759736  │
+    │ 01            ┆ AL         ┆ Alabama                     ┆ 5024279    │
+    │ 02            ┆ AK         ┆ Alaska                      ┆ 733391     │
+    │ 04            ┆ AZ         ┆ Arizona                     ┆ 7151502    │
+    │ 05            ┆ AR         ┆ Arkansas                    ┆ 3011524    │
+    │ …             ┆ …          ┆ …                           ┆ …          │
+    │ 66            ┆ GU         ┆ Guam                        ┆ null       │
+    │ 69            ┆ MP         ┆ Northern Mariana Islands    ┆ null       │
+    │ 72            ┆ PR         ┆ Puerto Rico                 ┆ 3285874    │
+    │ 74            ┆ UM         ┆ U.S. Minor Outlying Islands ┆ null       │
+    │ 78            ┆ VI         ┆ U.S. Virgin Islands         ┆ null       │
+    └───────────────┴────────────┴─────────────────────────────┴────────────┘
 
 Using `./forecasttools/data.py`, the location table was created by
 running the following:
@@ -159,6 +159,20 @@ make_census_dataset(
     ),
 )
 ```
+
+## United States
+
+Calling `forecasttools.united_states` simply returns a Python list that
+contains the 50 United States (`United States` itself is not included).
+While quite simple, it’s to have this capability available in fewer
+steps than through calling and selecting values from `location_table`.
+
+``` python
+united_states = forecasttools.united_states
+print(united_states)
+```
+
+    ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
 
 ## Example FluSight Hub Submission
 
