@@ -119,7 +119,9 @@ See below for more information on the datasets.
 
 The location table contains abbreviations, codes, extended names, and
 populations for the jurisdictions of the United States that the FluSight
-and COVID forecasting hubs require users to generate forecasts.
+and COVID forecasting hubs require users to generate forecasts. The US
+population value is the sum of all available states and territories
+(some territories have `null` population values).
 
 The location table is stored in `forecasttools-py` as a `polars`
 dataframe and is accessed via:

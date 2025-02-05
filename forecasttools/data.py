@@ -7,7 +7,6 @@ hospitalization counts, and
 an example FluSight submission.
 """
 
-# %%
 import os
 import pathlib
 from urllib import error, request
