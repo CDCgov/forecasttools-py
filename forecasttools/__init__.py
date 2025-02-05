@@ -37,13 +37,6 @@ united_states = (
     location_table.filter(pl.col("is_state")).get_column("long_name").to_list()
 )
 
-# united states (also from Census data)
-united_states_path = importlib.resources.files(__package__).joinpath(
-    "united_states.parquet"
-)
-united_states = pl.read_parquet(united_states_path)["STATES"].to_list()
-
-
 # load example flusight submission
 example_flusight_submission_path = importlib.resources.files(
     __package__
