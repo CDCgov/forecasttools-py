@@ -90,8 +90,6 @@ repos:
           "--ignore=E741",
           # do not assign a lambda expression, use a def
           "--ignore=E731",
-          # indentation contains tabs (sorry, I like tabs)
-          "--ignore=W191",
           # found useless expression. ignore since .qmd displays
           "--ignore=B018",
           # {name} is too complex ({complexity} > {max_complexity})
