@@ -133,9 +133,9 @@ def light_r_runner(r_code: str) -> None:
 for group, var in nested_tidy_dfs.items():
     for var_name, tidy_data in var.items():
         file_name = f"{var_name}.csv"
-        if not os.path.exists(file_name):
-            tidy_data.write_csv(file_name)
-            print(f"Saved {file_name}")
+        #if not os.path.exists(file_name):
+        tidy_data.write_csv(file_name)
+        print(f"Saved {file_name}")
 
 
 r_code_to_verify_tibble = """

@@ -61,8 +61,8 @@ def convert_inference_data_to_tidydraws(
             )
             # draw in arviz is iteration in tidybayes
             .rename({"draw": ".iteration", "chain": ".chain"})
-            .melt(
-                id_vars=[".chain", ".iteration"],
+            .unpivot(
+                index=[".chain", ".iteration"],
                 variable_name="variable",
                 value_name="value",
             )
@@ -75,7 +75,7 @@ def convert_inference_data_to_tidydraws(
             )
             .with_columns(
                 (
-                    (pl.col(".chain") * pl.col("draws_per_chain"))
+                    ((pl.col(".chain") - 1) * pl.col("draws_per_chain"))
                     + pl.col(".iteration")
                 ).alias(".draw")
             )
