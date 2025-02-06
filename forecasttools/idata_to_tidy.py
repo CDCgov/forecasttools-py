@@ -21,10 +21,7 @@ def convert_inference_data_to_tidydraws(
     Parameters
     ----------
     idata : az.InferenceData
-        An InferenceData object generated
-        from a numpyro forecast. Typically
-        has the groups observed_data and
-        posterior_predictive.
+        An InferenceData object.
     groups : list[str]
         A list of groups to transform to
         tidy draws format. Defaults to all
@@ -45,7 +42,8 @@ def convert_inference_data_to_tidydraws(
         ]
         if invalid_groups:
             raise ValueError(
-                f"Requested groups {invalid_groups} not found in this InferenceData object."
+                f"Requested groups {invalid_groups} not found"
+                " in this InferenceData object."
                 f" Available groups: {available_groups}"
             )
 
@@ -71,16 +69,13 @@ def convert_inference_data_to_tidydraws(
             .with_columns(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
             )
-            .with_columns(
-                pl.col(".iteration") + 1,
-                pl.col(".chain") + 1
-            )
+            .with_columns(pl.col(".iteration") + 1, pl.col(".chain") + 1)
             .with_columns(
                 (pl.col(".iteration").n_unique()).alias("draws_per_chain"),
             )
             .with_columns(
                 (
-                    ((pl.col(".chain") - 1) * pl.col("draws_per_chain"))
+                    (pl.col(".chain") * pl.col("draws_per_chain"))
                     + pl.col(".iteration")
                 ).alias(".draw")
             )
