@@ -72,8 +72,8 @@ def convert_inference_data_to_tidydraws(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
             )
             .with_columns(
-                (pl.col(".iteration") + 1).alias(".iteration"),
-                (pl.col(".chain") + 1).alias(".chain"),
+                pl.col(".iteration") + 1,
+                pl.col(".chain") + 1
             )
             .with_columns(
                 (pl.col(".iteration").n_unique()).alias("draws_per_chain"),
