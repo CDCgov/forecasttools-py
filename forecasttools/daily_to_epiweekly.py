@@ -8,7 +8,7 @@ from datetime import datetime
 import epiweeks
 import polars as pl
 
-import forecasttools
+from forecasttools.utils import ensure_listlike
 
 
 def calculate_epi_week_and_year(date: str):
@@ -75,7 +75,7 @@ def df_aggregate_to_epiweekly(
     # set default id_cols
     if id_cols is None:
         id_cols = ["draw"]
-    id_cols = forecasttools.ensure_listlike(id_cols)
+    id_cols = ensure_listlike(id_cols)
     # add epiweek and epiyear columns
     df = df.with_columns(
         pl.col(date_col)
