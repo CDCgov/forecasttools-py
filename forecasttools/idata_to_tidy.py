@@ -45,7 +45,7 @@ def convert_inference_data_to_tidydraws(
         ]
         if invalid_groups:
             raise ValueError(
-                f"Invalid groups provided: {invalid_groups}."
+                f"Requested groups {invalid_groups} not found in this InferenceData object."
                 f" Available groups: {available_groups}"
             )
 
