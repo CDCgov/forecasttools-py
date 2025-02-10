@@ -32,12 +32,12 @@ xarray = "^2024.9.0"
 matplotlib = "^3.9.2"
 epiweeks = "^2.3.0"
 metaflow = "^2.13.9"
+numpyro = "^0.17.0"
 
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"
 ipykernel = "^6.29.5"
-numpyro = "^0.15.3"
 diffrax = "^0.6.0"
 patsy = "^0.5.6"
 nbformat = "^5.10.4"
