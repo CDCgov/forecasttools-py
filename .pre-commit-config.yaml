@@ -5,11 +5,16 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-added-large-files
+      - id: check-executables-have-shebangs
+        files: \.sh$
       - id: check-yaml
       - id: check-toml
       - id: end-of-file-fixer
       - id: mixed-line-ending
+      - id: name-tests-test
+        args: ["--pytest-test-first"]
       - id: trailing-whitespace
+
   #####
   # Python
   - repo: https://github.com/astral-sh/ruff-pre-commit
