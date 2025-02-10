@@ -23,13 +23,6 @@ repos:
         # Run the formatter
       - id: ruff-format
         args: ["--line-length", "79"]
-  #####
-  # R
-  - repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.4.3
-    hooks:
-      - id: style-files
-      - id: lintr
   # Secrets
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
