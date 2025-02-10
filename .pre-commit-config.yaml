@@ -15,8 +15,9 @@ repos:
         args: ["--pytest-test-first"]
       - id: trailing-whitespace
 
-  #####
-  # Python
+################################################################################
+# PYTHON
+################################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.7.1
     hooks:
@@ -28,7 +29,9 @@ repos:
         # Run the formatter
       - id: ruff-format
         args: ["--line-length", "79"]
-  # Secrets
+################################################################################
+# Baseline Secrets
+################################################################################
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
