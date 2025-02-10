@@ -20,4 +20,4 @@ jobs:
     - name: Install packages
       run: poetry install --with dev
     - name: Render README
-      run:  poetry run bash scripts/render-quarto-readme.sh
+      run: poetry run bash scripts/render-quarto-readme.sh
