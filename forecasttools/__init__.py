@@ -32,7 +32,9 @@ location_table_path = importlib.resources.files(__package__).joinpath(
     "location_table.parquet"
 )
 location_table = pl.read_parquet(location_table_path)
-united_states = location_table.filter(pl.col("is_state")).get_column("long_name").to_list()
+united_states = (
+    location_table.filter(pl.col("is_state")).get_column("long_name").to_list()
+)
 
 # load example flusight submission
 example_flusight_submission_path = importlib.resources.files(
