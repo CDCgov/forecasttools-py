@@ -293,7 +293,7 @@ def make_nshn_fitting_dataset(
                 )
                 .sort(["state", "date"])
             )
-            df_covid.write_csv(file_save_path)
+            df_covid.write_parquet(file_save_path)
         if dataset == "flu":
             df_flu = (
                 df.select(
@@ -306,7 +306,7 @@ def make_nshn_fitting_dataset(
                 .rename({"previous_day_admission_influenza_confirmed": "hosp"})
                 .sort(["state", "date"])
             )
-            df_flu.write_csv(file_save_path)
+            df_flu.write_parquet(file_save_path)
         print(f"The file {file_save_path} has been created.")
 
 

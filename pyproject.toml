@@ -31,6 +31,7 @@ polars = "^1.8.2"
 xarray = "^2024.9.0"
 matplotlib = "^3.9.2"
 epiweeks = "^2.3.0"
+metaflow = "^2.13.9"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -43,6 +44,7 @@ nbformat = "^5.10.4"
 nbclient = "^0.10.0"
 jupyter = "^1.1.1"
 pandas = "^2.2.3"
+metaflow = "^2.13.9"
 
 
 [tool.poetry.group.test.dependencies]
