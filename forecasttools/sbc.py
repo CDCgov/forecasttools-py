@@ -17,7 +17,7 @@ class SBC:
         observed_vars: dict[str, str],
         num_simulations=10,
         sample_kwargs=None,
-        seed=1234,
+        seed=None,
         **kwargs,
     ) -> None:
         """
@@ -40,7 +40,7 @@ class SBC:
             Arguments passed to `numpyro.sample`. Defaults to
             `dict(num_warmup=500, num_samples=100, progress_bar = False)`.
             Which assumes a MCMC sampler e.g. NUTS.
-        seed : int
+        seed : random.PRNGKey
             Random seed.
         kwargs : dict
             Keyword arguments passed to `numpyro` models.
@@ -49,8 +49,8 @@ class SBC:
             sample_kwargs = dict(
                 num_warmup=500, num_samples=100, progress_bar=False
             )
-        seed = random.PRNGKey(seed)
-
+        if seed is None:
+            seed = random.PRNGKey(1234)
         self.mcmc_kernel = mcmc_kernel
         if not hasattr(mcmc_kernel, "model"):
             raise ValueError(
