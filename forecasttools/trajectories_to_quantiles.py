@@ -10,7 +10,7 @@ import polars as pl
 def trajectories_to_quantiles(
     trajectories: pl.DataFrame,
     quantiles: list[float] = None,
-    timepoint_cols: list[str] = ["timepoint"],
+    timepoint_cols: list[str] = None,
     value_col_name: str = "value",
     quantile_value_name: str = "quantile_value",
     quantile_level_name: str = "quantile_level",
@@ -67,6 +67,8 @@ def trajectories_to_quantiles(
             + [0.05 * elt for elt in range(1, 20)]
             + [0.975, 0.99]
         )
+    if timepoint_cols is None:
+        timepoint_cols = ["timepoint"]
 
     # group trajectories based on timepoint_cols and id_cols
     group_cols = (

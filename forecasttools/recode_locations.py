@@ -51,7 +51,8 @@ def loc_abbr_to_hubverse_code(
     # in the inputted dataframe
     if location_col not in df.columns:
         raise ValueError(
-            f"Column '{location_col}' not found in the dataframe; got {df.columns}."
+            f"Column '{location_col}' not found in the dataframe;"
+            f" got {df.columns}."
         )
     # get location table from forecasttools
     loc_table = forecasttools.location_table
@@ -62,7 +63,8 @@ def loc_abbr_to_hubverse_code(
     difference = location_values.difference(valid_values)
     if difference:
         raise ValueError(
-            f"The following values in '{location_col}') are not valid jurisdictional codes: {difference}."
+            f"The following values in '{location_col}') are not valid"
+            f" jurisdictional codes: {difference}."
         )
     # recode existing location abbreviations
     # with location codes
@@ -117,7 +119,8 @@ def loc_hubverse_code_to_abbr(
     # in the inputted dataframe
     if location_col not in df.columns:
         raise ValueError(
-            f"Column '{location_col}' not found in the dataframe; got {df.columns}."
+            f"Column '{location_col}' not found in the dataframe;"
+            f" got {df.columns}."
         )
     # get location table from forecasttools
     loc_table = forecasttools.location_table
@@ -128,7 +131,8 @@ def loc_hubverse_code_to_abbr(
     difference = location_values.difference(valid_values)
     if difference:
         raise ValueError(
-            f"Some values in {difference} (in col '{location_col}') are not valid jurisdictional codes."
+            f"Some values in {difference} (in col '{location_col}')"
+            f" are not valid jurisdictional codes."
         )
     # recode existing location codes with
     # with location abbreviations
@@ -161,9 +165,9 @@ def to_location_table_column(location_format: str) -> str:
         from the location table.
     """
     # check inputted variable type
-    assert isinstance(
-        location_format, str
-    ), f"Expected a string; got {type(location_format)}."
+    assert isinstance(location_format, str), (
+        f"Expected a string; got {type(location_format)}."
+    )
     # return proper column name from input format
     col_dict = {
         "abbr": "short_name",
@@ -173,7 +177,8 @@ def to_location_table_column(location_format: str) -> str:
     col = col_dict.get(location_format)
     if col is None:
         raise KeyError(
-            f"Unknown location format {location_format}. Expected one of:\n{col_dict.keys()}."
+            f"Unknown location format {location_format}."
+            f" Expected one of:\n{col_dict.keys()}."
         )
     return col
 
@@ -224,7 +229,8 @@ def location_lookup(
     valid_formats = ["abbr", "hubverse", "long_name"]
     if location_format not in valid_formats:
         raise ValueError(
-            f"Invalid location format '{location_format}'. Expected one of: {valid_formats}."
+            f"Invalid location format '{location_format}'."
+            f" Expected one of: {valid_formats}."
         )
     # check that location vector not empty
     if not location_vector:
