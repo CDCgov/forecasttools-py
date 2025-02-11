@@ -31,25 +31,27 @@ class SBC:
         observed_vars : dict[str, str]
             A dictionary mapping observed/response variable name as a kwarg to the
             numpyro model to the corresponding variable name sampled using `numpyro.sample`.
-        args: tuple
+        args : tuple
             Positional arguments passed to `numpyro.sample`.
         num_simulations : int
             How many simulations to run for SBC.
         sample_kwargs : dict[str] -> Any
-            Arguments passed to `numpyro.sample`. Defaults to `dict(num_warmup=500, num_samples=10)`.
+            Arguments passed to `numpyro.sample`. Defaults to `dict(num_warmup=500, num_samples=100, progress_bar = False)`.
             Which assumes a MCMC sampler e.g. NUTS.
         seed : random.PRNGKey
             Random seed.
-        kwargs: dict
+        kwargs : dict
             Keyword arguments passed to `numpyro` models.
         """
         self.mcmc_kernel = mcmc_kernel
         if not hasattr(mcmc_kernel, 'model'):
             raise ValueError("The `mcmc_kernel` must have a 'model' attribute.")
+
         self.model = mcmc_kernel.model
         self.args = args
         self.kwargs = kwargs
         self.observed_vars = observed_vars
+
         for key in self.observed_vars:
             if key in self.kwargs and self.kwargs[key] is not None:
                 raise ValueError(f"The value for '{key}' in kwargs must be None for this to be a prior predictive check.")
@@ -67,6 +69,7 @@ class SBC:
     def _get_prior_predictive_samples(self):
         """
         Generate samples to use for the simulations by prior predictive sampling. Then splits between
+        observed and unobserved variables based on the `observed_vars` attribute.
         """
         prior_predictive_fn = numpyro.infer.Predictive(self.mcmc_kernel.model, num_samples=self.num_simulations)
         prior_predictions = prior_predictive_fn(self._prior_pred_rng, *self.args, **self.kwargs)
@@ -75,7 +78,11 @@ class SBC:
         return prior, prior_pred
 
     def _get_posterior_samples(self, seed, prior_predictive_draw):
-        """Generate posterior samples conditioned to a prior predictive sample."""
+        """
+        Generate posterior samples conditioned to a prior predictive sample.
+        This returns the posterior samples and the number of samples. The number of samples are used
+        in scaling plotting and checking that each inference draw has the same number of samples.
+        """
         mcmc = MCMC(self.mcmc_kernel, **self.sample_kwargs)
         obs_vars = {**self.kwargs, **prior_predictive_draw}
         mcmc.run(seed, *self.args, **obs_vars)
@@ -85,7 +92,8 @@ class SBC:
 
     def run_simulations(self):
         """
-        Run all the simulations.
+        The main method of `SBC` class that runs the simulations for simulation based calibration and
+        fills the `simulations` attribute with the results.
         """
         prior, prior_pred = self._get_prior_predictive_samples()
         sampler_seeds = random.split(self._sampler_rng, self.num_simulations)
@@ -134,7 +142,7 @@ class SBC:
 
         Parameters
         ----------
-        simulations : dict[str] -> listlike
+        simulations
             The SBC.simulations dictionary.
         kind : str
             What kind of plot to make. Supported values are 'ecdf' (default) and 'hist'
