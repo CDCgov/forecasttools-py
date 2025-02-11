@@ -1,4 +1,3 @@
-
 import arviz as az
 import jax.numpy as jnp
 import numpyro
