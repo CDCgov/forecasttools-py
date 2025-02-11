@@ -230,7 +230,7 @@ print(idata_w_dates["observed_data"]["obs"]["obs_dim_0"][:15])
 ```{python}
 # idata without dates as coordinates
 idata_wo_dates = forecasttools.nhsn_flu_forecast_wo_dates
-print(idata_wo_dates["observed_data"]["obs"]["obs_dim_0"][:15])
+print(idata_wo_dates["observed_data"]["obs"]["obs_dim_0"][:20])
 ```
 
 The forecast was generated following the creation of `nhsn_hosp_flu.csv` (see previous section) by running `data.py` with the following added:
