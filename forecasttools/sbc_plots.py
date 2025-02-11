@@ -7,7 +7,7 @@ import numpy as np
 from scipy.special import bdtrik
 
 
-def plot_results(simulations, kind="ecdf", var_names=None, figsize=None, color="C0"):
+def plot_results(simulations, ndraws, kind="ecdf", var_names=None, figsize=None, color="C0"):
     """Visual diagnostic for SBC.
 
     Currently it support two options: `ecdf` for the empirical CDF plots
@@ -19,6 +19,8 @@ def plot_results(simulations, kind="ecdf", var_names=None, figsize=None, color="
     ----------
     simulations : dict[str] -> listlike
         The SBC.simulations dictionary.
+    ndraws : int
+        Number of draws in each posterior predictive sample
     kind : str
         What kind of plot to make. Supported values are 'ecdf' (default) and 'hist'
     var_names : list[str]
@@ -51,7 +53,7 @@ def plot_results(simulations, kind="ecdf", var_names=None, figsize=None, color="
 
     if n_plots > 1:
         if figsize is None:
-            figsize=(8, n_plots*0.75)
+            figsize=(8, n_plots*1.0)
 
         fig, axes = plt.subplots(nrows=(n_plots + 1) // 2, ncols=2, figsize=figsize, sharex=True)
         axes = axes.flatten()
@@ -63,7 +65,7 @@ def plot_results(simulations, kind="ecdf", var_names=None, figsize=None, color="
         axes = [axes]
 
     if kind == "ecdf":
-        cdf = UniformCDF(len(simulations[var_names[0]]))
+        cdf = UniformCDF(ndraws)
 
     idx = 0
     for var_name, var_data in sims.items():

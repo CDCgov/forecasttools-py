@@ -1,4 +1,3 @@
-import logging
 
 import arviz as az
 import jax.numpy as jnp
@@ -11,26 +10,6 @@ from tqdm import tqdm
 from forecasttools.sbc_plots import plot_results
 
 
-class quiet_logging:
-    """Turn off logging for numpyro. For use in SBC."""
-
-    def __init__(self, *libraries):
-        self.loggers = [logging.getLogger(library) for library in libraries]
-
-    def __call__(self, func):
-        def wrapped(cls, *args, **kwargs):
-            levels = []
-            for logger in self.loggers:
-                levels.append(logger.level)
-                logger.setLevel(logging.CRITICAL)
-            res = func(cls, *args, **kwargs)
-            for logger, level in zip(self.loggers, levels):
-                logger.setLevel(level)
-            return res
-
-        return wrapped
-
-
 class SBC:
     def __init__(
         self,
@@ -38,7 +17,7 @@ class SBC:
         *args,
         observed_vars: dict[str, str],
         num_simulations=10,
-        sample_kwargs=dict(num_warmup=500, num_samples=1, progress_bar = False),
+        sample_kwargs=dict(num_warmup=500, num_samples=100, progress_bar = False),
         seed=random.PRNGKey(1234),
         **kwargs,
     ):
@@ -83,6 +62,7 @@ class SBC:
         prior_pred_rng, sampler_rng = random.split(seed)
         self._prior_pred_rng = prior_pred_rng
         self._sampler_rng = sampler_rng
+        self.num_samples = None
 
     def _get_prior_predictive_samples(self):
         """
@@ -99,10 +79,10 @@ class SBC:
         mcmc = MCMC(self.mcmc_kernel, **self.sample_kwargs)
         obs_vars = {**self.kwargs, **prior_predictive_draw}
         mcmc.run(seed, *self.args, **obs_vars)
+        num_samples = mcmc.num_samples
         idata = az.from_numpyro(mcmc)
-        return idata
+        return idata, num_samples
 
-    @quiet_logging("numpyro")
     def run_simulations(self):
         """
         Run all the simulations.
@@ -119,7 +99,12 @@ class SBC:
                 idx = self._simulations_complete
                 prior_draw = {k:v[idx] for k, v in prior.items()}
                 prior_predictive_draw = {k:v[idx] for k, v in prior_pred.items()}
-                posterior = self._get_posterior_samples(sampler_seeds[idx], prior_predictive_draw)['posterior']
+                idata, num_samples = self._get_posterior_samples(sampler_seeds[idx], prior_predictive_draw)
+                if self.num_samples is None:
+                    self.num_samples = num_samples
+                if self.num_samples != num_samples:
+                    raise ValueError("The number of samples from the posterior is not consistent.")
+                posterior = idata['posterior']
                 # pdb.set_trace()
                 for name in prior.keys():
                     num_dims = jnp.ndim(prior_draw[name])
@@ -165,4 +150,4 @@ class SBC:
         fig, axes
             matplotlib figure and axes
         """
-        return plot_results(self.simulations, kind=kind, var_names=var_names, color=color)
+        return plot_results(self.simulations, self.num_samples, kind=kind, var_names=var_names, color=color)
