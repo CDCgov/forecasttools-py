@@ -11,12 +11,12 @@ from scipy.special import bdtrik
 def plot_results(
     simulations, ndraws, kind="ecdf", var_names=None, figsize=None, color="C0"
 ):
-    """Visual diagnostic for SBC.
+    """
+    Visual diagnostic for SBC.
 
     Currently it support two options: `ecdf` for the empirical CDF plots
     of the difference between prior and posterior. `hist` for the rank
     histogram.
-
 
     Parameters
     ----------

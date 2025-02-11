@@ -19,8 +19,9 @@ class SBC:
         sample_kwargs=None,
         seed=1234,
         **kwargs,
-    ):
-        """Set up class for doing SBC.
+    ) -> None:
+        """
+        Set up class for doing SBC.
         Based on simulation based calibration (Talts et. al. 2018) in PyMC.
 
         Parameters
@@ -169,12 +170,12 @@ class SBC:
             progress.close()
 
     def plot_results(self, kind="ecdf", var_names=None, color="C0"):
-        """Visual diagnostic for SBC.
+        """
+        Visual diagnostic for SBC.
 
         Currently it support two options: `ecdf` for the empirical CDF plots
         of the difference between prior and posterior. `hist` for the rank
         histogram.
-
 
         Parameters
         ----------
