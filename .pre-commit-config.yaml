@@ -13,7 +13,6 @@ repos:
     -   id: end-of-file-fixer
     -   id: mixed-line-ending
     -   id: trailing-whitespace
-
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -56,41 +55,75 @@ repos:
     -   id: check-executables-have-shebangs
         files: \.sh$
 ################################################################################
-# QUARTO README RENDERING
-################################################################################
--   repo: local
-    hooks:
-    -   id: render-quarto-readme
-        name: "render README.qmd as README.md"
-        entry: "./scripts/hooks/render-quarto-readme.sh"
-        language: script
-        always_run: true
-        files: "README.(q|)md"
-################################################################################
 # PYTHON
 ################################################################################
--   repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-    -   id: isort
-        args: ["--profile", "black", "--line-length", "79"]
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.3
+    rev: v0.9.4
     hooks:
-      - id: ruff
-        args: ["--ignore=E741", "--ignore=E731", "--fix"]
+    # "currently, the Ruff formatter does not sort imports.
+    # In order to both sort imports and format, call
+    # the Ruff linter and then the formatter:"
+    -   id: ruff
+        args: [
+          "check",
+          "--select",
+          # isort
+          "I",
+          "--fix"]
+    # run ruff linter; the Ruff Linter is an extremely fast Python linter
+    # designed as a drop-in replacement for Flake8 (plus dozens of plugins),
+    # isort, pydocstyle, pyupgrade, autoflake, and more
+    -   id: ruff
+        args: [
+          # ambiguous variable name: {name}
+          "--ignore=E741",
+          # do not assign a lambda expression, use a def
+          "--ignore=E731",
+          # found useless expression. ignore since .qmd displays
+          "--ignore=B018",
+          # {name} is too complex ({complexity} > {max_complexity})
+          # note: ignored on select repositories
+          "--ignore=C901",
+          # E and W: pycodestyle, standard PEP8 errors and pycodestyle warnings.
+          # F: pyflakes warnings (e.g., unused variables, undefined names).,
+          # B: flake8-bugbear (useful best practices).
+          # SIM: flake8-simplify
+          # C90: McCabe complexity (cyclomatic complexity).
+          # UP: pyupgrade, Python version compatibility
+          "--select=E,W,F,B,C90,UP,SIM",
+          # linter checks for lines, but doesn't fix, default is 88
+          "--line-length=79",
+          # lint all files in the current directory, and fix any fixable errors.
+          "--fix"]
+    # run the ruff-formatter; the Ruff formatter is an extremely fast
+    # Python code formatter designed as a drop-in replacement for Black
+    -   id: ruff-format
+        args: [
+          "--line-length=79",
+        ]
+################################################################################
+# SECURITY
+################################################################################
+-   repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+    # must first run
+    # detect-secrets scan > .secrets.baseline
+    -   id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: package.lock.json
 ################################################################################
 # GITHUB ACTIONS
 ################################################################################
 -   repo: https://github.com/rhysd/actionlint
-    rev: v1.7.4
+    rev: v1.7.7
     hooks:
     -   id: actionlint
 ################################################################################
 # SPELLING
 ################################################################################
 -   repo: https://github.com/crate-ci/typos
-    rev: typos-dict-v0.11.37
+    rev: typos-dict-v0.12.4
     hooks:
     -   id: typos
         args: ["--force-exclude"]
@@ -98,7 +131,7 @@ repos:
 # COMMIT MESSAGES
 ################################################################################
 -   repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.1.0
+    rev: v4.1.1
     hooks:
     -   id: commitizen
 -   repo: https://github.com/jorisroovers/gitlint
