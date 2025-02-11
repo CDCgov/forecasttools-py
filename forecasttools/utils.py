@@ -18,12 +18,14 @@ def validate_input_type(
     if isinstance(expected_type, tuple):
         if not any(isinstance(value, t) for t in expected_type):
             raise TypeError(
-                f"Parameter '{param_name}' must be one of the types {expected_type}; got {type(value)}"
+                f"Parameter '{param_name}' must be one of the types"
+                f" {expected_type}; got {type(value)}."
             )
     else:
         if not isinstance(value, expected_type):
             raise TypeError(
-                f"Parameter '{param_name}' must be of type '{expected_type.__name__}'; got {type(value)}"
+                f"Parameter '{param_name}' must be of type"
+                f" '{expected_type.__name__}'; got {type(value)}."
             )
 
 
@@ -55,7 +57,8 @@ def validate_idata_group_var_dim(variable_data: xr.DataArray, dimension: str):
     exists in the variable."""
     if dimension not in variable_data.dims:
         raise ValueError(
-            f"Dimension '{dimension}' not found in variable dimensions: '{variable_data.dims}'."
+            f"Dimension '{dimension}' not found in variable dimensions:"
+            f" '{variable_data.dims}'."
         )
 
 
@@ -69,7 +72,8 @@ def validate_iter_has_expected_types(
     """
     if not all(isinstance(item, expected_type) for item in iterable):
         raise TypeError(
-            f"All items in '{param_name}' must be of type '{expected_type.__name__}'."
+            f"All items in '{param_name}' must be of type"
+            f" '{expected_type.__name__}'."
         )
 
 

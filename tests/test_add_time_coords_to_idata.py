@@ -373,9 +373,9 @@ def test_ensure_listlike(input_value, expected_output):
     unchanged.
     """
     out = forecasttools.ensure_listlike(input_value)
-    assert (
-        out == expected_output
-    ), f"Expected {expected_output}, but got {out}."
+    assert out == expected_output, (
+        f"Expected {expected_output}, but got {out}."
+    )
 
 
 @pytest.mark.parametrize(
