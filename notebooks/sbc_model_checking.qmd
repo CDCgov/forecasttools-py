@@ -130,10 +130,55 @@ S.run_simulations()
 ```
 
 ```{python}
-#|
+#| output: true
+#| fig-cap: "Histogram plot of SBC results"
 S.plot_results(kind = "hist")
 ```
 
 ```{python}
+#| output: true
+#| fig-cap: "ECDF/PIT plot of SBC results"
 S.plot_results()
 ```
+
+We can see that the SBC has identified a problem with the model. The Bayesian inference looks to be slightly, but systematically, over-estimating the inter-school variation parameter $\tau$ compared to simulated values.
+
+Lets use a more informative prior from [this implementation](https://www.tensorflow.org/probability/examples/Eight_Schools).
+
+$$
+\tau \sim \text{LogNormal}(5, 1).
+$$
+
+```{python}
+def eight_schools_lognormal_prior(J, sigma, y=None):
+    mu = numpyro.sample('mu', dist.Normal(0, 5))
+    tau = numpyro.sample('tau', dist.LogNormal(5, 1))
+    with numpyro.plate('J', J):
+        theta = numpyro.sample('theta', dist.Normal(mu, tau))
+    numpyro.sample('obs', dist.Normal(theta, sigma), obs=y)
+
+nuts_kernel_lognormal_prior = NUTS(eight_schools_lognormal_prior)
+
+S2 = sbc.SBC(nuts_kernel_lognormal_prior, J, sigma,
+    observed_vars = dict(y = "obs"),
+    sample_kwargs=dict(num_warmup=500, num_samples=1000, progress_bar = False),
+    num_simulations=100,
+    seed = seed2)
+S2.run_simulations()
+```
+
+```{python}
+#| output: true
+#| fig-cap: "Histogram plot of SBC results"
+S2.plot_results(kind = "hist")
+```
+
+```{python}
+#| output: true
+#| fig-cap: "ECDF/PIT plot of SBC results"
+S2.plot_results()
+```
+
+The results of this SBC approach still indicate potential problems with self-consistent identification of every high school specific treatment effect but the self-consistent ability to infer the population parameters $\mu$ and $\tau$ seems to now work.
+
+## References
