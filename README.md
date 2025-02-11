@@ -5,7 +5,6 @@
 render a GitHub README, see
 <https://quarto.org/docs/output-formats/gfm.html>
 -->
-
 <!-- ```{python}
 #| echo: false
 import polars as pl
@@ -34,9 +33,7 @@ Notes:
   [pyrenew-hew](https://github.com/CDCgov/pyrenew-hew).
 
 <details>
-
 <summary>
-
 A Tentative Utilities Diagram
 </summary>
 
@@ -384,9 +381,7 @@ given the expectation that no one would ever call it; however, for
 reproducibility’s sake, the following is included here)
 
 <details>
-
 <summary>
-
 Some Of The Forecast Code
 </summary>
 
@@ -762,9 +757,7 @@ CDC use of GitHub does not imply an endorsement of any one particular
 service, product, or enterprise.
 
 <details>
-
 <summary>
-
 Rules, Policy, And Collaboration
 </summary>
 
@@ -776,14 +769,10 @@ Rules, Policy, And Collaboration
 - [Code of Conduct](./rules-and-policies/code-of-conduct.md)
 
 </details>
-
 <details>
-
 <summary>
-
 Public Domain Standard Notice
 </summary>
-
 This repository constitutes a work of the United States Government and
 is not subject to domestic copyright protection under 17 USC § 105. This
 repository is in the public domain within the United States, and
@@ -794,11 +783,8 @@ contributions to this repository will be released under the CC0
 dedication. By submitting a pull request you are agreeing to comply with
 this waiver of copyright interest.
 </details>
-
 <details>
-
 <summary>
-
 License Standard Notice
 </summary>
 
@@ -821,25 +807,18 @@ http://www.apache.org/licenses/LICENSE-2.0.html
 The source code forked from other open source projects will inherit its
 license.
 </details>
-
 <details>
-
 <summary>
-
 Privacy Standard Notice
 </summary>
-
 This repository contains only non-sensitive, publicly available data and
 information. All material and community participation is covered by the
 [Disclaimer](DISCLAIMER.md) and [Code of Conduct](code-of-conduct.md).
 For more information about CDC’s privacy policy, please visit
 [http://www.cdc.gov/other/privacy.html](https://www.cdc.gov/other/privacy.html).
 </details>
-
 <details>
-
 <summary>
-
 Contributing Standard Notice
 </summary>
 
@@ -857,27 +836,19 @@ through CDC including this GitHub page may be subject to applicable
 federal law, including but not limited to the Federal Records Act, and
 may be archived. Learn more at <http://www.cdc.gov/other/privacy.html>.
 </details>
-
 <details>
-
 <summary>
-
 Records Management Standard Notice
 </summary>
-
 This repository is not a source of government records, but is a copy to
 increase collaboration and collaborative potential. All government
 records will be published through the [CDC web
 site](http://www.cdc.gov).
 </details>
-
 <details>
-
 <summary>
-
 Additional Standard Notices
 </summary>
-
 Please refer to [CDC’s Template
 Repository](https://github.com/CDCgov/template) for more information
 about [contributing to this

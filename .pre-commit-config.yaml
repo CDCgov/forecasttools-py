@@ -55,17 +55,6 @@ repos:
     -   id: check-executables-have-shebangs
         files: \.sh$
 ################################################################################
-# QUARTO README RENDERING
-################################################################################
--   repo: local
-    hooks:
-    -   id: render-quarto-readme
-        name: "render README.qmd as README.md"
-        entry: "./scripts/hooks/render-quarto-readme.sh"
-        language: script
-        always_run: true
-        files: "README.(q|)md"
-################################################################################
 # PYTHON
 ################################################################################
 -   repo: https://github.com/astral-sh/ruff-pre-commit
@@ -112,6 +101,17 @@ repos:
         args: [
           "--line-length=79",
         ]
+################################################################################
+# SECURITY
+################################################################################
+-   repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+    # must first run
+    # detect-secrets scan > .secrets.baseline
+    -   id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: package.lock.json
 ################################################################################
 # GITHUB ACTIONS
 ################################################################################
