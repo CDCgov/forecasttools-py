@@ -1,3 +1,14 @@
+"""
+Test the SBC class using a simple model.
+
+```math
+\begin{aligned}
+\mu &\sim \text{Normal}(0, 1), \\
+z &\sim \text{Normal}(\mu, 1).
+\end{aligned}
+```
+"""
+
 import numpyro
 import pytest
 from jax import random

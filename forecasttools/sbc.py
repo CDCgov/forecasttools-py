@@ -112,7 +112,6 @@ class SBC:
                 if self.num_samples != num_samples:
                     raise ValueError("The number of samples from the posterior is not consistent.")
                 posterior = idata['posterior']
-                # pdb.set_trace()
                 for name in prior.keys():
                     num_dims = jnp.ndim(prior_draw[name])
                     if num_dims == 0:
