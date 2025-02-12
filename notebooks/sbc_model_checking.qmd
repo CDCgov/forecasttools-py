@@ -35,7 +35,7 @@ $$
 F^{(-1)}(\theta[k]) \sim \mathcal{U}(0,1).
 $$
 
-Where $F^{(-1)}$ is the (pseudo) inverse distribution function of the known distribution $p(\theta[k])$. This is often call ed the probability integral transform (PIT). Significant (in a classical statistics sense) deviations in the PIT of parameters from the uniform distribution form evidence that either the model is incorrectly coded, its priors are cover hard to sample regimes, and/or the Bayesian inference method is approximate/invalid. See Talts *et al* [@talts] for more details on understanding the returned tests.
+Where $F^{(-1)}$ is the (pseudo) inverse distribution function of the known distribution $p(\theta[k])$. This is often called the probability integral transform (PIT). Significant (in a classical statistics sense) deviations in the PIT of parameters from the uniform distribution form evidence that either the model is incorrectly coded, its priors are cover hard to sample regimes, and/or the Bayesian inference method is approximate/invalid. See Talts *et al* [@talts] for more details on understanding the returned tests.
 
 More precisely, in SBC:
 
