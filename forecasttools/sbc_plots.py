@@ -22,7 +22,7 @@ def plot_results(
 
     Parameters
     ----------
-    simulations : dict[str] -> listlike
+    simulations : dict[str, Any]
         The SBC.simulations dictionary.
     ndraws : int
         Number of draws in each posterior predictive sample
