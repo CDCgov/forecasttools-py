@@ -138,6 +138,8 @@ def hist(ary, color, ax):
 
 class UniformCDF:
     def __init__(self, upper_bound):
+        if upper_bound <= 0:
+            raise ValueError(f"Upper bound must be positive; got {upper_bound}.")
         self.upper_bound = upper_bound
 
     def __call__(self, x):
