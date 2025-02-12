@@ -79,7 +79,9 @@ class SBC:
         self._sampler_rng = sampler_rng
         self.num_samples = None
 
-    def _get_prior_predictive_samples(self):
+    def _get_prior_predictive_samples(
+        self,
+    ) -> tuple[dict[str, any], dict[str, any]]:
         """
         Generate samples to use for the simulations by prior predictive
         sampling. Then splits between observed and unobserved variables based
