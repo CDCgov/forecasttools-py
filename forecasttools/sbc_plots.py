@@ -105,8 +105,8 @@ def plot_results(
             ax.set_yticks([])
             idx += 1
 
-    for j in range(n_plots, len(axes)):
-        fig.delaxes(axes[j])
+    for extra_ax in range(n_plots, len(axes)):
+        fig.delaxes(axes[extra_ax])
 
     return fig, axes
 
