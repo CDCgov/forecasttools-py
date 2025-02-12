@@ -44,7 +44,7 @@ More precisely, in SBC:
 3.  Generate the probability integral transform (PIT) of each of $k = 1,\dots,P$ parameters $\theta[k]$ with respect to the known prior distribution.
 4.  Assess the PIT distributions for deviation against an assumption of being $\mathcal{U}([0,1])$.
 
-In `SBC` we from the PIT by looking at the distribution of proportion of posterior samples that are less than the "true" parameter values cached along with the generated data $y^{(i)}$: $P(\theta_p^{(i)}[k] < \theta^{(i)}[k])$. This is a more convenient approach in `numpyro` than trying to solve the inverse distribution function directly.
+In `SBC` we form the PIT by looking at the distribution of proportion of posterior samples that are less than the "true" parameter values cached along with the generated data $y^{(i)}$: $P(\theta_p^{(i)}[k] < \theta^{(i)}[k])$. These are commonly called the rank statistics of the sampling process. Using rank statistics is a more convenient approach in `numpyro` than trying to solve the inverse distribution function directly.
 
 ## Example: Eight schools
 

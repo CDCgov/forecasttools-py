@@ -36,13 +36,13 @@ class SBC:
             Positional arguments passed to `numpyro.sample`.
         num_simulations : int
             How many simulations to run for SBC.
-        sample_kwargs : dict[str] -> Any
+        sample_kwargs : dict[str, Any]
             Arguments passed to `numpyro.sample`. Defaults to
             `dict(num_warmup=500, num_samples=100, progress_bar = False)`.
             Which assumes a MCMC sampler e.g. NUTS.
         seed : random.PRNGKey
             Random seed.
-        kwargs : dict
+        kwargs : dict[str, Any]
             Keyword arguments passed to `numpyro` models.
         """
         if sample_kwargs is None:
@@ -149,17 +149,19 @@ class SBC:
                 for name in prior:
                     num_dims = jnp.ndim(prior_draw[name])
                     if num_dims == 0:
-                        self.simulations[name].append(
+                        rank_statistics = (
                             (posterior[name].sel(chain=0) < prior_draw[name])
                             .sum()
                             .values
                         )
+                        self.simulations[name].append(rank_statistics)
                     else:
-                        self.simulations[name].append(
+                        rank_statistics = (
                             (posterior[name].sel(chain=0) < prior_draw[name])
                             .sum(axis=0)
                             .values
                         )
+                        self.simulations[name].append(rank_statistics)
                 self._simulations_complete += 1
                 progress.update()
         finally:
