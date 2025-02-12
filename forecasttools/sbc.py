@@ -137,7 +137,7 @@ class SBC:
         idata = az.from_numpyro(mcmc)
         return idata, num_samples
 
-    def run_simulations(self):
+    def run_simulations(self) -> None:
         """
         The main method of `SBC` class that runs the simulations for
         simulation based calibration and fills the `simulations` attribute
