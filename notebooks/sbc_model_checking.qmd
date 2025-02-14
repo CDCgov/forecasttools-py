@@ -1,0 +1,184 @@
+---
+title: "Using the `SBC` class to do sim-based calibration for `numpyro` models"
+format: gfm
+engine: jupyter
+execute:
+    warning: false
+    output: false
+    cache: true
+bibliography: references.bib
+---
+
+This notebook covers:
+
+-   A brief introduction to simulation-based calibration (SBC) as a method for testing the self-consistency of a Bayesian inference method.
+-   Tuning and running SBC for a `numpyro` model using the `SBC` from `forecasttools`.
+-   Plotting results and interpreting them.
+
+The example we will use to illustrate our ideas is the classic "eight schools" inference problem from section 5.5 of Gelman *et al* [@gelman2013] with posterior sampling done using the NUTS algorithm implemented by `numpyro` PPL.
+
+## Simulation-based calibration
+
+"Unit" testing the correctness of Bayesian probabilistic programs is challenging because the target quantity is a distribution (the posterior distribution) typically sampled from via a random process, e.g. Markov chain Monte Carlo sampling. The range of models where the correct posterior distribution is known analytically, and therefore, we can test sampling against distributional checks (e.g. Kolmogorov-Smirnov tests, chi-squared tests, etc) is limited.
+
+Simulation-based calibration (SBC) [@talts] aims to provide a correctness check for a Bayesian model and sampler using the self-consistency property of Bayesian inference:
+
+$$
+p(\theta) = \int p(y,\theta) dy = \int p(\theta | y) p(y) dy = \int p(\theta|y)\int p(y | \theta')p(\theta')d\theta' dy.
+$$
+
+In words, this states that the distribution of posterior samples from Bayesian inference gathered over many datasets $(y^{(i)})_{i=1, 2, \dots}$ is the prior distribution $p(\theta)$ *if* the datasets are generated using the prior distribution $y^{(i)} \sim p(y | \theta') p(\theta')$.
+
+This self-consistency property of Bayesian inference provides a convenient method for checking if the model inference process $p(\theta | y)$ is performing as desired, since generating datasets $(y^{(i)})_{i=1, 2, \dots}$ from a generative model is typically quite easy. Since for any individual $k$th parameter $\theta[k] \in \theta$ we know the prior distribution $p(\theta[k])$ we can check correctness against:
+
+$$
+F^{(-1)}(\theta[k]) \sim \mathcal{U}(0,1).
+$$
+
+Where $F^{(-1)}$ is the (pseudo) inverse distribution function of the known distribution $p(\theta[k])$. This is often called the probability integral transform (PIT). Significant (in a classical statistics sense) deviations in the PIT of parameters from the uniform distribution form evidence that either the model is incorrectly coded, its priors are cover hard to sample regimes, and/or the Bayesian inference method is approximate/invalid. See Talts *et al* [@talts] for more details on understanding the returned tests.
+
+More precisely, in SBC:
+
+1.  For $i = 1,\dots,n$: sample the observable and parameters from the model using the prior distribution, $(y^{(i)}, \theta^{(i)})$.
+2.  For $i = 1,\dots,n$: sample posterior parameters using the Bayesian method and model under evaluation, $\theta_p^{(i)} \sim p(\theta_p | y^{(i)})$.
+3.  Generate the probability integral transform (PIT) of each of $k = 1,\dots,P$ parameters $\theta[k]$ with respect to the known prior distribution.
+4.  Assess the PIT distributions for deviation against an assumption of being $\mathcal{U}([0,1])$.
+
+In `SBC` we form the PIT by looking at the distribution of proportion of posterior samples that are less than the "true" parameter values cached along with the generated data $y^{(i)}$: $P(\theta_p^{(i)}[k] < \theta^{(i)}[k])$. These are commonly called the rank statistics of the sampling process. Using rank statistics is a more convenient approach in `numpyro` than trying to solve the inverse distribution function directly.
+
+## Example: Eight schools
+
+The eight schools example is a classic example of using partial pooling to share inferential strength between groups, cf Gelman *et al* [@gelman2013]:
+
+> *A study was performed for the Educational Testing Service to analyze the effects of special coaching programs for SAT-V (Scholastic Aptitude Test-Verbal) in each of eight high schools. The outcome variable in each study was the score on a special administration of the SAT-V, a standardized multiple choice test administered by the Educational Testing Service and used to help colleges make admissions decisions; the scores can vary between 200 and 800, with mean about 500 and standard deviation about 100. The SAT examinations are designed to be resistant to short-term efforts directed specifically toward improving performance on the test; instead they are designed to reflect knowledge acquired and abilities developed over many years of education. Nevertheless, each of the eight schools in this study considered its short-term coaching program to be very successful at increasing SAT scores. Also, there was no prior reason to believe that any of the eight programs was more effective than any other or that some were more similar in effect to each other than to any other.*
+
+The statistical model for the SAT scores in each of the $J=8$ schools $y_j$ is:
+
+$$
+\begin{aligned}
+\mu & \sim \mathcal{N}(0, 5), \\
+\tau & \sim \text{HalfCauchy}(5),\\
+\theta_j & \sim \mathcal{N}(\mu, \tau),~ j = 1,\dots,J, \\
+y_j & \sim \mathcal{N}(\theta_j,\sigma_j),~ j = 1,\dots,J.
+\end{aligned}
+$$
+
+Where the the SAT standard deviations per high school $\sigma_j$ are treated as known along with the scores.
+
+Gelman *et al* use the eight schools example to illustrate partial pooling, and to demonstrate the importance of choosing the variance priors carefully.
+
+We start by setting the dependencies and the basic data and random seed.
+
+```{python}
+# Dependencies
+import arviz as az
+import numpyro
+import jax.numpy as jnp
+import numpyro.distributions as dist
+from jax import random
+from numpyro.infer import NUTS
+
+import forecasttools.sbc as sbc
+
+```
+
+```{python}
+rng_key = random.PRNGKey(0)
+J = 8
+y = jnp.array([28.0, 8.0, -3.0, 7.0, -1.0, 1.0, 18.0, 12.0])
+sigma = jnp.array([15.0, 10.0, 16.0, 11.0, 9.0, 11.0, 10.0, 18.0])
+```
+
+### Running SBC for example with HalfCauchy priors
+
+Next we define the model above as a `numpyro` model.
+
+```{python}
+def eight_schools_cauchy_prior(J, sigma, y=None):
+    mu = numpyro.sample('mu', dist.Normal(0, 5))
+    tau = numpyro.sample('tau', dist.HalfCauchy(5))
+    with numpyro.plate('J', J):
+        theta = numpyro.sample('theta', dist.Normal(mu, tau))
+    numpyro.sample('obs', dist.Normal(theta, sigma), obs=y)
+
+nuts_kernel_cauchy_prior = NUTS(eight_schools_cauchy_prior)
+```
+
+Note that we define a `numpyro` `MCMCKernel` object to pass to `SBC`. This wraps the *model* with the *sampling approach*, which are both checked by SBC.
+
+Next, we create an instance of the `SBC` class. There are a few things to note here:
+
+-   The structure here is that we must pass the `MCMCKernel` object as well as the positional and keyword arguments that define a specific model, for example the `J` and `sigma` arguments. This follows a standard pattern in `numpyro`.
+-   Note that we don't pass the data argument `y` (and indeed this will throw an error). The reason is that we will be generating datasets for SBC rather than using any particular observed dataset.
+-   `observed_vars` is an important argument which lets `SBC` know what variables to treat as observed in the SBC process. It is a dictionary rather than a list because it maps the data name *as it is passed to the* `numpyro` *model* to the random variable name inside the `numpyro` model (which can be distinct). For example, in `eight_schools_cauchy_prior` the data value of the observed SAT scores is called `y` but the random sample is traced as `obs` . Hence, we must pass `observed_vars = dict(y = "obs")` .
+-   `sample_kwargs` gets passed through to the sampler. Note that `progress_bar = False` is important if we don't want to see alot of progress bars.
+-   `num_simulations` sets the number of SBC trials to run.
+
+```{python}
+seed1, seed2 = random.split(rng_key)
+S = sbc.SBC(nuts_kernel_cauchy_prior, J, sigma,
+    observed_vars = dict(y = "obs"),
+    sample_kwargs=dict(num_warmup=500, num_samples=1000, progress_bar = False),
+    num_simulations=100,
+    seed = seed1)
+```
+
+`SBC` class instances have methods for running the SBC simulations and plotting the results as a histogram (against binomial sampling within a bin under the uniform target distribution) and as an empirical CDF function in PIT model (this is from the `arviz` plotting utilities).
+
+```{python}
+S.run_simulations()
+```
+
+```{python}
+#| output: true
+#| fig-cap: "Histogram plot of SBC results"
+S.plot_results(kind = "hist")
+```
+
+```{python}
+#| output: true
+#| fig-cap: "ECDF/PIT plot of SBC results"
+S.plot_results()
+```
+
+We can see that the SBC has identified a problem with the model. The Bayesian inference looks to be slightly, but systematically, over-estimating the inter-school variation parameter $\tau$ compared to simulated values.
+
+Lets use a more informative prior from [this implementation](https://www.tensorflow.org/probability/examples/Eight_Schools).
+
+$$
+\tau \sim \text{LogNormal}(5, 1).
+$$
+
+```{python}
+def eight_schools_lognormal_prior(J, sigma, y=None):
+    mu = numpyro.sample('mu', dist.Normal(0, 5))
+    tau = numpyro.sample('tau', dist.LogNormal(5, 1))
+    with numpyro.plate('J', J):
+        theta = numpyro.sample('theta', dist.Normal(mu, tau))
+    numpyro.sample('obs', dist.Normal(theta, sigma), obs=y)
+
+nuts_kernel_lognormal_prior = NUTS(eight_schools_lognormal_prior)
+
+S2 = sbc.SBC(nuts_kernel_lognormal_prior, J, sigma,
+    observed_vars = dict(y = "obs"),
+    sample_kwargs=dict(num_warmup=500, num_samples=1000, progress_bar = False),
+    num_simulations=100,
+    seed = seed2)
+S2.run_simulations()
+```
+
+```{python}
+#| output: true
+#| fig-cap: "Histogram plot of SBC results"
+S2.plot_results(kind = "hist")
+```
+
+```{python}
+#| output: true
+#| fig-cap: "ECDF/PIT plot of SBC results"
+S2.plot_results()
+```
+
+The results of this SBC approach still indicate potential problems with self-consistent identification of every high school specific treatment effect but the self-consistent ability to infer the population parameters $\mu$ and $\tau$ seems to now work.
+
+## References
