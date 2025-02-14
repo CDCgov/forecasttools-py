@@ -79,6 +79,9 @@ def convert_inference_data_to_tidydraws(
                     + pl.col(".iteration")
                 ).alias(".draw")
             )
+            # .with_columns(
+            #     pl.arange(1, pl.count() + 1).alias(".draw")
+            # )
             .pivot(
                 values="value",
                 index=[".chain", ".iteration", ".draw"],
@@ -86,8 +89,6 @@ def convert_inference_data_to_tidydraws(
                 aggregate_function="first",
             )
             .sort([".chain", ".iteration", ".draw"])
-            # .drop(["n_chains", "draws_per_chain"])
-            # .select([".chain", ".iteration", ".draw", "variable", "value"])
         )
         for group in groups
     }
