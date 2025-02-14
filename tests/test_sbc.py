@@ -41,6 +41,13 @@ def sbc_instance(mcmc_kernel, observed_vars):
     return SBC(mcmc_kernel, y=None, observed_vars=observed_vars)
 
 
+@pytest.fixture
+def sbc_instance_inspection_on(mcmc_kernel, observed_vars):
+    return SBC(
+        mcmc_kernel, y=None, observed_vars=observed_vars, inspection_mode=True
+    )
+
+
 def test_sbc_initialization(sbc_instance, mcmc_kernel, observed_vars):
     """
     Test that the SBC class is initialized correctly.
@@ -96,6 +103,16 @@ def test_run_simulations(sbc_instance):
     sbc_instance.run_simulations()
     assert sbc_instance._simulations_complete == sbc_instance.num_simulations
     assert "mu" in sbc_instance.simulations
+
+
+def test_run_simulations_with_inspection(sbc_instance_inspection_on):
+    """
+    Test that the simulations for SBC are run correctly.
+    """
+    sbc_instance_inspection_on.run_simulations()
+    assert isinstance(sbc_instance_inspection_on.idatas, list)
+    assert isinstance(sbc_instance_inspection_on.prior, dict)
+    assert isinstance(sbc_instance_inspection_on.prior_pred, dict)
 
 
 def test_plot_results(sbc_instance):

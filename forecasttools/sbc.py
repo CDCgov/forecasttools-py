@@ -18,6 +18,7 @@ class SBC:
         num_simulations=10,
         sample_kwargs=None,
         seed=None,
+        inspection_mode=False,
         **kwargs,
     ) -> None:
         """
@@ -71,13 +72,18 @@ class SBC:
 
         self.num_simulations = num_simulations
         self.sample_kwargs = sample_kwargs
-
+        # Initialize the simulations and random seeds
         self.simulations = {}
         self._simulations_complete = 0
         prior_pred_rng, sampler_rng = random.split(seed)
         self._prior_pred_rng = prior_pred_rng
         self._sampler_rng = sampler_rng
         self.num_samples = None
+        # Set the inspection mode
+        # if in inspection mode, store all idata objects from fitting
+        self.inspection_mode = inspection_mode
+        if inspection_mode:
+            self.idatas = []
 
     def _get_prior_predictive_samples(
         self,
@@ -185,6 +191,9 @@ class SBC:
             initial=self._simulations_complete,
             total=self.num_simulations,
         )
+        if self.inspection_mode:
+            self.prior = prior
+            self.prior_pred = prior_pred
         try:
             while self._simulations_complete < self.num_simulations:
                 idx = self._simulations_complete
@@ -195,6 +204,8 @@ class SBC:
                 idata = self._get_posterior_samples(
                     sampler_seeds[idx], prior_predictive_draw
                 )
+                if self.inspection_mode:
+                    self.idatas.append(idata)
                 self._increment_rank_statistics(prior_draw, idata["posterior"])
                 self._simulations_complete += 1
                 progress.update()
