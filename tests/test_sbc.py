@@ -73,6 +73,22 @@ def test_get_posterior_samples(sbc_instance):
     assert "posterior" in idata
 
 
+def test_increment_rank_statistics(sbc_instance):
+    """
+    Test that the rank statistics are incremented correctly.
+    """
+    prior, prior_pred = sbc_instance._get_prior_predictive_samples()
+    seed = random.PRNGKey(0)
+    idata = sbc_instance._get_posterior_samples(seed, prior_pred)
+    sbc_instance.simulations = {name: [] for name in prior}
+    prior_draw = {k: v[0] for k, v in prior.items()}
+    sbc_instance._increment_rank_statistics(prior_draw, idata["posterior"])
+
+    for name in prior_draw:
+        assert name in sbc_instance.simulations
+        assert len(sbc_instance.simulations[name]) == 1
+
+
 def test_run_simulations(sbc_instance):
     """
     Test that the simulations for SBC are run correctly.

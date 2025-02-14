@@ -144,7 +144,17 @@ class SBC:
         idata = az.from_numpyro(mcmc)
         return idata
 
-    def increment_rank_statistics(self, prior_draw, posterior):
+    def _increment_rank_statistics(self, prior_draw, posterior) -> None:
+        """
+        Increment the rank statistics for each parameter in the prior draw.
+
+        This method updates the `self.simulations` dictionary with the rank
+        statistics for each parameter in the `prior_draw` compared to the
+        `posterior`.
+
+        Returns:
+            None
+        """
         for name in prior_draw:
             num_dims = jnp.ndim(prior_draw[name])
             if num_dims == 0:
@@ -185,7 +195,7 @@ class SBC:
                 idata = self._get_posterior_samples(
                     sampler_seeds[idx], prior_predictive_draw
                 )
-                self.increment_rank_statistics(prior_draw, idata["posterior"])
+                self._increment_rank_statistics(prior_draw, idata["posterior"])
                 self._simulations_complete += 1
                 progress.update()
         finally:
