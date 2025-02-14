@@ -7,6 +7,7 @@ import itertools
 import arviz as az
 import matplotlib.pyplot as plt
 import numpy as np
+import numpyro.distributions as dist
 from scipy.special import bdtrik
 
 
@@ -73,7 +74,7 @@ def plot_results(
         axes = [axes]
 
     if kind == "ecdf":
-        cdf = UniformCDF(ndraws)
+        cdf = dist.DiscreteUniform(high=ndraws).cdf
 
     idx = 0
     for var_name, var_data in sims.items():
@@ -134,49 +135,3 @@ def hist(ary, color, ax):
         color="0.5",
         alpha=0.5,
     )
-
-
-class UniformCDF:
-    """
-    A class to represent the cumulative distribution function (CDF) of a
-    uniform distribution.
-    """
-
-    def __init__(self, upper_bound):
-        """
-        Constructs all the necessary attributes for the UniformCDF object.
-
-        Parameters
-        ----------
-        upper_bound : float
-            The upper bound of the uniform distribution. Must be positive.
-
-        Raises
-        ------
-        ValueError
-            If upper_bound is not positive.
-        """
-        if upper_bound <= 0:
-            raise ValueError(
-                f"Upper bound must be positive; got {upper_bound}."
-            )
-        self.upper_bound = upper_bound
-
-    def __call__(self, x):
-        """
-        Evaluates the CDF at a given value x.
-
-        Parameters
-        ----------
-        x : array-like
-            The value(s) at which to evaluate the CDF.
-
-        Returns
-        -------
-        array-like
-            The CDF evaluated at x. Returns 0 if x < 0, 1 if x > upper_bound,
-            and x / upper_bound otherwise.
-        """
-        return np.where(
-            x < 0, 0, np.where(x > self.upper_bound, 1, x / self.upper_bound)
-        )
