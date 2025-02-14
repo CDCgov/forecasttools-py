@@ -134,8 +134,33 @@ class SBC:
         obs_vars = {**self.kwargs, **prior_predictive_draw}
         mcmc.run(seed, *self.args, **obs_vars)
         num_samples = mcmc.num_samples
+        # Check that the number of samples is consistent
+        if self.num_samples is None:
+            self.num_samples = num_samples
+        if self.num_samples != num_samples:
+            raise ValueError(
+                "The number of samples from the posterior is not consistent."
+            )
         idata = az.from_numpyro(mcmc)
-        return idata, num_samples
+        return idata
+
+    def increment_rank_statistics(self, prior_draw, posterior):
+        for name in prior_draw:
+            num_dims = jnp.ndim(prior_draw[name])
+            if num_dims == 0:
+                rank_statistics = (
+                    (posterior[name].sel(chain=0) < prior_draw[name])
+                    .sum()
+                    .values
+                )
+                self.simulations[name].append(rank_statistics)
+            else:
+                rank_statistics = (
+                    (posterior[name].sel(chain=0) < prior_draw[name])
+                    .sum(axis=0)
+                    .values
+                )
+                self.simulations[name].append(rank_statistics)
 
     def run_simulations(self) -> None:
         """
@@ -157,33 +182,10 @@ class SBC:
                 prior_predictive_draw = {
                     k: v[idx] for k, v in prior_pred.items()
                 }
-                idata, num_samples = self._get_posterior_samples(
+                idata = self._get_posterior_samples(
                     sampler_seeds[idx], prior_predictive_draw
                 )
-                if self.num_samples is None:
-                    self.num_samples = num_samples
-                if self.num_samples != num_samples:
-                    raise ValueError(
-                        "The number of samples from the posterior is not"
-                        " consistent."
-                    )
-                posterior = idata["posterior"]
-                for name in prior:
-                    num_dims = jnp.ndim(prior_draw[name])
-                    if num_dims == 0:
-                        rank_statistics = (
-                            (posterior[name].sel(chain=0) < prior_draw[name])
-                            .sum()
-                            .values
-                        )
-                        self.simulations[name].append(rank_statistics)
-                    else:
-                        rank_statistics = (
-                            (posterior[name].sel(chain=0) < prior_draw[name])
-                            .sum(axis=0)
-                            .values
-                        )
-                        self.simulations[name].append(rank_statistics)
+                self.increment_rank_statistics(prior_draw, idata["posterior"])
                 self._simulations_complete += 1
                 progress.update()
         finally:

@@ -69,9 +69,8 @@ def test_get_posterior_samples(sbc_instance):
     """
     prior, prior_pred = sbc_instance._get_prior_predictive_samples()
     seed = random.PRNGKey(0)
-    idata, num_samples = sbc_instance._get_posterior_samples(seed, prior_pred)
+    idata = sbc_instance._get_posterior_samples(seed, prior_pred)
     assert "posterior" in idata
-    assert num_samples == 100
 
 
 def test_run_simulations(sbc_instance):
