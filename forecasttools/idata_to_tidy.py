@@ -70,25 +70,14 @@ def convert_inference_data_to_tidydraws(
                 pl.col("variable").str.replace(r"\[.*\]", "").alias("variable")
             )
             .with_columns(pl.col(".iteration") + 1, pl.col(".chain") + 1)
-            .with_columns(
-                (pl.col(".iteration").n_unique()).alias("draws_per_chain"),
-            )
-            .with_columns(
-                (
-                    ((pl.col(".chain") - 1) * pl.col("draws_per_chain"))
-                    + pl.col(".iteration")
-                ).alias(".draw")
-            )
-            # .with_columns(
-            #     pl.arange(1, pl.count() + 1).alias(".draw")
-            # )
             .pivot(
                 values="value",
-                index=[".chain", ".iteration", ".draw"],
+                index=[".chain", ".iteration"],
                 columns="variable",
                 aggregate_function="first",
             )
-            .sort([".chain", ".iteration", ".draw"])
+            .sort([".chain", ".iteration"])
+            .with_row_count(name=".draw", offset=1)
         )
         for group in groups
     }
