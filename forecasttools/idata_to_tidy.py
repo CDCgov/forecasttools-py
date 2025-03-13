@@ -74,7 +74,7 @@ def convert_inference_data_to_tidydraws(
                 values="value",
                 index=[".chain", ".iteration"],
                 columns="variable",
-                aggregate_function="first",
+                aggregate_function=None,
             )
             .sort([".chain", ".iteration"])
             .with_row_count(name=".draw", offset=1)

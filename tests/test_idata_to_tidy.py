@@ -1,3 +1,6 @@
+import os
+
+import arviz as az
 import polars as pl
 import pytest
 
@@ -171,3 +174,21 @@ def test_tidydraws_format(simple_inference_data):
         assert row["beta"] == exp["beta"]
     # total rows equal sum of draws across chains
     assert df.height == 5
+
+
+@pytest.fixture(scope="session")
+def pyrenew_idata():
+    """
+    Loads pyrenew InferenceData from the netCDF file.
+    If the file is not found, the test is skipped.
+
+    Returns
+    -------
+    az.InferenceData
+        The InferenceData object loaded from the specified
+        NetCDF file.
+    """
+    pyrenew_idata_path = "../assets/external/inference_data_1.nc"
+    if not os.path.exists(pyrenew_idata_path):
+        pytest.skip(f"File not found: {pyrenew_idata_path}")
+    return az.from_netcdf(pyrenew_idata_path)
