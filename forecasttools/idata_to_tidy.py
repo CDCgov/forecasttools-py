@@ -11,7 +11,7 @@ import polars.selectors as cs
 
 
 def convert_inference_data_to_tidydraws(
-    idata: az.InferenceData, groups: list[str]
+    idata: az.InferenceData, groups: list[str] = None
 ) -> dict[str, pl.DataFrame]:
     """
     Creates a dictionary of polars dataframes
