@@ -192,3 +192,45 @@ def pyrenew_idata():
     if not os.path.exists(pyrenew_idata_path):
         pytest.skip(f"File not found: {pyrenew_idata_path}")
     return az.from_netcdf(pyrenew_idata_path)
+
+
+def test_posterior_predictive_group(pyrenew_idata: az.InferenceData) -> None:
+    """
+    Tests that the 'posterior_predictive' group in the
+    real pyrenew InferenceData is converted correctly to
+    tidy draws format. Specifically, checks: a dictionary
+    is returned with the 'posterior_predictive' key,
+    the Polars DataFrame has required tidybayes columns,
+    correct posterior predictive variables exist, and
+    sorting by .chain, .iteration yields correct index.
+
+    Parameters
+    ----------
+    pyrenew_idata : az.InferenceData
+        A fixture that provides the real pyrenew
+        InferenceData object loaded from a NetCDF file.
+    """
+    # target the posterior predictive group of the pyrenew idata
+    result = forecasttools.convert_inference_data_to_tidydraws(
+        pyrenew_idata, groups=["posterior_predictive"]
+    )
+
+    # check result is dictionary with expected key
+    assert isinstance(result, dict)
+    assert "posterior_predictive" in result
+
+    # check that posterior predictive result is Polars DataFrame
+    df = result["posterior_predictive"]
+    assert isinstance(df, pl.DataFrame)
+
+    # check for tidybayes columns
+    for col in [".chain", ".iteration", ".draw"]:
+        assert col in df.columns, f"Missing required column: {col}."
+
+    df_sorted = df.sort([".chain", ".iteration"])
+
+    # ensure first row is chain=1, iteration=1, .draw=1
+    first_row = df_sorted.head(1).to_dicts()[0]
+    assert first_row[".chain"] == 1
+    assert first_row[".iteration"] == 1
+    assert first_row[".draw"] == 1
