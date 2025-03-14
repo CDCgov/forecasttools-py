@@ -188,13 +188,13 @@ def pyrenew_idata():
         The InferenceData object loaded from the specified
         NetCDF file.
     """
-    pyrenew_idata_path = "../assets/external/inference_data_1.nc"
+    pyrenew_idata_path = "assets/external/inference_data_1.nc"
     if not os.path.exists(pyrenew_idata_path):
         pytest.skip(f"File not found: {pyrenew_idata_path}")
     return az.from_netcdf(pyrenew_idata_path)
 
 
-def test_posterior_predictive_group(pyrenew_idata: az.InferenceData) -> None:
+def test_posterior_predictive_group(pyrenew_idata):
     """
     Tests that the 'posterior_predictive' group in the
     real pyrenew InferenceData is converted correctly to
