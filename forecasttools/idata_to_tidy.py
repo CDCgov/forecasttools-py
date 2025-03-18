@@ -5,6 +5,8 @@ the conversion of idata objects (and hence
 their groups) in tidy-usable objects.
 """
 
+import re
+
 import arviz as az
 import polars as pl
 import polars.selectors as cs
@@ -54,7 +56,7 @@ def convert_inference_data_to_tidydraws(
             idata_df.select("chain", "draw", cs.starts_with(f"('{group}',"))
             .rename(
                 {
-                    col: col.split(", ")[1].strip("')")
+                    col: re.search(r",\s*'?(.+?)'?\)", col).group(1)
                     for col in idata_df.columns
                     if col.startswith(f"('{group}',")
                 }
@@ -74,10 +76,10 @@ def convert_inference_data_to_tidydraws(
                 values="value",
                 index=[".chain", ".iteration"],
                 columns="variable",
-                aggregate_function="first",
+                aggregate_function=None,
             )
             .sort([".chain", ".iteration"])
-            .with_row_count(name=".draw", offset=1)
+            .with_row_index(name=".draw", offset=1)
         )
         for group in groups
     }
