@@ -54,12 +54,19 @@ def convert_inference_data_to_tidydraws(
     tidy_dfs = {
         group: (
             idata_df.select("chain", "draw", cs.starts_with(f"('{group}',"))
+            # .rename(
+            #     {
+            #         col: re.search(r",\s*'?(.+?)'?\)", col).group(1)
+            #         for col in idata_df.columns
+            #         if col.startswith(f"('{group}',")
+            #     }
+            # )
             .rename(
-                {
-                    col: re.search(r",\s*'?(.+?)'?\)", col).group(1)
-                    for col in idata_df.columns
-                    if col.startswith(f"('{group}',")
-                }
+                lambda col, group=group: re.search(
+                    r",\s*'?(.+?)'?\)", col
+                ).group(1)
+                if col.startswith(f"('{group}',")
+                else col
             )
             # draw in arviz is iteration in tidybayes
             .rename({"draw": ".iteration", "chain": ".chain"})
