@@ -84,6 +84,8 @@ repos:
           # {name} is too complex ({complexity} > {max_complexity})
           # note: ignored on select repositories
           "--ignore=C901",
+          # function definition does not bind loop variable
+          "--ignore=B023",
           # E and W: pycodestyle, standard PEP8 errors and pycodestyle warnings.
           # F: pyflakes warnings (e.g., unused variables, undefined names).,
           # B: flake8-bugbear (useful best practices).
