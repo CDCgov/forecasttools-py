@@ -1,13 +1,15 @@
-[tool.poetry]
+
+[project]
 name = "forecasttools"
 version = "0.0.1"
+authors = [
+    {name = "CFA"},
+]
 description = "Python package for common pre- and post-processing operations done by CFA Predict for short term forecasting, nowcasting, and scenario modeling."
-authors = ["CFA"]
 license = "Apache-2.0"
 readme = "README.md"
-packages = [{include = "forecasttools"}]
-repository = "https://github.com/CDCgov/forecasttools-py/"
 keywords = ["forecasting", "infrastructure", "infectious-disease-modeling", "python"]
+requires-python = ">=3.13"
 include = [
     { path = "forecasttools/location_table.parquet", format = "sdist" },
     { path = "forecasttools/location_table.parquet", format = "wheel" },
@@ -23,40 +25,8 @@ include = [
     { path = "forecasttools/nhsn_hosp_flu.parquet", format = "wheel" },
 ]
 
-
-[tool.poetry.dependencies]
-python = "^3.12"
-arviz = "^0.20.0"
-polars = "^1.8.2"
-xarray = "^2024.9.0"
-matplotlib = "^3.9.2"
-epiweeks = "^2.3.0"
-numpyro = "^0.17.0"
-numpy = "^2.2.2"
-tqdm = "^4.67.1"
-
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.8.0"
-ipykernel = "^6.29.5"
-diffrax = "^0.6.0"
-patsy = "^0.5.6"
-nbformat = "^5.10.4"
-nbclient = "^0.10.0"
-jupyter = "^1.1.1"
-jupyter-cache = "^1.0.1"
-
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.3"
-
-
-[tool.poetry.urls]
+[project.urls]
 "Repository Issues" = "https://github.com/CDCgov/forecasttools-py/issues"
 "CDCgov Repositories" = "https://github.com/CDCgov"
 "Package That Will Use Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
 "Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
