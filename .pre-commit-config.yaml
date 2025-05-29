@@ -7,7 +7,6 @@
 # Links:
 #
 # Pre-commit: https://pre-commit.com/
-# The author's template: https://github.com/AFg6K7h4fhy2/AFg6K7h4fhy2-Template
 # Supported hooks: https://github.com/pre-commit/pre-commit-hooks
 # Ruff Linter rules: https://docs.astral.sh/ruff/rules/
 # Ruff formatter overview: https://docs.astral.sh/ruff/formatter/#line-breaks
@@ -121,8 +120,6 @@ repos:
           "--ignore=E731",
           # indentation contains tabs (sorry, I like tabs)
           "--ignore=W191",
-          # for streamlit application, this has to be ignored
-          "--ignore=F841",
           # E and W: pycodestyle, standard PEP8 errors and pycodestyle warnings.
           # F: pyflakes warnings (e.g., unused variables, undefined names).,
           # B: flake8-bugbear (useful best practices).
@@ -157,6 +154,13 @@ repos:
         args: ["--baseline", ".secrets.baseline"]
         exclude: package.lock.json
 ###############################################################################
+# GITHUB ACTIONS
+###############################################################################
+-   repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+    -   id: actionlint
+###############################################################################
 # SPELLING
 ###############################################################################
 -   repo: https://github.com/crate-ci/typos
@@ -164,4 +168,15 @@ repos:
     hooks:
     -   id: typos
         args: ["--force-exclude"]
+###############################################################################
+# COMMIT MESSAGES
+###############################################################################
+-   repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.1.1
+    hooks:
+    -   id: commitizen
+-   repo: https://github.com/jorisroovers/gitlint
+    rev:  v0.19.1
+    hooks:
+    -   id: gitlint
 ###############################################################################
