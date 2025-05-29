@@ -1,18 +1,47 @@
-repos:
-################################################################################
+###############################################################################
+# OVERVIEW
+###############################################################################
+# Note that some of the comments below may come from their respective
+# documentation sources.
+#
+# Links:
+#
+# Pre-commit: https://pre-commit.com/
+# The author's template: https://github.com/AFg6K7h4fhy2/AFg6K7h4fhy2-Template
+# Supported hooks: https://github.com/pre-commit/pre-commit-hooks
+# Ruff Linter rules: https://docs.astral.sh/ruff/rules/
+# Ruff formatter overview: https://docs.astral.sh/ruff/formatter/#line-breaks
+# Ruff-Black deviations:
+# https://docs.astral.sh/ruff/formatter/black/#line-width-vs-line-length
+# Ruff settings: https://docs.astral.sh/ruff/settings/#unsafe-fixes
+###############################################################################
+# CONTINUOUS INTEGRATION
+###############################################################################
+ci:
+    # custom commit message for PR autofixes
+    autofix_commit_msg: |
+        [pre-commit.ci] auto fixes from pre-commit.com hooks
+        for more information, see https://pre-commit.ci
+    # whether to autofix pull requests. when disabled, comment / label
+    # "pre-commit.ci autofix" to a pull request to manually trigger
+    # auto-fixing.
+    autofix_prs: true
+    # branch to send autoupdate PRs to; by default, pre-commit.ci will update
+    # the default branch of the repository.
+    autoupdate_branch: ""
+    # custom commit message for autoupdate PRs.
+    autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+    # control when the autoupdate runs, possible values: 'weekly',
+    # 'monthly', 'quarterly'.
+    autoupdate_schedule: weekly
+    # a list of hook ids to skip only in pre-commit.ci;
+    skip: []
+    #  whether to recursively check out submodules
+    submodules: false
+###############################################################################
 # GENERAL
-################################################################################
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
-    hooks:
-    -   id: check-added-large-files
-        args: ["--maxkb=10000"]
-    -   id: check-yaml
-        args: ["--allow-multiple-documents"]
-    -   id: check-toml
-    -   id: end-of-file-fixer
-    -   id: mixed-line-ending
-    -   id: trailing-whitespace
+###############################################################################
+repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -48,17 +77,28 @@ repos:
     -   id: name-tests-test
         # ensure tests match test_.*\.py
         args: ["--pytest-test-first"]
+    # checks that all your JSON files are pretty.
+    # "Pretty" here means that keys are sorted
+    # and indented.
+    -   id: pretty-format-json
+        # automatically format json files;
+        # when autofixing, retain the original
+        # key ordering (instead of sorting
+        # the keys)
+        args: ["--autofix", "--no-sort-keys"]
     # trims trailing whitespace.
     -   id: trailing-whitespace
     # checks that non-binary executables have
     # a proper shebang.
     -   id: check-executables-have-shebangs
         files: \.sh$
-################################################################################
+    # checks for the existence of private keys.
+    -   id: detect-private-key
+###############################################################################
 # PYTHON
-################################################################################
+###############################################################################
 -   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.4
+    rev: v0.9.5
     hooks:
     # "currently, the Ruff formatter does not sort imports.
     # In order to both sort imports and format, call
@@ -79,19 +119,19 @@ repos:
           "--ignore=E741",
           # do not assign a lambda expression, use a def
           "--ignore=E731",
-          # found useless expression. ignore since .qmd displays
-          "--ignore=B018",
-          # {name} is too complex ({complexity} > {max_complexity})
-          # note: ignored on select repositories
-          "--ignore=C901",
+          # indentation contains tabs (sorry, I like tabs)
+          "--ignore=W191",
+          # for streamlit application, this has to be ignored
+          "--ignore=F841",
           # E and W: pycodestyle, standard PEP8 errors and pycodestyle warnings.
           # F: pyflakes warnings (e.g., unused variables, undefined names).,
           # B: flake8-bugbear (useful best practices).
           # SIM: flake8-simplify
           # C90: McCabe complexity (cyclomatic complexity).
+          # for setting C90 in ruff, see
+          # https://docs.astral.sh/ruff/settings/#lint_isort_variables
           # UP: pyupgrade, Python version compatibility
           "--select=E,W,F,B,C90,UP,SIM",
-          # linter checks for lines, but doesn't fix, default is 88
           "--line-length=79",
           # lint all files in the current directory, and fix any fixable errors.
           "--fix"]
@@ -101,9 +141,13 @@ repos:
         args: [
           "--line-length=79",
         ]
-################################################################################
+-   repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.7.3
+    hooks:
+    -   id: uv-lock
+###############################################################################
 # SECURITY
-################################################################################
+###############################################################################
 -   repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
@@ -112,30 +156,12 @@ repos:
     -   id: detect-secrets
         args: ["--baseline", ".secrets.baseline"]
         exclude: package.lock.json
-################################################################################
-# GITHUB ACTIONS
-################################################################################
--   repo: https://github.com/rhysd/actionlint
-    rev: v1.7.7
-    hooks:
-    -   id: actionlint
-################################################################################
+###############################################################################
 # SPELLING
-################################################################################
+###############################################################################
 -   repo: https://github.com/crate-ci/typos
     rev: typos-dict-v0.12.4
     hooks:
     -   id: typos
         args: ["--force-exclude"]
-################################################################################
-# COMMIT MESSAGES
-################################################################################
--   repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.1.1
-    hooks:
-    -   id: commitizen
--   repo: https://github.com/jorisroovers/gitlint
-    rev:  v0.19.1
-    hooks:
-    -   id: gitlint
-################################################################################
+###############################################################################
