@@ -24,9 +24,30 @@ include = [
     { path = "forecasttools/nhsn_hosp_flu.parquet", format = "sdist" },
     { path = "forecasttools/nhsn_hosp_flu.parquet", format = "wheel" },
 ]
+dependencies = [
+    "arviz>=0.21.0",
+    "epiweeks>=2.3.0",
+    "matplotlib>=3.10.3",
+    "numpy>=2.2.6",
+    "numpyro>=0.18.0",
+    "polars>=1.30.0",
+    "tqdm>=4.67.1",
+    "xarray>=2025.4.0",
+]
 
 [project.urls]
 "Repository Issues" = "https://github.com/CDCgov/forecasttools-py/issues"
 "CDCgov Repositories" = "https://github.com/CDCgov"
-"Package That Will Use Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
-"Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
+"Package That Uses Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
+"UV Home Page" = "https://docs.astral.sh/uv/"
+
+[dependency-groups]
+dev = [
+    "diffrax>=0.7.0",
+    "ipykernel>=6.29.5",
+    "patsy>=1.0.1",
+    "pre-commit>=4.2.0",
+]
+test = [
+    "pytest>=8.4.0",
+]
