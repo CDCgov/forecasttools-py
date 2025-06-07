@@ -57,6 +57,9 @@ pytest = "^8.3.3"
 "Package That Will Use Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
 "Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
 
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
