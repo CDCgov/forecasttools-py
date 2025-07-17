@@ -34,6 +34,7 @@ epiweeks = "^2.3.0"
 numpyro = "^0.17.0"
 numpy = "^2.2.2"
 tqdm = "^4.67.1"
+cfasodapy = {git = "https://github.com/CDCgov/cfasodapy.git"}
 
 
 [tool.poetry.group.dev.dependencies]

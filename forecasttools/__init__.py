@@ -10,6 +10,12 @@ from forecasttools.idata_w_dates_to_df import (
     generate_time_range_for_dim,
     idata_forecast_w_dates_to_df,
 )
+from forecasttools.pull_data_cdc import (
+    data_cdc_gov_datasets,
+    get_data_cdc_dataset,
+    get_dataset_info,
+    get_nhsn,
+)
 from forecasttools.recode_locations import (
     loc_abbr_to_hubverse_code,
     loc_hubverse_code_to_abbr,
@@ -99,4 +105,8 @@ __all__ = [
     "generate_time_range_for_dim",
     "validate_iter_has_expected_types",
     "ensure_listlike",
+    "data_cdc_gov_datasets",
+    "get_dataset_info",
+    "get_data_cdc_dataset",
+    "get_nhsn",
 ]

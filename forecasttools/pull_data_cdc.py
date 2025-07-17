@@ -1,0 +1,125 @@
+from datetime import date
+
+import polars as pl
+from cfasodapy import Query
+
+# Dataset IDs and metadata for commonly
+# used (within STF) data.cdc.gov datasets
+data_cdc_gov_datasets = pl.DataFrame(
+    {
+        "key": ["nhsn_hrd_prelim", "nhsn_hrd_final", "nssp_prop_ed_visits"],
+        "id": ["mpgq-jmmr", "ua7e-t2fy", "rdmq-nq56"],
+        "date_column": ["weekendingdate", "weekendingdate", "week_end"],
+        "location_column": ["jurisdiction", "jurisdiction", "county"],
+    }
+)
+
+
+def get_dataset_info(dataset_key: str) -> dict:
+    """Look up dataset information by key."""
+    filtered = data_cdc_gov_datasets.filter(pl.col("key") == dataset_key)
+    if filtered.height == 0:
+        raise ValueError(
+            f"Dataset key '{dataset_key}' not found in dataset table"
+        )
+    return filtered.to_dicts()[0]
+
+
+def get_data_cdc_dataset(
+    dataset_key: str,
+    start_date: date = None,
+    end_date: date = None,
+    additional_col_names: str | list[str] = None,
+    locations: list = None,
+    limit: int = 10000,
+    app_token: str = None,
+) -> pl.DataFrame:
+    """
+    Pull data from data.cdc.gov using dataset key.
+
+    Parameters
+    -----------
+    dataset_key
+        Key identifying the dataset (e.g., 'nhsn_hrd_prelim')
+    start_date
+        Start date for filtering
+    end_date
+        End date for filtering
+    additional_col_names
+        List of columns to select in addition to date and location columns.
+    locations
+        List of locations to select.
+        If None, all locations are included.
+    limit
+        Maximum number of rows to return.
+        Defaults to 10,000.
+    app_token
+        Socrata app token for authentication
+
+    Returns
+    --------
+    pl.DataFrame
+        A polars DataFrame with the requested data
+    """
+    dataset_info = get_dataset_info(dataset_key)
+
+    domain = "data.cdc.gov"
+    dataset_id = dataset_info["id"]
+    date_col = dataset_info["date_column"]
+    location_col = dataset_info["location_column"]
+
+    where_clauses = []
+    if start_date:
+        where_clauses.append(f"{date_col} >= '{start_date}'")
+    if end_date:
+        where_clauses.append(f"{date_col} <= '{end_date}'")
+    if locations:
+        locations_str = "', '".join(locations)
+        where_clauses.append(f"{location_col} IN ('{locations_str}')")
+
+    where = " AND ".join(where_clauses) if where_clauses else None
+
+    select = [date_col, location_col]
+    if additional_col_names:
+        if isinstance(additional_col_names, str):
+            additional_col_names = [
+                col.strip() for col in additional_col_names.split(",")
+            ]
+
+        select += [
+            col
+            for col in additional_col_names
+            if col not in [date_col, location_col]
+        ]
+
+    q = Query(
+        domain=domain,
+        id=dataset_id,
+        where=where,
+        select=select,
+        limit=limit,
+        app_token=app_token,
+    )
+
+    data = pl.from_dicts(q.get_all())
+    return data
+
+
+def get_nhsn(
+    start_date: date,
+    end_date: date = None,
+    app_token: str = None,
+    dataset_key: str = "nhsn_hrd_prelim",
+    additional_col_names: str | list[str] = "totalconfc19newadm",
+) -> pl.DataFrame:
+    """
+    Get NHSN Hospital Respiratory Data.
+    """
+    end_date = end_date or date.today()
+    return get_data_cdc_dataset(
+        dataset_key=dataset_key,
+        start_date=start_date,
+        end_date=end_date,
+        additional_col_names=additional_col_names,
+        app_token=app_token,
+    )
