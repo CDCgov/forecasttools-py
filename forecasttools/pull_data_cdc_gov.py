@@ -85,7 +85,9 @@ def get_data_cdc_gov_dataset(
                 "Locations must be a comma-separated string or None."
             )
         else:
-            where_clauses.append(f"{location_col} IN ('{locations}')")
+            locations = [loc.strip() for loc in locations.split(",")]
+            locations_str = "', '".join(locations)
+            where_clauses.append(f"{location_col} IN ('{locations_str}')")
 
     where = " AND ".join(where_clauses) if where_clauses else None
 

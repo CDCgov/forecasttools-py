@@ -48,7 +48,7 @@ def test_get_data_cdc_gov_dataset_basic(mocker):
         start_date=date(2024, 11, 2),
         end_date=date(2024, 11, 9),
         additional_col_names="percent",
-        locations="CA",
+        locations="CA, US",
         limit=1,
     )
     forecasttools.get_data_cdc_gov_dataset(
@@ -73,7 +73,7 @@ def test_get_data_cdc_gov_dataset_basic(mocker):
         where=(
             "weekendingdate >= '2024-11-02' "
             "AND weekendingdate <= '2024-11-09' "
-            "AND jurisdiction IN ('CA')"
+            "AND jurisdiction IN ('CA', 'US')"
         ),
         select=["weekendingdate", "jurisdiction", "percent"],
         limit=1,
