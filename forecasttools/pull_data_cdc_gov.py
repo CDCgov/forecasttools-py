@@ -1,5 +1,6 @@
-import polars as pl
 from datetime import date
+
+import polars as pl
 from cfasodapy import Query
 
 # Dataset IDs and metadata for commonly
@@ -18,7 +19,9 @@ def get_dataset_info(dataset_key: str) -> dict:
     """Look up dataset information by key."""
     filtered = data_cdc_gov_datasets.filter(pl.col("key") == dataset_key)
     if filtered.height == 0:
-        raise ValueError(f"Dataset key '{dataset_key}' not found in dataset table")
+        raise ValueError(
+            f"Dataset key '{dataset_key}' not found in dataset table"
+        )
     return filtered.to_dicts()[0]
 
 
@@ -52,7 +55,7 @@ def get_data_cdc_gov_dataset(
     locations
         A location string or a list of locations as a comma-separated
         string to filter on the location column.
-        If None, all locations are included. Deafults to None.
+        If None, all locations are included. Defaults to None.
     limit
         Maximum number of rows to return.
         Defaults to 10,000.
@@ -78,7 +81,9 @@ def get_data_cdc_gov_dataset(
         where_clauses.append(f"{date_col} <= '{end_date}'")
     if locations:
         if not isinstance(locations, str):
-            raise ValueError("Locations must be a comma-separated string or None.")
+            raise ValueError(
+                "Locations must be a comma-separated string or None."
+            )
         else:
             where_clauses.append(f"{location_col} IN ('{locations}')")
 
@@ -91,7 +96,9 @@ def get_data_cdc_gov_dataset(
                 col.strip() for col in additional_col_names.split(",")
             ]
         select += [
-            col for col in additional_col_names if col not in [date_col, location_col]
+            col
+            for col in additional_col_names
+            if col not in [date_col, location_col]
         ]
 
     q = Query(
@@ -114,6 +121,7 @@ def get_nhsn(
     dataset_key: str = "nhsn_hrd_prelim",
     additional_col_names: str | list[str] = "totalconfc19newadm",
     locations: str | list[str] = None,
+    limit: int = None,
 ) -> pl.DataFrame:
     """
     Get NHSN Hospital Respiratory Data.
@@ -125,4 +133,5 @@ def get_nhsn(
         additional_col_names=additional_col_names,
         app_token=app_token,
         locations=locations,
+        limit=limit,
     )
