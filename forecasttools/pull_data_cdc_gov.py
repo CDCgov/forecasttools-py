@@ -120,7 +120,7 @@ def get_nhsn(
     app_token: str = None,
     dataset_key: str = "nhsn_hrd_prelim",
     additional_col_names: str | list[str] = "totalconfc19newadm",
-    locations: str | list[str] = None,
+    locations: str = None,
     limit: int = None,
 ) -> pl.DataFrame:
     """
