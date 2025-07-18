@@ -10,9 +10,9 @@ from forecasttools.idata_w_dates_to_df import (
     generate_time_range_for_dim,
     idata_forecast_w_dates_to_df,
 )
-from forecasttools.pull_data_cdc import (
+from forecasttools.pull_data_cdc_gov import (
     data_cdc_gov_datasets,
-    get_data_cdc_dataset,
+    get_data_cdc_gov_dataset,
     get_dataset_info,
     get_nhsn,
 )
@@ -107,6 +107,6 @@ __all__ = [
     "ensure_listlike",
     "data_cdc_gov_datasets",
     "get_dataset_info",
-    "get_data_cdc_dataset",
+    "get_data_cdc_gov_dataset",
     "get_nhsn",
 ]

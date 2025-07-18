@@ -1,6 +1,5 @@
-from datetime import date
-
 import polars as pl
+from datetime import date
 from cfasodapy import Query
 
 # Dataset IDs and metadata for commonly
@@ -19,18 +18,16 @@ def get_dataset_info(dataset_key: str) -> dict:
     """Look up dataset information by key."""
     filtered = data_cdc_gov_datasets.filter(pl.col("key") == dataset_key)
     if filtered.height == 0:
-        raise ValueError(
-            f"Dataset key '{dataset_key}' not found in dataset table"
-        )
+        raise ValueError(f"Dataset key '{dataset_key}' not found in dataset table")
     return filtered.to_dicts()[0]
 
 
-def get_data_cdc_dataset(
+def get_data_cdc_gov_dataset(
     dataset_key: str,
-    start_date: date = None,
-    end_date: date = None,
+    start_date: str | date = None,
+    end_date: str | date = None,
     additional_col_names: str | list[str] = None,
-    locations: list = None,
+    locations: str = None,
     limit: int = 10000,
     app_token: str = None,
 ) -> pl.DataFrame:
@@ -40,16 +37,22 @@ def get_data_cdc_dataset(
     Parameters
     -----------
     dataset_key
-        Key identifying the dataset (e.g., 'nhsn_hrd_prelim')
+        Key identifying the dataset. Must be one of
+        the keys in `forecasttools.data_cdc_gov_datasets`.
     start_date
-        Start date for filtering
+        Start date for data to pull in YYYY-MM-DD format
+        string or datetime.date object.
     end_date
-        End date for filtering
+        End date for data to pull in YYYY-MM-DD format
+        string or datetime.date object.
     additional_col_names
-        List of columns to select in addition to date and location columns.
+        List of columns to select in addition to date
+        and location columns. If None, only date and
+        location columns are selected. Defaults to None.
     locations
-        List of locations to select.
-        If None, all locations are included.
+        A location string or a list of locations as a comma-separated
+        string to filter on the location column.
+        If None, all locations are included. Deafults to None.
     limit
         Maximum number of rows to return.
         Defaults to 10,000.
@@ -74,8 +77,10 @@ def get_data_cdc_dataset(
     if end_date:
         where_clauses.append(f"{date_col} <= '{end_date}'")
     if locations:
-        locations_str = "', '".join(locations)
-        where_clauses.append(f"{location_col} IN ('{locations_str}')")
+        if not isinstance(locations, str):
+            raise ValueError("Locations must be a comma-separated string or None.")
+        else:
+            where_clauses.append(f"{location_col} IN ('{locations}')")
 
     where = " AND ".join(where_clauses) if where_clauses else None
 
@@ -85,11 +90,8 @@ def get_data_cdc_dataset(
             additional_col_names = [
                 col.strip() for col in additional_col_names.split(",")
             ]
-
         select += [
-            col
-            for col in additional_col_names
-            if col not in [date_col, location_col]
+            col for col in additional_col_names if col not in [date_col, location_col]
         ]
 
     q = Query(
@@ -106,20 +108,21 @@ def get_data_cdc_dataset(
 
 
 def get_nhsn(
-    start_date: date,
+    start_date: date = None,
     end_date: date = None,
     app_token: str = None,
     dataset_key: str = "nhsn_hrd_prelim",
     additional_col_names: str | list[str] = "totalconfc19newadm",
+    locations: str | list[str] = None,
 ) -> pl.DataFrame:
     """
     Get NHSN Hospital Respiratory Data.
     """
-    end_date = end_date or date.today()
-    return get_data_cdc_dataset(
+    return get_data_cdc_gov_dataset(
         dataset_key=dataset_key,
         start_date=start_date,
         end_date=end_date,
         additional_col_names=additional_col_names,
         app_token=app_token,
+        locations=locations,
     )
