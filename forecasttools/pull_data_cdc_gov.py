@@ -121,7 +121,7 @@ def get_nhsn(
     dataset_key: str = "nhsn_hrd_prelim",
     additional_col_names: str | list[str] = "totalconfc19newadm",
     locations: str = None,
-    limit: int = None,
+    limit: int | None = None,
 ) -> pl.DataFrame:
     """
     Get NHSN Hospital Respiratory Data.
