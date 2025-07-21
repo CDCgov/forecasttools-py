@@ -19,7 +19,9 @@ def get_dataset_info(dataset_key: str) -> dict:
     """Look up dataset information by key."""
     filtered = data_cdc_gov_datasets.filter(pl.col("key") == dataset_key)
     if filtered.height == 0:
-        raise ValueError(f"Dataset key '{dataset_key}' not found in dataset table")
+        raise ValueError(
+            f"Dataset key '{dataset_key}' not found in dataset table"
+        )
     return filtered.to_dicts()[0]
 
 
@@ -84,9 +86,13 @@ def get_data_cdc_gov_dataset(
         where_clauses.append(f"{date_col} <= '{end_date}'")
     if locations:
         if not isinstance(locations, str):
-            raise ValueError("Locations must be a comma-separated string or None.")
+            raise ValueError(
+                "Locations must be a comma-separated string or None."
+            )
         else:
-            locations_str = "', '".join(_parse_comma_separated_values(locations))
+            locations_str = "', '".join(
+                _parse_comma_separated_values(locations)
+            )
             where_clauses.append(f"{location_col} IN ('{locations_str}')")
 
     where = " AND ".join(where_clauses) if where_clauses else None
@@ -94,9 +100,13 @@ def get_data_cdc_gov_dataset(
     select = [date_col, location_col]
     if additional_col_names:
         if isinstance(additional_col_names, str):
-            additional_col_names = _parse_comma_separated_values(additional_col_names)
+            additional_col_names = _parse_comma_separated_values(
+                additional_col_names
+            )
         select += [
-            col for col in additional_col_names if col not in [date_col, location_col]
+            col
+            for col in additional_col_names
+            if col not in [date_col, location_col]
         ]
 
     q = Query(
