@@ -24,7 +24,7 @@ def get_dataset_info(dataset_key: str) -> dict:
         raise ValueError(
             f"Dataset key '{dataset_key}' not found in dataset table"
         )
-    return filtered.to_dicts()[0]
+    return filtered.row(0, named=True)
 
 
 def _parse_comma_separated_values(cs_string: str) -> list[str]:
