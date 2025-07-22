@@ -5,7 +5,7 @@ description = "Python package for common pre- and post-processing operations don
 authors = [
     {name = "CFA"}
 ]
-license = {text = "Apache-2.0"}
+license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.13"
 keywords = ["forecasting", "infrastructure", "infectious-disease-modeling", "python"]
@@ -48,11 +48,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["forecasttools"]
-
-[tool.hatch.build.targets.wheel.force-include]
-"forecasttools/location_table.parquet" = "forecasttools/location_table.parquet"
-"forecasttools/example_flusight_submission.parquet" = "forecasttools/example_flusight_submission.parquet"
-"forecasttools/example_flu_forecast_wo_dates.nc" = "forecasttools/example_flu_forecast_wo_dates.nc"
-"forecasttools/example_flu_forecast_w_dates.nc" = "forecasttools/example_flu_forecast_w_dates.nc"
-"forecasttools/nhsn_hosp_COVID.parquet" = "forecasttools/nhsn_hosp_COVID.parquet"
-"forecasttools/nhsn_hosp_flu.parquet" = "forecasttools/nhsn_hosp_flu.parquet"
+include = [
+    "forecasttools/*.parquet",
+    "forecasttools/*.nc",
+]
