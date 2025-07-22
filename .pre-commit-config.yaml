@@ -76,15 +76,6 @@ repos:
     -   id: name-tests-test
         # ensure tests match test_.*\.py
         args: ["--pytest-test-first"]
-    # checks that all your JSON files are pretty.
-    # "Pretty" here means that keys are sorted
-    # and indented.
-    -   id: pretty-format-json
-        # automatically format json files;
-        # when autofixing, retain the original
-        # key ordering (instead of sorting
-        # the keys)
-        args: ["--autofix", "--no-sort-keys"]
     # trims trailing whitespace.
     -   id: trailing-whitespace
     # checks that non-binary executables have
