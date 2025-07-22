@@ -93,8 +93,8 @@ def get_data_cdc_gov_dataset(
 
     select = [date_col, location_col]
     if additional_col_names:
-		select_raw = select + ensure_listlike(additional_col_names)
-		select = list(dict.fromkeys(select_raw))
+        select_raw = select + ensure_listlike(additional_col_names)
+        select = list(dict.fromkeys(select_raw))
 
     q = Query(
         domain=domain,
