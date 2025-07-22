@@ -1,0 +1,59 @@
+###############################################################################
+# OVERVIEW
+###############################################################################
+# The following contains the Dependabot security and version updates
+# configuration for this repository.
+#
+# Links:
+#
+# UV dependency bots: https://docs.astral.sh/uv/guides/integration/
+# dependency-bots/
+#
+# Some of the comments in this file were derived from:
+# https://docs.github.com/en/code-security/dependabot/
+# dependabot-version-updates/configuring-dependabot-version-updates
+# and
+# https://docs.github.com/en/code-security/dependabot/working-with-dependabot/
+# dependabot-options-reference
+#
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/
+# configuration-options-for-the-dependabot.yml-file
+###############################################################################
+# DEPENDABOT SETTINGS
+###############################################################################
+# dependabot configuration syntax to use; always 2.
+version: 2
+# section where you define each package-ecosystem to update.
+updates:
+  # enable version updates for GitHub actions
+  - package-ecosystem: "github-actions"
+    # workflow files stored in the default location of `.github/workflows`;
+    # you don't need to specify `/.github/workflows` for `directory`; you can
+    # use `directory: "/"`.
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "10:00"
+      timezone: "America/Denver"
+    # default separator (/) to hyphen (-)
+    pull-request-branch-name:
+      separator: "-"
+    labels:
+      - "Automation"
+    # enable version updates for uv; wait until Dependabot adds uv support
+    # (tracked at dependabot/dependabot-core#10478)
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "10:00"
+      timezone: "America/Denver"
+    # default separator (/) to hyphen (-)
+    pull-request-branch-name:
+      separator: "-"
+    labels:
+      - "Dependencies"
+###############################################################################
