@@ -43,18 +43,16 @@ Repository = "https://github.com/CDCgov/forecasttools-py/"
 "Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
 
 [build-system]
-requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools.packages.find]
-include = ["forecasttools*"]
+[tool.hatch.build.targets.wheel]
+packages = ["forecasttools"]
 
-[tool.setuptools.package-data]
-forecasttools = [
-    "location_table.parquet",
-    "example_flusight_submission.parquet",
-    "example_flu_forecast_wo_dates.nc",
-    "example_flu_forecast_w_dates.nc",
-    "nhsn_hosp_COVID.parquet",
-    "nhsn_hosp_flu.parquet",
-]
+[tool.hatch.build.targets.wheel.force-include]
+"forecasttools/location_table.parquet" = "forecasttools/location_table.parquet"
+"forecasttools/example_flusight_submission.parquet" = "forecasttools/example_flusight_submission.parquet"
+"forecasttools/example_flu_forecast_wo_dates.nc" = "forecasttools/example_flu_forecast_wo_dates.nc"
+"forecasttools/example_flu_forecast_w_dates.nc" = "forecasttools/example_flu_forecast_w_dates.nc"
+"forecasttools/nhsn_hosp_COVID.parquet" = "forecasttools/nhsn_hosp_COVID.parquet"
+"forecasttools/nhsn_hosp_flu.parquet" = "forecasttools/nhsn_hosp_flu.parquet"
