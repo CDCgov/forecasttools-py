@@ -42,6 +42,9 @@ Repository = "https://github.com/CDCgov/forecasttools-py/"
 "Package That Will Use Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
 "Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
 
+[tool.ruff.lint.mccabe]
+max-complexity = 15
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
