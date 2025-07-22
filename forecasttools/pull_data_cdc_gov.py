@@ -58,8 +58,9 @@ def get_data_cdc_gov_dataset(
     additional_col_names
         Columns to select in addition to date
         and location columns. Can be a single column name
-        or a list of column names If None, only date and
-        location columns are selected. Defaults to None.
+        string, comma-separated names or a list of column
+        names. If None, only date and location columns are
+        selected. Defaults to None.
     locations
         Location(s) to filter on the location column.
         Can be a single location string, comma-separated
