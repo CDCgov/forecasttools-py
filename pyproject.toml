@@ -1,62 +1,60 @@
-[tool.poetry]
+[project]
 name = "forecasttools"
 version = "0.0.1"
 description = "Python package for common pre- and post-processing operations done by CFA Predict for short term forecasting, nowcasting, and scenario modeling."
-authors = ["CFA"]
-license = "Apache-2.0"
+authors = [
+    {name = "CFA"}
+]
+license = {text = "Apache-2.0"}
 readme = "README.md"
-packages = [{include = "forecasttools"}]
-repository = "https://github.com/CDCgov/forecasttools-py/"
+requires-python = ">=3.12"
 keywords = ["forecasting", "infrastructure", "infectious-disease-modeling", "python"]
-include = [
-    { path = "forecasttools/location_table.parquet", format = "sdist" },
-    { path = "forecasttools/location_table.parquet", format = "wheel" },
-    { path = "forecasttools/example_flusight_submission.parquet", format = "sdist" },
-    { path = "forecasttools/example_flusight_submission.parquet", format = "wheel" },
-    { path = "forecasttools/example_flu_forecast_wo_dates.nc", format = "sdist" },
-    { path = "forecasttools/example_flu_forecast_wo_dates.nc", format = "wheel" },
-    { path = "forecasttools/example_flu_forecast_w_dates.nc", format = "sdist" },
-    { path = "forecasttools/example_flu_forecast_w_dates.nc", format = "wheel" },
-    { path = "forecasttools/nhsn_hosp_COVID.parquet", format = "sdist" },
-    { path = "forecasttools/nhsn_hosp_COVID.parquet", format = "wheel" },
-    { path = "forecasttools/nhsn_hosp_flu.parquet", format = "sdist" },
-    { path = "forecasttools/nhsn_hosp_flu.parquet", format = "wheel" },
+dependencies = [
+    "arviz>=0.20.0",
+    "polars>=1.8.2",
+    "xarray>=2024.9.0",
+    "matplotlib>=3.9.2",
+    "epiweeks>=2.3.0",
+    "numpyro>=0.17.0",
+    "numpy>=2.2.2",
+    "tqdm>=4.67.1",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.8.0",
+    "ipykernel>=6.29.5",
+    "diffrax>=0.6.0",
+    "patsy>=0.5.6",
+    "nbformat>=5.10.4",
+    "nbclient>=0.10.0",
+    "jupyter>=1.1.1",
+    "jupyter-cache>=1.0.1",
+]
+test = [
+    "pytest>=8.3.3",
+]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-arviz = "^0.20.0"
-polars = "^1.8.2"
-xarray = "^2024.9.0"
-matplotlib = "^3.9.2"
-epiweeks = "^2.3.0"
-numpyro = "^0.17.0"
-numpy = "^2.2.2"
-tqdm = "^4.67.1"
-
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.8.0"
-ipykernel = "^6.29.5"
-diffrax = "^0.6.0"
-patsy = "^0.5.6"
-nbformat = "^5.10.4"
-nbclient = "^0.10.0"
-jupyter = "^1.1.1"
-jupyter-cache = "^1.0.1"
-
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.3"
-
-
-[tool.poetry.urls]
+[project.urls]
+Repository = "https://github.com/CDCgov/forecasttools-py/"
 "Repository Issues" = "https://github.com/CDCgov/forecasttools-py/issues"
 "CDCgov Repositories" = "https://github.com/CDCgov"
 "Package That Will Use Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
 "Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["forecasttools*"]
+
+[tool.setuptools.package-data]
+forecasttools = [
+    "location_table.parquet",
+    "example_flusight_submission.parquet",
+    "example_flu_forecast_wo_dates.nc",
+    "example_flu_forecast_w_dates.nc",
+    "nhsn_hosp_COVID.parquet",
+    "nhsn_hosp_flu.parquet",
+]
