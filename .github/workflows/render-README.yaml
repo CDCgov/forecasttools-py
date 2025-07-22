@@ -15,9 +15,7 @@ jobs:
         python-version: "3.12"
     - name: Set up Quarto
       uses: quarto-dev/quarto-actions/setup@v2
-    - name: Install Poetry
-      run: pip install poetry
     - name: Install packages
-      run: poetry install --with dev
+      run: pip install -e .[dev]
     - name: Render README
-      run: poetry run bash scripts/render-quarto-readme.sh
+      run: bash scripts/render-quarto-readme.sh
