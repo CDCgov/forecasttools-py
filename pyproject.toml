@@ -18,6 +18,7 @@ dependencies = [
     "numpyro>=0.17.0",
     "numpy>=2.2.2",
     "tqdm>=4.67.1",
+    "cfasodapy",
 ]
 
 [project.optional-dependencies]
@@ -55,3 +56,6 @@ include = [
     "forecasttools/*.parquet",
     "forecasttools/*.nc",
 ]
+
+[tool.uv.sources]
+cfasodapy = { git = "https://github.com/CDCgov/cfasodapy.git" }
