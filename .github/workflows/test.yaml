@@ -18,18 +18,18 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: cache poetry
+      - name: cache pip
         uses: actions/cache@v4
         with:
-          path: ~/.local
-          key: ${{ runner.os }}-poetry
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-      - name: install poetry
-        run: pip install poetry
-
-      - name: install package
-        run: poetry install --with test
+      - name: install package and dependencies
+        run: |
+          pip install -e .[dev,test]
 
       - name: run tests
         run: |
-          poetry run pytest
+          pytest
