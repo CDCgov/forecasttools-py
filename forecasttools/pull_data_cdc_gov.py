@@ -27,11 +27,6 @@ def get_dataset_info(dataset_key: str) -> dict:
     return filtered.row(0, named=True)
 
 
-def _parse_comma_separated_values(cs_string: str) -> list[str]:
-    """Parse a comma-separated string into a list of stripped strings."""
-    return [value.strip() for value in cs_string.split(",")]
-
-
 def get_data_cdc_gov_dataset(
     dataset_key: str,
     start_date: str | date = None,
