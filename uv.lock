@@ -167,6 +167,14 @@ wheels = [
 ]
 
 [[package]]
+name = "cfasodapy"
+version = "0.1.1"
+source = { git = "https://github.com/CDCgov/cfasodapy.git#037a44be347819287450d342cf572dd274b7f746" }
+dependencies = [
+    { name = "requests" },
+]
+
+[[package]]
 name = "cffi"
 version = "1.17.1"
 source = { registry = "https://pypi.org/simple" }
@@ -424,6 +432,7 @@ version = "0.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "arviz" },
+    { name = "cfasodapy" },
     { name = "epiweeks" },
     { name = "matplotlib" },
     { name = "numpy" },
@@ -451,6 +460,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "arviz", specifier = ">=0.20.0" },
+    { name = "cfasodapy", git = "https://github.com/CDCgov/cfasodapy.git" },
     { name = "diffrax", marker = "extra == 'dev'", specifier = ">=0.6.0" },
     { name = "epiweeks", specifier = ">=2.3.0" },
     { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29.5" },
