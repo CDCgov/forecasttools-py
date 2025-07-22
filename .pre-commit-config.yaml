@@ -109,7 +109,7 @@ repos:
           "--ignore=E741",
           # do not assign a lambda expression, use a def
           "--ignore=E731",
-          # indentation contains tabs (sorry, I like tabs)
+          # indentation contains tabs
           "--ignore=W191",
           # E and W: pycodestyle, standard PEP8 errors and pycodestyle warnings.
           # F: pyflakes warnings (e.g., unused variables, undefined names).,
