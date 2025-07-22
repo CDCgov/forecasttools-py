@@ -3,6 +3,8 @@ from datetime import date
 import polars as pl
 from cfasodapy import Query
 
+from forecasttools.utils import ensure_listlike
+
 # Dataset IDs and metadata for commonly
 # used (within STF) data.cdc.gov datasets
 data_cdc_gov_datasets = pl.DataFrame(
@@ -35,7 +37,7 @@ def get_data_cdc_gov_dataset(
     start_date: str | date = None,
     end_date: str | date = None,
     additional_col_names: str | list[str] = None,
-    locations: str = None,
+    locations: str | list[str] = None,
     limit: int = 10000,
     app_token: str = None,
 ) -> pl.DataFrame:
@@ -54,13 +56,15 @@ def get_data_cdc_gov_dataset(
         End date for data to pull in YYYY-MM-DD format
         string or datetime.date object.
     additional_col_names
-        List of columns to select in addition to date
-        and location columns. If None, only date and
+        Columns to select in addition to date
+        and location columns. Can be a single column name
+        or a list of column names If None, only date and
         location columns are selected. Defaults to None.
     locations
-        A location string or a list of locations as a comma-separated
-        string to filter on the location column.
-        If None, all locations are included. Defaults to None.
+        Location(s) to filter on the location column.
+        Can be a single location string, comma-separated
+        string, or list of locations. If None, all
+        locations are included. Defaults to None.
     limit
         Maximum number of rows to return.
         Defaults to 10,000.
@@ -85,24 +89,17 @@ def get_data_cdc_gov_dataset(
     if end_date:
         where_clauses.append(f"{date_col} <= '{end_date}'")
     if locations:
-        if not isinstance(locations, str):
-            raise ValueError(
-                "Locations must be a comma-separated string or None."
-            )
-        else:
-            locations_str = "', '".join(
-                _parse_comma_separated_values(locations)
-            )
-            where_clauses.append(f"{location_col} IN ('{locations_str}')")
+        locations = ensure_listlike(locations)
+        if len(locations) == 1:
+            locations = _parse_comma_separated_values(locations[0])
+        locations_str = "', '".join(locations)
+        where_clauses.append(f"{location_col} IN ('{locations_str}')")
 
     where = " AND ".join(where_clauses) if where_clauses else None
 
     select = [date_col, location_col]
     if additional_col_names:
-        if isinstance(additional_col_names, str):
-            additional_col_names = _parse_comma_separated_values(
-                additional_col_names
-            )
+        additional_col_names = ensure_listlike(additional_col_names)
         select += [
             col
             for col in additional_col_names
@@ -128,7 +125,7 @@ def get_nhsn(
     app_token: str = None,
     dataset_key: str = "nhsn_hrd_prelim",
     additional_col_names: str | list[str] = "totalconfc19newadm",
-    locations: str = None,
+    locations: str | list[str] = None,
     limit: int = 10000,
 ) -> pl.DataFrame:
     """
