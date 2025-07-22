@@ -48,7 +48,7 @@ def test_get_data_cdc_gov_dataset_basic(mocker):
         start_date=date(2024, 11, 2),
         end_date=date(2024, 11, 9),
         additional_col_names="percent",
-        locations="CA, US",
+        locations=["CA", "US"],
         limit=1,
     )
     forecasttools.get_data_cdc_gov_dataset(

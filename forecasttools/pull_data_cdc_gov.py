@@ -56,21 +56,21 @@ def get_data_cdc_gov_dataset(
         End date for data to pull in YYYY-MM-DD format
         string or datetime.date object.
     additional_col_names
-        Columns to select in addition to date
+        Column(s) to select in addition to date
         and location columns. Can be a single column name
-        string, comma-separated names or a list of column
-        names. If None, only date and location columns are
-        selected. Defaults to None.
+        or a list of column names. If None, only date and
+        location columns are selected. Defaults to None.
     locations
         Location(s) to filter on the location column.
-        Can be a single location string, comma-separated
-        string, or list of locations. If None, all
-        locations are included. Defaults to None.
+        Can be a single location or a list of locations.
+        If None, all locations are included.
+        Defaults to None.
     limit
         Maximum number of rows to return.
         Defaults to 10,000.
     app_token
-        Socrata app token for authentication
+        Socrata app token for authentication.
+        Defaults to None.
 
     Returns
     --------
@@ -91,8 +91,6 @@ def get_data_cdc_gov_dataset(
         where_clauses.append(f"{date_col} <= '{end_date}'")
     if locations:
         locations = ensure_listlike(locations)
-        if len(locations) == 1:
-            locations = _parse_comma_separated_values(locations[0])
         locations_str = "', '".join(locations)
         where_clauses.append(f"{location_col} IN ('{locations_str}')")
 
@@ -121,8 +119,8 @@ def get_data_cdc_gov_dataset(
 
 
 def get_nhsn(
-    start_date: date = None,
-    end_date: date = None,
+    start_date: str | date = None,
+    end_date: str | date = None,
     app_token: str = None,
     dataset_key: str = "nhsn_hrd_prelim",
     additional_col_names: str | list[str] = "totalconfc19newadm",
