@@ -82,10 +82,7 @@ def df_aggregate_to_epiweekly(
         .map_elements(
             lambda elt: calculate_epi_week_and_year(elt),
             return_dtype=pl.Struct(
-                [
-                    pl.Field("epiweek", pl.Int64),
-                    pl.Field("epiyear", pl.Int64)
-                ]
+                [pl.Field("epiweek", pl.Int64), pl.Field("epiyear", pl.Int64)]
             ),
         )
         .alias("epi_struct_out")
