@@ -81,7 +81,9 @@ def df_aggregate_to_epiweekly(
         pl.col(date_col)
         .map_elements(
             lambda elt: calculate_epi_week_and_year(elt),
-            return_dtype=pl.Struct,
+            return_dtype=pl.Struct(
+                [pl.Field("epiweek", pl.Int64), pl.Field("epiyear", pl.Int64)]
+            ),
         )
         .alias("epi_struct_out")
     ).unnest("epi_struct_out")
@@ -89,7 +91,7 @@ def df_aggregate_to_epiweekly(
     group_cols = ["epiweek", "epiyear"] + id_cols
     grouped_df = df.group_by(group_cols)
     # number of elements per group
-    n_elements = grouped_df.agg(pl.count().alias("n_elements"))
+    n_elements = grouped_df.agg(pl.len().alias("n_elements"))
     problematic_trajectories = n_elements.filter(pl.col("n_elements") > 7)
     if not problematic_trajectories.is_empty():
         message = (
