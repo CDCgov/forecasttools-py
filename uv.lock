@@ -439,6 +439,7 @@ dependencies = [
     { name = "numpy" },
     { name = "numpyro" },
     { name = "polars" },
+    { name = "scipy" },
     { name = "tqdm" },
     { name = "xarray" },
 ]
@@ -477,6 +478,7 @@ requires-dist = [
     { name = "polars", specifier = ">=1.8.2" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.8.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.3" },
+    { name = "scipy", specifier = ">=1.16.0" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "xarray", specifier = ">=2024.9.0" },
 ]
