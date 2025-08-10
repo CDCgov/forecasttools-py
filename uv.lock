@@ -434,10 +434,12 @@ dependencies = [
     { name = "arviz" },
     { name = "cfasodapy" },
     { name = "epiweeks" },
+    { name = "jax" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "numpyro" },
     { name = "polars" },
+    { name = "scipy" },
     { name = "tqdm" },
     { name = "xarray" },
 ]
@@ -464,6 +466,7 @@ requires-dist = [
     { name = "diffrax", marker = "extra == 'dev'", specifier = ">=0.6.0" },
     { name = "epiweeks", specifier = ">=2.3.0" },
     { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29.5" },
+    { name = "jax", specifier = ">=0.6.2" },
     { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1.1.1" },
     { name = "jupyter-cache", marker = "extra == 'dev'", specifier = ">=1.0.1" },
     { name = "matplotlib", specifier = ">=3.9.2" },
@@ -475,6 +478,7 @@ requires-dist = [
     { name = "polars", specifier = ">=1.8.2" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.8.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.3" },
+    { name = "scipy", specifier = ">=1.16.0" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "xarray", specifier = ">=2024.9.0" },
 ]
