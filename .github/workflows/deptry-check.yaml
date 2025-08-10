@@ -13,6 +13,7 @@
 # Links:
 #
 # Deptry: https://deptry.com/
+# Deptry Usage & Configuration: https://deptry.com/usage/
 ###############################################################################
 on:
   push:
@@ -42,4 +43,4 @@ jobs:
 
       - name: Install & Run Deptry
         run: |
-          uvx deptry forecasttools tests
+          uvx deptry .

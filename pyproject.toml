@@ -63,4 +63,5 @@ include = [
 cfasodapy = { git = "https://github.com/CDCgov/cfasodapy.git" }
 
 [tool.deptry]
+known_first_party = ["forecasttools"]
 pep621_dev_dependency_groups = ["dev", "test"]
