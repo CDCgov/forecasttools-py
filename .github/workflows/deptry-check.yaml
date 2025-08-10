@@ -1,0 +1,45 @@
+###############################################################################
+# OVERVIEW
+###############################################################################
+# The following indicates if there are discrepancies between the dependencies
+# grouped in `pyproject.toml` and the Python dependencies actually in use.
+#
+# Description:
+#
+# This runs `deptry forecasttools` on every push to main and on every pull
+# request. This action fails if `deptry` finds problems with dependencies that
+# are improperly specified.
+#
+# Links:
+#
+# Deptry: https://deptry.com/
+###############################################################################
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+name: deptry-check.yaml
+
+permissions: read-all
+
+jobs:
+  check:
+    name: deptry-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set Up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install & Run Deptry
+        run: |
+          uvx deptry forecasttools tests
