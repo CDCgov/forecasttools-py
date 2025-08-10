@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13"
 
 [[package]]
@@ -1372,7 +1372,7 @@ wheels = [
 
 [[package]]
 name = "numpyro"
-version = "0.18.0"
+version = "0.19.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jax" },
@@ -1381,9 +1381,9 @@ dependencies = [
     { name = "numpy" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/23/6f/0856bc5d9264f713f52555e39292434ea25c84fd86bc82776a72d203730c/numpyro-0.18.0.tar.gz", hash = "sha256:9799abeb801f940b8257a7dcfab0542a2a527e0f27c34e7fc57e7c30dd113527", size = 399088, upload-time = "2025-03-15T12:34:17.994Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/02/7c/5d1b55401b023b58f792483c71690315d4d5cd1653fd3631fa5bcbd68601/numpyro-0.19.0.tar.gz", hash = "sha256:bbf5b772a6ba8b7a79448fa6787afb069e5eb2dff8295078c3ec04d3e6276742", size = 404421, upload-time = "2025-08-05T10:26:33.055Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/a3/8f689c90970afc61ca112af937168e1d364efe36682e9b92685d6158899c/numpyro-0.18.0-py3-none-any.whl", hash = "sha256:b7cc96c59b55a0bc254ca365c68057840ae0a358b99ace288eaceb7cf199f762", size = 365835, upload-time = "2025-03-15T12:34:16.562Z" },
+    { url = "https://files.pythonhosted.org/packages/88/31/9b5da5995988437756bc3f1eead2e314d8916259875c6924cb41692f2b41/numpyro-0.19.0-py3-none-any.whl", hash = "sha256:1063a2c131a0785719e13c8e55f1b82e41850d814df149418097531f4dbdeda8", size = 370906, upload-time = "2025-08-05T10:26:31.35Z" },
 ]
 
 [[package]]
