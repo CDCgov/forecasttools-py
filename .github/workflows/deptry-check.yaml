@@ -42,7 +42,7 @@ jobs:
           python-version-file: "pyproject.toml"
 
       - name: Install Project Dependencies
-        run: uv sync --all-extras --dev --tests
+        run: uv sync --all-extras --dev
 
       - name: Install & Run Deptry
         run: |
