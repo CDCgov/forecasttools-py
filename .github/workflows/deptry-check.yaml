@@ -41,6 +41,9 @@ jobs:
         with:
           python-version-file: "pyproject.toml"
 
+      - name: Install Project Dependencies
+        run: uv sync --all-extras --dev --tests
+
       - name: Install & Run Deptry
         run: |
           uvx deptry .
