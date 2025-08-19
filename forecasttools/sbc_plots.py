@@ -78,9 +78,7 @@ def plot_results(
 
     idx = 0
     for var_name, var_data in sims.items():
-        plot_idxs = list(
-            itertools.product(*(np.arange(s) for s in var_data.shape[1:]))
-        )
+        plot_idxs = list(itertools.product(*(np.arange(s) for s in var_data.shape[1:])))
 
         for indices in plot_idxs:
             if len(plot_idxs) > 1:  # has dims

@@ -21,9 +21,7 @@ def get_dataset_info(dataset_key: str) -> dict:
     """Look up dataset information by key."""
     filtered = data_cdc_gov_datasets.filter(pl.col("key") == dataset_key)
     if filtered.height == 0:
-        raise ValueError(
-            f"Dataset key '{dataset_key}' not found in dataset table"
-        )
+        raise ValueError(f"Dataset key '{dataset_key}' not found in dataset table")
     return filtered.row(0, named=True)
 
 

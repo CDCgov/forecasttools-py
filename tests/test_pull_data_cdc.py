@@ -60,9 +60,7 @@ def test_get_data_cdc_gov_dataset_basic(mocker):
     expected_call_all = call(
         domain="data.cdc.gov",
         id="mpgq-jmmr",
-        where=(
-            "weekendingdate >= '2024-11-02' AND weekendingdate <= '2024-11-09'"
-        ),
+        where=("weekendingdate >= '2024-11-02' AND weekendingdate <= '2024-11-09'"),
         select=["weekendingdate", "jurisdiction", "value"],
         limit=10000,
         app_token=None,

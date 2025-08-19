@@ -43,9 +43,7 @@ def sbc_instance(mcmc_kernel, observed_vars):
 
 @pytest.fixture
 def sbc_instance_inspection_on(mcmc_kernel, observed_vars):
-    return SBC(
-        mcmc_kernel, y=None, observed_vars=observed_vars, inspection_mode=True
-    )
+    return SBC(mcmc_kernel, y=None, observed_vars=observed_vars, inspection_mode=True)
 
 
 def test_sbc_initialization(sbc_instance, mcmc_kernel, observed_vars):

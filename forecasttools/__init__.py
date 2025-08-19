@@ -43,9 +43,9 @@ united_states = (
 )
 
 # load example flusight submission
-example_flusight_submission_path = importlib.resources.files(
-    __package__
-).joinpath("example_flusight_submission.parquet")
+example_flusight_submission_path = importlib.resources.files(__package__).joinpath(
+    "example_flusight_submission.parquet"
+)
 dtypes_d = {"location": pl.Utf8}
 example_flusight_submission = pl.read_parquet(example_flusight_submission_path)
 
@@ -65,16 +65,16 @@ nhsn_hosp_flu = pl.read_parquet(nhsn_hosp_flu_path)
 
 # load idata NHSN influenza forecast
 # (NHSN, as of 2024-09-26) without dates
-example_flu_forecast_wo_dates_path = importlib.resources.files(
-    __package__
-).joinpath("example_flu_forecast_wo_dates.nc")
+example_flu_forecast_wo_dates_path = importlib.resources.files(__package__).joinpath(
+    "example_flu_forecast_wo_dates.nc"
+)
 nhsn_flu_forecast_wo_dates = az.from_netcdf(example_flu_forecast_wo_dates_path)
 
 # load idata NHSN influenza forecast
 # (NHSN, as of 2024-09-26) with dates
-example_flu_forecast_w_dates_path = importlib.resources.files(
-    __package__
-).joinpath("example_flu_forecast_w_dates.nc")
+example_flu_forecast_w_dates_path = importlib.resources.files(__package__).joinpath(
+    "example_flu_forecast_w_dates.nc"
+)
 nhsn_flu_forecast_w_dates = az.from_netcdf(example_flu_forecast_w_dates_path)
 
 

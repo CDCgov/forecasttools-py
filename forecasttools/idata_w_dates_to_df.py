@@ -38,9 +38,7 @@ def convert_date_or_datetime_to_np(time_object: any) -> np.datetime64:
     """
     if isinstance(time_object, np.datetime64):
         return time_object
-    elif isinstance(time_object, date) and not isinstance(
-        time_object, datetime
-    ):
+    elif isinstance(time_object, date) and not isinstance(time_object, datetime):
         return np.datetime64(time_object, "D")
     elif isinstance(time_object, datetime):
         return np.datetime64(time_object, "ns")
@@ -158,9 +156,7 @@ def add_time_coords_to_idata_dimension(
         forecasttools.validate_input_type(
             value=value, expected_type=expected_type, param_name=param_name
         )
-    idata_group = forecasttools.validate_and_get_idata_group(
-        idata=idata, group=group
-    )
+    idata_group = forecasttools.validate_and_get_idata_group(idata=idata, group=group)
     variable_data = forecasttools.validate_and_get_idata_group_var(
         idata_group=idata_group, group=group, variable=variable
     )
@@ -244,17 +240,13 @@ def add_time_coords_to_idata_dimensions(
     # all contain str vars
     forecasttools.validate_iter_has_expected_types(groups, str, "groups")
     forecasttools.validate_iter_has_expected_types(variables, str, "variables")
-    forecasttools.validate_iter_has_expected_types(
-        dimensions, str, "dimensions"
-    )
+    forecasttools.validate_iter_has_expected_types(dimensions, str, "dimensions")
     # create tuples, the groups should have
     # every combination of variables and
     # dimensions
     var_dim_combinations = list(itertools.product(variables, dimensions))
     gvd_tuples = [
-        (group, var, dim)
-        for group in groups
-        for var, dim in var_dim_combinations
+        (group, var, dim) for group in groups for var, dim in var_dim_combinations
     ]
     # iterate over (group, variable, dimension) triples
     for group, variable, dimension in gvd_tuples:
