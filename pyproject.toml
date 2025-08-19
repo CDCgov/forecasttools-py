@@ -19,7 +19,6 @@ dependencies = [
     "numpy>=2.2.2",
     "tqdm>=4.67.1",
     "cfasodapy",
-    "polarbayes",
     "pyarrow>=21.0.0",
 ]
 
@@ -61,4 +60,3 @@ include = [
 
 [tool.uv.sources]
 cfasodapy = { git = "https://github.com/CDCgov/cfasodapy.git" }
-polarbayes = { git = "https://github.com/CDCgov/polarbayes.git" }
