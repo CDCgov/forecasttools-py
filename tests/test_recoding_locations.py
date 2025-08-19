@@ -129,9 +129,7 @@ def test_loc_conversation_funcs_invalid_input(
         ("long_name", "long_name"),
     ],
 )
-def test_to_location_table_column_correct_input(
-    location_format, expected_column
-):
+def test_to_location_table_column_correct_input(location_format, expected_column):
     """
     Test to_location_table_column for
     expected column names
@@ -192,9 +190,7 @@ def test_location_lookup_exceptions(
         with pytest.raises(expected_exception):
             forecasttools.location_lookup(location_vector, location_format)
     else:
-        result = forecasttools.location_lookup(
-            location_vector, location_format
-        )
+        result = forecasttools.location_lookup(location_vector, location_format)
         assert isinstance(result, pl.DataFrame), (
             "Expected a Polars DataFrame as output."
         )
