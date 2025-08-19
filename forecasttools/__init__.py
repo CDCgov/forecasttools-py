@@ -4,11 +4,11 @@ import arviz as az
 import polars as pl
 
 from forecasttools.daily_to_epiweekly import df_aggregate_to_epiweekly
-from forecasttools.idata_w_dates_to_df import (
-    add_time_coords_to_idata_dimension,
-    add_time_coords_to_idata_dimensions,
-    generate_time_range_for_dim,
-    idata_forecast_w_dates_to_df,
+from forecasttools.idata_dates import (
+    assign_coords_from_start_step,
+    coalesce_common_columns,
+    get_all_dims,
+    replace_all_suffix,
 )
 from forecasttools.pull_data_cdc_gov import (
     data_cdc_gov_datasets,
@@ -43,9 +43,9 @@ united_states = (
 )
 
 # load example flusight submission
-example_flusight_submission_path = importlib.resources.files(
-    __package__
-).joinpath("example_flusight_submission.parquet")
+example_flusight_submission_path = importlib.resources.files(__package__).joinpath(
+    "example_flusight_submission.parquet"
+)
 dtypes_d = {"location": pl.Utf8}
 example_flusight_submission = pl.read_parquet(example_flusight_submission_path)
 
@@ -65,16 +65,16 @@ nhsn_hosp_flu = pl.read_parquet(nhsn_hosp_flu_path)
 
 # load idata NHSN influenza forecast
 # (NHSN, as of 2024-09-26) without dates
-example_flu_forecast_wo_dates_path = importlib.resources.files(
-    __package__
-).joinpath("example_flu_forecast_wo_dates.nc")
+example_flu_forecast_wo_dates_path = importlib.resources.files(__package__).joinpath(
+    "example_flu_forecast_wo_dates.nc"
+)
 nhsn_flu_forecast_wo_dates = az.from_netcdf(example_flu_forecast_wo_dates_path)
 
 # load idata NHSN influenza forecast
 # (NHSN, as of 2024-09-26) with dates
-example_flu_forecast_w_dates_path = importlib.resources.files(
-    __package__
-).joinpath("example_flu_forecast_w_dates.nc")
+example_flu_forecast_w_dates_path = importlib.resources.files(__package__).joinpath(
+    "example_flu_forecast_w_dates.nc"
+)
 nhsn_flu_forecast_w_dates = az.from_netcdf(example_flu_forecast_w_dates_path)
 
 
@@ -86,8 +86,6 @@ __all__ = [
     "nhsn_hosp_flu",
     "nhsn_flu_forecast_wo_dates",
     "nhsn_flu_forecast_w_dates",
-    "idata_forecast_w_dates_to_df",
-    "add_time_coords_to_idata_dimension",
     "trajectories_to_quantiles",
     "df_aggregate_to_epiweekly",
     "loc_abbr_to_hubverse_code",
@@ -95,18 +93,18 @@ __all__ = [
     "to_location_table_column",
     "location_lookup",
     "get_hubverse_table",
-    "add_time_coords_to_idata_dimension",
-    "add_time_coords_to_idata_dimensions",
     "validate_input_type",
-    "validate_and_get_start_time",
     "validate_and_get_idata_group",
     "validate_and_get_idata_group_var",
     "validate_idata_group_var_dim",
-    "generate_time_range_for_dim",
     "validate_iter_has_expected_types",
     "ensure_listlike",
     "data_cdc_gov_datasets",
     "get_dataset_info",
     "get_data_cdc_gov_dataset",
     "get_nhsn",
+    "get_all_dims",
+    "replace_all_suffix",
+    "assign_coords_from_start_step",
+    "coalesce_common_columns",
 ]
