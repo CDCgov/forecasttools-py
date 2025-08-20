@@ -4,11 +4,6 @@ import arviz as az
 import polars as pl
 
 from forecasttools.daily_to_epiweekly import df_aggregate_to_epiweekly
-from forecasttools.idata_dates import (
-    assign_coords_from_start_step,
-    get_all_dims,
-    replace_all_dim_suffix,
-)
 from forecasttools.pull_data_cdc_gov import (
     data_cdc_gov_datasets,
     get_data_cdc_gov_dataset,
@@ -32,6 +27,8 @@ from forecasttools.utils import (
     validate_input_type,
     validate_iter_has_expected_types,
 )
+
+from . import arviz as arviz
 
 # location table (from Census data; contains territory data)
 location_table_path = importlib.resources.files(__package__).joinpath(
@@ -107,4 +104,5 @@ __all__ = [
     "replace_all_dim_suffix",
     "assign_coords_from_start_step",
     "coalesce_common_columns",
+    "arviz",
 ]
