@@ -19,6 +19,7 @@ dependencies = [
     "numpy>=2.2.2",
     "tqdm>=4.67.1",
     "cfasodapy",
+    "pyarrow>=21.0.0",
 ]
 
 [project.optional-dependencies]
