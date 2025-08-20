@@ -25,8 +25,7 @@ def get_all_dims(idata: az.InferenceData) -> set[str]:
     """
 
     dims = set()
-    for group in idata.groups():
-        dims |= set(getattr(idata, group).dims)
+    set(dim for group in idata.values() for dim in group.dims)
     return dims
 
 
