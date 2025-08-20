@@ -73,7 +73,7 @@ def test_assign_coords_from_start_step_basic():
     start = dt.date(2020, 1, 1)
     interval = dt.timedelta(days=1)
 
-    result = ft.assign_coords_from_start_step(
+    result = ft.arviz.assign_coords_from_start_step(
         IDATA_WO_DATES, dim_name, start, interval=interval, inplace=False
     )
 
@@ -94,7 +94,7 @@ def test_assign_coords_from_start_step_inplace():
     start = dt.date(2019, 9, 29)
     interval = dt.timedelta(days=7)
 
-    result = ft.assign_coords_from_start_step(
+    result = ft.arviz.assign_coords_from_start_step(
         idata_copy, dim_name, start, interval=interval, inplace=True
     )
     assert result is None
@@ -111,7 +111,7 @@ def test_assign_coords_from_start_step_no_matching_dim():
     dim_name = "nonexistent_dimension_xyz"
     start = dt.date(2020, 1, 1)
 
-    result = ft.assign_coords_from_start_step(
+    result = ft.arviz.assign_coords_from_start_step(
         IDATA_WO_DATES, dim_name, start, inplace=False
     )
 

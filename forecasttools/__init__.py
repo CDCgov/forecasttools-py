@@ -28,7 +28,7 @@ from forecasttools.utils import (
     validate_iter_has_expected_types,
 )
 
-from . import arviz as arviz
+from . import arviz
 
 # location table (from Census data; contains territory data)
 location_table_path = importlib.resources.files(__package__).joinpath(
@@ -100,9 +100,6 @@ __all__ = [
     "get_dataset_info",
     "get_data_cdc_gov_dataset",
     "get_nhsn",
-    "get_all_dims",
-    "replace_all_dim_suffix",
-    "assign_coords_from_start_step",
     "coalesce_common_columns",
     "arviz",
 ]
