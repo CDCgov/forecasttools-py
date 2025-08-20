@@ -6,7 +6,6 @@ import polars as pl
 from forecasttools.daily_to_epiweekly import df_aggregate_to_epiweekly
 from forecasttools.idata_dates import (
     assign_coords_from_start_step,
-    coalesce_common_columns,
     get_all_dims,
     replace_all_dim_suffix,
 )
@@ -25,6 +24,7 @@ from forecasttools.recode_locations import (
 from forecasttools.to_hubverse import get_hubverse_table
 from forecasttools.trajectories_to_quantiles import trajectories_to_quantiles
 from forecasttools.utils import (
+    coalesce_common_columns,
     ensure_listlike,
     validate_and_get_idata_group,
     validate_and_get_idata_group_var,
