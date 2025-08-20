@@ -1,20 +1,3 @@
-###############################################################################
-# OVERVIEW
-###############################################################################
-# The following indicates if there are discrepancies between the dependencies
-# grouped in `pyproject.toml` and the Python dependencies actually in use.
-#
-# Description:
-#
-# This runs `deptry forecasttools` on every push to main and on every pull
-# request. This action fails if `deptry` finds problems with dependencies that
-# are improperly specified.
-#
-# Links:
-#
-# Deptry: https://deptry.com/
-# Deptry Usage & Configuration: https://deptry.com/usage/
-###############################################################################
 on:
   push:
     branches: [main, master]
