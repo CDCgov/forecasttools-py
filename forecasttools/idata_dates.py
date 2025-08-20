@@ -24,8 +24,7 @@ def get_all_dims(idata: az.InferenceData) -> set[str]:
         in the InferenceData object.
     """
 
-    dims = set()
-    set(dim for group in idata.values() for dim in group.dims)
+    dims = set(str(dim) for group in idata.values() for dim in group.dims)
     return dims
 
 
@@ -81,13 +80,13 @@ def replace_all_suffix(
         for suffix, new in suffix_dict.items()
         if original_dim_name.endswith(suffix)
     }
-    new_idata = idata.rename(
+
+    return idata.rename(
         name_dict=name_dict,
         groups=groups,
         filter_groups=filter_groups,
         inplace=inplace,
     )
-    return new_idata
 
 
 def assign_coords_from_start_step(
