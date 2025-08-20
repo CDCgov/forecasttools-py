@@ -9,9 +9,7 @@ import polars as pl
 import forecasttools
 
 
-def loc_abbr_to_hubverse_code(
-    df: pl.DataFrame, location_col: str
-) -> pl.DataFrame:
+def loc_abbr_to_hubverse_code(df: pl.DataFrame, location_col: str) -> pl.DataFrame:
     """
     Takes the location column of a Polars
     dataframe (formatted as US two-letter
@@ -51,8 +49,7 @@ def loc_abbr_to_hubverse_code(
     # in the inputted dataframe
     if location_col not in df.columns:
         raise ValueError(
-            f"Column '{location_col}' not found in the dataframe;"
-            f" got {df.columns}."
+            f"Column '{location_col}' not found in the dataframe; got {df.columns}."
         )
     # get location table from forecasttools
     loc_table = forecasttools.location_table
@@ -77,9 +74,7 @@ def loc_abbr_to_hubverse_code(
     return loc_recoded_df
 
 
-def loc_hubverse_code_to_abbr(
-    df: pl.DataFrame, location_col: str
-) -> pl.DataFrame:
+def loc_hubverse_code_to_abbr(df: pl.DataFrame, location_col: str) -> pl.DataFrame:
     """
     Takes the location columns of a Polars
     dataframe (formatted as hubverse codes for
@@ -119,8 +114,7 @@ def loc_hubverse_code_to_abbr(
     # in the inputted dataframe
     if location_col not in df.columns:
         raise ValueError(
-            f"Column '{location_col}' not found in the dataframe;"
-            f" got {df.columns}."
+            f"Column '{location_col}' not found in the dataframe; got {df.columns}."
         )
     # get location table from forecasttools
     loc_table = forecasttools.location_table
@@ -183,9 +177,7 @@ def to_location_table_column(location_format: str) -> str:
     return col
 
 
-def location_lookup(
-    location_vector: list[str], location_format: str
-) -> pl.DataFrame:
+def location_lookup(location_vector: list[str], location_format: str) -> pl.DataFrame:
     """
     Look up rows of the hubverse location
     table corresponding to the entries

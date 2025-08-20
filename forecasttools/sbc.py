@@ -47,16 +47,12 @@ class SBC:
             Keyword arguments passed to `numpyro` models.
         """
         if sample_kwargs is None:
-            sample_kwargs = dict(
-                num_warmup=500, num_samples=100, progress_bar=False
-            )
+            sample_kwargs = dict(num_warmup=500, num_samples=100, progress_bar=False)
         if seed is None:
             seed = random.PRNGKey(1234)
         self.mcmc_kernel = mcmc_kernel
         if not hasattr(mcmc_kernel, "model"):
-            raise ValueError(
-                "The `mcmc_kernel` must have a 'model' attribute."
-            )
+            raise ValueError("The `mcmc_kernel` must have a 'model' attribute.")
 
         self.model = mcmc_kernel.model
         self.args = args
@@ -104,9 +100,7 @@ class SBC:
         prior_predictions = prior_predictive_fn(
             self._prior_pred_rng, *self.args, **self.kwargs
         )
-        prior_pred = {
-            k: prior_predictions[v] for k, v in self.observed_vars.items()
-        }
+        prior_pred = {k: prior_predictions[v] for k, v in self.observed_vars.items()}
         prior = {
             k: v
             for k, v in prior_predictions.items()
@@ -165,16 +159,12 @@ class SBC:
             num_dims = jnp.ndim(prior_draw[name])
             if num_dims == 0:
                 rank_statistics = (
-                    (posterior[name].sel(chain=0) < prior_draw[name])
-                    .sum()
-                    .values
+                    (posterior[name].sel(chain=0) < prior_draw[name]).sum().values
                 )
                 self.simulations[name].append(rank_statistics)
             else:
                 rank_statistics = (
-                    (posterior[name].sel(chain=0) < prior_draw[name])
-                    .sum(axis=0)
-                    .values
+                    (posterior[name].sel(chain=0) < prior_draw[name]).sum(axis=0).values
                 )
                 self.simulations[name].append(rank_statistics)
 
@@ -198,9 +188,7 @@ class SBC:
             while self._simulations_complete < self.num_simulations:
                 idx = self._simulations_complete
                 prior_draw = {k: v[idx] for k, v in prior.items()}
-                prior_predictive_draw = {
-                    k: v[idx] for k, v in prior_pred.items()
-                }
+                prior_predictive_draw = {k: v[idx] for k, v in prior_pred.items()}
                 idata = self._get_posterior_samples(
                     sampler_seeds[idx], prior_predictive_draw
                 )
@@ -211,8 +199,7 @@ class SBC:
                 progress.update()
         finally:
             self.simulations = {
-                k: v[: self._simulations_complete]
-                for k, v in self.simulations.items()
+                k: v[: self._simulations_complete] for k, v in self.simulations.items()
             }
             progress.close()
 
