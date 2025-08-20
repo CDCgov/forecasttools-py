@@ -8,7 +8,7 @@ from forecasttools.idata_dates import (
     assign_coords_from_start_step,
     coalesce_common_columns,
     get_all_dims,
-    replace_all_suffix,
+    replace_all_dim_suffix,
 )
 from forecasttools.pull_data_cdc_gov import (
     data_cdc_gov_datasets,
@@ -104,7 +104,7 @@ __all__ = [
     "get_data_cdc_gov_dataset",
     "get_nhsn",
     "get_all_dims",
-    "replace_all_suffix",
+    "replace_all_dim_suffix",
     "assign_coords_from_start_step",
     "coalesce_common_columns",
 ]

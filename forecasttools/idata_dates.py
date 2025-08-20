@@ -28,7 +28,7 @@ def get_all_dims(idata: az.InferenceData) -> set[str]:
     return dims
 
 
-def replace_all_suffix(
+def replace_all_dim_suffix(
     idata: az.InferenceData,
     new_suffixes: list[str],
     dim_prefix: str = "dim_",

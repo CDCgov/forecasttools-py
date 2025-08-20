@@ -10,26 +10,26 @@ import forecasttools as ft
 IDATA_WO_DATES = ft.nhsn_flu_forecast_wo_dates
 
 
-def test_replace_all_suffix_basic():
-    """Test basic functionality of ft.replace_all_suffix."""
+def test_replace_all_dim_suffix_basic():
+    """Test basic functionality of ft.replace_all_dim_suffix."""
     new_suffixes = ["time"]
     all_dims_original = ft.get_all_dims(IDATA_WO_DATES)
 
-    result = ft.replace_all_suffix(IDATA_WO_DATES, new_suffixes)
+    result = ft.replace_all_dim_suffix(IDATA_WO_DATES, new_suffixes)
     all_dims_desired = {x.replace("dim_0", "time") for x in all_dims_original}
 
     all_dims_result = ft.get_all_dims(result)
     assert all_dims_result == all_dims_desired
 
 
-def test_replace_all_suffix_inplace():
+def test_replace_all_dim_suffix_inplace():
     """Test inplace modification."""
     all_dims_original = ft.get_all_dims(IDATA_WO_DATES)
 
     idata_copy = copy.deepcopy(IDATA_WO_DATES)
     new_suffixes = ["time"]
 
-    result = ft.replace_all_suffix(idata_copy, new_suffixes, inplace=True)
+    result = ft.replace_all_dim_suffix(idata_copy, new_suffixes, inplace=True)
 
     # Should return None when inplace=True
     assert result is None
@@ -41,7 +41,7 @@ def test_replace_all_suffix_inplace():
     assert all_dims_result == all_dims_desired
 
 
-def test_replace_all_suffix_custom_prefix():
+def test_replace_all_dim_suffix_custom_prefix():
     """Test with custom dimension prefix."""
     # Create test data with custom prefix
     coords = {"test_0": [0, 1, 2], "test_1": [0, 1]}
@@ -51,18 +51,18 @@ def test_replace_all_suffix_custom_prefix():
     idata = az.InferenceData(posterior=data)
 
     new_suffixes = ["time", "location"]
-    result = ft.replace_all_suffix(idata, new_suffixes, dim_prefix="test_")
+    result = ft.replace_all_dim_suffix(idata, new_suffixes, dim_prefix="test_")
     set(new_suffixes)
 
     all_dims_result = ft.get_all_dims(result)
     assert all_dims_result == set(new_suffixes)
 
 
-def test_replace_all_suffix_empty_suffixes():
+def test_replace_all_dim_suffix_empty_suffixes():
     """Test with empty new_suffixes list."""
     new_suffixes = []
     all_dims_original = ft.get_all_dims(IDATA_WO_DATES)
-    result = ft.replace_all_suffix(IDATA_WO_DATES, new_suffixes)
+    result = ft.replace_all_dim_suffix(IDATA_WO_DATES, new_suffixes)
     all_dims_result = ft.get_all_dims(result)
     # Should return unchanged InferenceData
     assert all_dims_result == all_dims_original
