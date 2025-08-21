@@ -67,8 +67,9 @@ def replace_all_dim_suffix(
         A new InferenceData object by default.
         When `inplace==True` perform renaming in-place and return `None`
     """
+    out = idata if inplace else deepcopy(idata)
 
-    original_dim_names = get_all_dims(idata)
+    original_dim_names = get_all_dims(out)
 
     suffix_dict = {f"{dim_prefix}{i}": new for i, new in enumerate(new_suffixes)}
 
@@ -78,13 +79,22 @@ def replace_all_dim_suffix(
         for suffix, new in suffix_dict.items()
         if original_dim_name.endswith(suffix)
     }
-
-    return idata.rename(
+    out.rename(
         name_dict=name_dict,
         groups=groups,
         filter_groups=filter_groups,
-        inplace=inplace,
+        inplace=True,
     )
+    # workaround for https://github.com/pydata/xarray/issues/10662
+    for ds in out.values():
+        if "unlimited_dims" in ds.encoding:
+            ds.encoding["unlimited_dims"] = {
+                name_dict[dim_name] for dim_name in ds.encoding["unlimited_dims"]
+            }
+    if inplace:
+        return None
+    else:
+        return out
 
 
 def assign_coords_from_start_step(
@@ -135,7 +145,9 @@ def assign_coords_from_start_step(
         ds = getattr(out, group)
         if dim_name in ds.dims:
             n = ds.sizes[dim_name]
-            coords = start_date + interval * np.arange(n)
+            coords = np.arange(start_date, start_date + interval * n, interval).astype(
+                "datetime64[D]"
+            )
             new_ds = ds.assign_coords({dim_name: coords})
             setattr(out, group, new_ds)
     if inplace:
