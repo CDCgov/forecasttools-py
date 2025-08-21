@@ -6,12 +6,12 @@ across other forecasttools code.
 from collections.abc import Iterable, MutableSequence
 
 import arviz as az
+import polars as pl
+import polars.selectors as cs
 import xarray as xr
 
 
-def validate_input_type(
-    value: any, expected_type: type | tuple[type], param_name: str
-):
+def validate_input_type(value: any, expected_type: type | tuple[type], param_name: str):
     """Checks the type of a variable and
     raises a TypeError if it does not match
     the expected type."""
@@ -46,9 +46,7 @@ def validate_and_get_idata_group_var(
     """Retrieves the variable from the group
     and validates its existence."""
     if variable not in idata_group.data_vars:
-        raise ValueError(
-            f"Variable '{variable}' not found in group '{group}'."
-        )
+        raise ValueError(f"Variable '{variable}' not found in group '{group}'.")
     return idata_group[variable]
 
 
@@ -72,8 +70,7 @@ def validate_iter_has_expected_types(
     """
     if not all(isinstance(item, expected_type) for item in iterable):
         raise TypeError(
-            f"All items in '{param_name}' must be of type"
-            f" '{expected_type.__name__}'."
+            f"All items in '{param_name}' must be of type '{expected_type.__name__}'."
         )
 
 
@@ -99,3 +96,35 @@ def ensure_listlike(x):
         ``x``.
     """
     return x if isinstance(x, MutableSequence) else [x]
+
+
+def coalesce_common_columns(
+    df: pl.DataFrame, suffix: str, new_colname: str | None = None
+) -> pl.DataFrame:
+    """
+    Coalesce multiple columns with a common suffix into a single column.
+    This function finds all columns in the DataFrame that end with the specified
+    suffix, coalesces them (takes the first non-null value across the columns),
+    and creates a new column with the coalesced values. The original columns
+    with the suffix are then removed from the DataFrame.
+
+    Parameters
+    ----------
+    df : pl.DataFrame
+        The input Polars DataFrame to process.
+    suffix : str
+        The suffix to match column names for coalescing.
+    new_colname : str | None, optional
+        The name for the new coalesced column.
+        If None, defaults to the suffix with leading underscores stripped.
+
+    Returns:
+        pl.DataFrame: A new DataFrame with the coalesced column and original suffix columns removed.
+    """
+    if new_colname is None:
+        new_colname = suffix.lstrip("_")
+    coalesced_df = df.with_columns(
+        pl.coalesce(cs.ends_with(suffix)).alias(new_colname)
+    ).select(cs.exclude(cs.ends_with(suffix)))
+
+    return coalesced_df

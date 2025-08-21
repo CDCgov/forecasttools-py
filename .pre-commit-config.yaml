@@ -41,133 +41,106 @@ ci:
 # GENERAL
 ###############################################################################
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
-    hooks:
-    # prevent giant files from being committed.
-    -   id: check-added-large-files
-        args: ["--maxkb=10000"]
-    # simply check whether files parse as valid
-    # python
-    -   id: check-ast
-    # check for files with names that would
-    # conflict on a case-insensitive filesystem
-    # like MacOS HFS+ or Windows FAT.
-    -   id: check-case-conflict
-    # checks for a common error of placing
-    # code before the docstring.
-    -   id: check-docstring-first
-    # attempts to load all yaml files to
-    # verify syntax.
-    -   id: check-yaml
-        # allow yaml files which use the
-        # multi-document syntax
-        args: ["--allow-multiple-documents"]
-    # attempts to load all TOML files to
-    # verify syntax.
-    -   id: check-toml
-    # makes sure files end in a newline and
-    # only a newline.
-    -   id: end-of-file-fixer
-    # replaces or checks mixed line ending.
-    -   id: mixed-line-ending
-    # verifies that test files are named
-    # correctly.
-    -   id: name-tests-test
-        # ensure tests match test_.*\.py
-        args: ["--pytest-test-first"]
-    # trims trailing whitespace.
-    -   id: trailing-whitespace
-    # checks that non-binary executables have
-    # a proper shebang.
-    -   id: check-executables-have-shebangs
-        files: \.sh$
-    # checks for the existence of private keys.
-    -   id: detect-private-key
-###############################################################################
-# PYTHON
-###############################################################################
--   repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.12.5
-    hooks:
-    # "currently, the Ruff formatter does not sort imports.
-    # In order to both sort imports and format, call
-    # the Ruff linter and then the formatter:"
-    -   id: ruff
-        args: [
-          "check",
-          "--select",
-          # isort
-          "I",
-          "--fix"]
-    # run ruff linter; the Ruff Linter is an extremely fast Python linter
-    # designed as a drop-in replacement for Flake8 (plus dozens of plugins),
-    # isort, pydocstyle, pyupgrade, autoflake, and more
-    -   id: ruff
-        args: [
-          # ambiguous variable name: {name}
-          "--ignore=E741",
-          # do not assign a lambda expression, use a def
-          "--ignore=E731",
-          # indentation contains tabs
-          "--ignore=W191",
-          # E and W: pycodestyle, standard PEP8 errors and pycodestyle warnings.
-          # F: pyflakes warnings (e.g., unused variables, undefined names).,
-          # B: flake8-bugbear (useful best practices).
-          # SIM: flake8-simplify
-          # C90: McCabe complexity (cyclomatic complexity).
-          # for setting C90 in ruff, see
-          # https://docs.astral.sh/ruff/settings/#lint_isort_variables
-          # UP: pyupgrade, Python version compatibility
-          "--select=E,W,F,B,C90,UP,SIM",
-          "--line-length=79",
-          # lint all files in the current directory, and fix any fixable errors.
-          "--fix"]
-    # run the ruff-formatter; the Ruff formatter is an extremely fast
-    # Python code formatter designed as a drop-in replacement for Black
-    -   id: ruff-format
-        args: [
-          "--line-length=79",
-        ]
--   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.8.3
-    hooks:
-    -   id: uv-lock
-###############################################################################
-# SECURITY
-###############################################################################
--   repo: https://github.com/Yelp/detect-secrets
-    rev: v1.5.0
-    hooks:
-    # must first run
-    # detect-secrets scan > .secrets.baseline
-    -   id: detect-secrets
-        args: ["--baseline", ".secrets.baseline"]
-        exclude: package.lock.json
-###############################################################################
-# GITHUB ACTIONS
-###############################################################################
--   repo: https://github.com/rhysd/actionlint
-    rev: v1.7.7
-    hooks:
-    -   id: actionlint
-###############################################################################
-# SPELLING
-###############################################################################
--   repo: https://github.com/crate-ci/typos
-    rev: v1
-    hooks:
-    -   id: typos
-        args: ["--force-exclude"]
-###############################################################################
-# COMMIT MESSAGES
-###############################################################################
--   repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.8.3
-    hooks:
-    -   id: commitizen
--   repo: https://github.com/jorisroovers/gitlint
-    rev:  v0.19.1
-    hooks:
-    -   id: gitlint
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v6.0.0
+      hooks:
+          # prevent giant files from being committed.
+          - id: check-added-large-files
+            args: ["--maxkb=10000"]
+          # simply check whether files parse as valid
+          # python
+          - id: check-ast
+          # check for files with names that would
+          # conflict on a case-insensitive filesystem
+          # like MacOS HFS+ or Windows FAT.
+          - id: check-case-conflict
+          # checks for a common error of placing
+          # code before the docstring.
+          - id: check-docstring-first
+          # attempts to load all yaml files to
+          # verify syntax.
+          - id: check-yaml
+            # allow yaml files which use the
+            # multi-document syntax
+            args: ["--allow-multiple-documents"]
+          # attempts to load all TOML files to
+          # verify syntax.
+          - id: check-toml
+          # makes sure files end in a newline and
+          # only a newline.
+          - id: end-of-file-fixer
+          # replaces or checks mixed line ending.
+          - id: mixed-line-ending
+          # verifies that test files are named
+          # correctly.
+          - id: name-tests-test
+            # ensure tests match test_.*\.py
+            args: ["--pytest-test-first"]
+          # trims trailing whitespace.
+          - id: trailing-whitespace
+          # checks that non-binary executables have
+          # a proper shebang.
+          - id: check-executables-have-shebangs
+            files: \.sh$
+          # checks for the existence of private keys.
+          - id: detect-private-key
+    ###############################################################################
+    # PYTHON
+    ###############################################################################
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.12.9
+      hooks:
+          # "currently, the Ruff formatter does not sort imports.
+          # In order to both sort imports and format, call
+          # the Ruff linter and then the formatter:"
+          - id: ruff
+            args: ["check", "--select", "I", "--fix"]
+          # run ruff linter; the Ruff Linter is an extremely fast Python linter
+          # designed as a drop-in replacement for Flake8 (plus dozens of plugins),
+          # isort, pydocstyle, pyupgrade, autoflake, and more
+          - id: ruff
+          # run the ruff-formatter; the Ruff formatter is an extremely fast
+          # Python code formatter designed as a drop-in replacement for Black
+          - id: ruff-format
+    - repo: https://github.com/astral-sh/uv-pre-commit
+      rev: 0.8.11
+      hooks:
+          - id: uv-lock
+    ###############################################################################
+    # SECURITY
+    ###############################################################################
+    - repo: https://github.com/Yelp/detect-secrets
+      rev: v1.5.0
+      hooks:
+          # must first run
+          # detect-secrets scan > .secrets.baseline
+          - id: detect-secrets
+            args: ["--baseline", ".secrets.baseline"]
+            exclude: package.lock.json
+    ###############################################################################
+    # GITHUB ACTIONS
+    ###############################################################################
+    - repo: https://github.com/rhysd/actionlint
+      rev: v1.7.7
+      hooks:
+          - id: actionlint
+    ###############################################################################
+    # SPELLING
+    ###############################################################################
+    - repo: https://github.com/crate-ci/typos
+      rev: v1
+      hooks:
+          - id: typos
+            args: ["--force-exclude"]
+    ###############################################################################
+    # COMMIT MESSAGES
+    ###############################################################################
+    - repo: https://github.com/commitizen-tools/commitizen
+      rev: v4.8.3
+      hooks:
+          - id: commitizen
+    - repo: https://github.com/jorisroovers/gitlint
+      rev: v0.19.1
+      hooks:
+          - id: gitlint
 ###############################################################################
