@@ -1,5 +1,7 @@
 import copy
 import datetime as dt
+import tempfile
+from pathlib import Path
 
 import arviz as az
 import numpy as np
@@ -84,8 +86,8 @@ def test_assign_coords_from_start_step_basic():
         ds = getattr(result, group)
         if dim_name in ds.dims:
             result_coords = ds.coords[dim_name]
-            assert result_coords[0] == start
-            assert result_coords[1] == start + interval
+            assert result_coords[0] == np.datetime64(start)
+            assert result_coords[1] == np.datetime64(start + interval)
 
 
 def test_assign_coords_from_start_step_inplace():
@@ -103,8 +105,8 @@ def test_assign_coords_from_start_step_inplace():
         ds = getattr(idata_copy, group)
         if dim_name in ds.dims:
             result_coords = ds.coords[dim_name]
-            assert result_coords[0] == start
-            assert result_coords[1] == start + interval
+            assert result_coords[0] == np.datetime64(start)
+            assert result_coords[1] == np.datetime64(start + interval)
 
 
 def test_assign_coords_from_start_step_no_matching_dim():
@@ -119,3 +121,27 @@ def test_assign_coords_from_start_step_no_matching_dim():
         original_ds = getattr(IDATA_WO_DATES, group)
         result_ds = getattr(result, group)
         assert original_ds.equals(result_ds)
+
+
+def test_write_to_netcdf_after_operations():
+    """Test that we can write to NetCDF after renaming dims and changing coords."""
+    out = copy.deepcopy(IDATA_WO_DATES)
+
+    ft.arviz.replace_all_dim_suffix(out, ["time"], inplace=True)
+
+    ft.arviz.assign_coords_from_start_step(
+        out,
+        "beta_coeffs_time",
+        dt.date(2020, 1, 1),
+        interval=dt.timedelta(days=1),
+        inplace=True,
+    )
+
+    # Test writing to NetCDF
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = Path(tmpdir, "test_output.nc")
+        out.to_netcdf(str(filepath))
+
+        # Verify file was created and can be read back
+        assert filepath.exists()
+        az.from_netcdf(filepath)
