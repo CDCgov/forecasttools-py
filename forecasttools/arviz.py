@@ -4,6 +4,7 @@ from typing import Literal
 
 import arviz as az
 import numpy as np
+import polars as pl
 
 
 def get_all_dims(idata: az.InferenceData) -> set[str]:
@@ -154,3 +155,76 @@ def assign_coords_from_start_step(
         return None
     else:
         return out
+
+
+def prune_chains_by_rel_diff(
+    idata: az.InferenceData, rel_diff_thresh: float = 0.9, inplace=False
+) -> az.InferenceData | None:
+    """
+    Prune MCMC chains based on relative difference in log probability/likelihood.
+
+    This function removes chains whose average log probability or log likelihood
+    is significantly lower than the best-performing chain, based on a relative
+    difference threshold.
+
+    Parameters
+    ----------
+    idata : az.InferenceData
+        ArviZ InferenceData object containing MCMC samples and statistics.
+    rel_diff_thresh : float, default 0.9
+        Relative difference threshold for keeping chains. Chains with relative
+        performance above this threshold compared to the best chain are kept.
+        Value should be between 0 and 1, where 1 means only keep chains identical
+        to the best, and 0 means keep all chains.
+    inplace : bool, default False
+        If True, modify the input InferenceData object in place. If False,
+        return a new InferenceData object with pruned chains.
+
+    Returns
+    -------
+    az.InferenceData or None
+        If inplace=False, returns a new InferenceData object with only the
+        chains that meet the threshold criteria. If inplace=True, returns None
+        and modifies the input object directly.
+
+    Raises
+    ------
+    ValueError
+        If neither log probability ('lp' in sample_stats) nor log_likelihood
+        data is found in the InferenceData object.
+
+    Notes
+    -----
+    The function first attempts to use log probability data from sample_stats['lp'],
+    falling back to log_likelihood data if available. The relative difference is
+    calculated as: 1 - (best_chain_value - chain_value) / |best_chain_value|
+    """
+    if "sample_stats" in idata.groups() and "lp" in idata["sample_stats"]:
+        l_data = idata["sample_stats"]["lp"]
+    elif "log_likelihood" in idata.groups():
+        l_data = idata["log_likelihood"]
+    else:
+        raise ValueError(
+            "Neither log_prob ('lp') nor log_likelihood data found in InferenceData"
+        )
+    l_by_chain = (
+        pl.from_pandas(
+            l_data.mean(dim=set(l_data.dims) - {"chain"}).to_dataframe(),
+            include_index=True,
+        )
+        .unpivot(index=["chain"])
+        .group_by("chain")
+        .agg(pl.col("value").sum())
+        .sort("chain")
+    )
+    best_chain_val = l_by_chain.get_column("value").max()
+
+    chains_to_keep = (
+        l_by_chain.filter(
+            1 - (best_chain_val - pl.col("value")) / abs(best_chain_val)
+            > rel_diff_thresh
+        )
+        .get_column("chain")
+        .to_list()
+    )
+    return idata.sel(chain=chains_to_keep, inplace=inplace)

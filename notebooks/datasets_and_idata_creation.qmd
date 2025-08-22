@@ -194,14 +194,11 @@ def check_file_save_path(
     """
     directory = os.path.dirname(file_save_path)
     if not os.path.exists(directory):
-        raise FileNotFoundError(
-            f"Directory does not exist: {directory}")
+        raise FileNotFoundError(f"Directory does not exist: {directory}")
     if not os.access(directory, os.W_OK):
-        raise PermissionError(
-            f"Directory is not writable: {directory}")
+        raise PermissionError(f"Directory is not writable: {directory}")
     if os.path.exists(file_save_path):
-        raise FileExistsError(
-            f"File already exists at: {file_save_path}")
+        raise FileExistsError(f"File already exists at: {file_save_path}")
 
 
 def plot_and_or_save_forecast(
@@ -325,6 +322,7 @@ def model(basis_matrix, y=None):
         obs=y,
     )
 
+
 def spline_basis(X, degree: int = 4, df: int = 8) -> NDArray:
     basis = patsy.dmatrix(
         "bs(x, df=df, degree=degree, include_intercept=True) - 1",
@@ -364,25 +362,16 @@ def make_forecast(
         pl.col("state").is_in(juris_subset),
     )
     nhsn_data_ready = nhsn_data.filter(
-        (
-            pl.col("date")
-            >= pl.lit(start_date).str.strptime(pl.Date, "%Y-%m-%d")
-        )
-        & (
-            pl.col("date")
-            <= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d")
-        )
+        (pl.col("date") >= pl.lit(start_date).str.strptime(pl.Date, "%Y-%m-%d"))
+        & (pl.col("date") <= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d"))
     )
     # get the actual values, if they exist
     try:
-        forecast_end_date = datetime.strptime(
-            end_date, "%Y-%m-%d"
-        ) + timedelta(days=forecast_days)
+        forecast_end_date = datetime.strptime(end_date, "%Y-%m-%d") + timedelta(
+            days=forecast_days
+        )
         nhsn_data_actual = nhsn_data.filter(
-            (
-                pl.col("date")
-                >= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d")
-            )
+            (pl.col("date") >= pl.lit(end_date).str.strptime(pl.Date, "%Y-%m-%d"))
             & (pl.col("date") <= pl.lit(forecast_end_date))
         )
     except Exception as e:
@@ -390,8 +379,9 @@ def make_forecast(
         print(f"The following error occurred: {e}")
     # define some shared inference values
     random_seed = 2134312
-    num_samples = 1000
+    num_samples = 500
     num_warmup = 500
+    num_chains = 2
     # get posterior samples and make forecasts for each selected state
     for state in juris_subset:
         # get the state data
@@ -410,6 +400,7 @@ def make_forecast(
             kernel,
             num_warmup=num_warmup,
             num_samples=num_samples,
+            num_chains=num_chains,
         )
         # create spline basis for obs period and forecast period
         last = X[-1]
@@ -428,6 +419,12 @@ def make_forecast(
             rng_key=jr.key(random_seed),
             basis_matrix=sbm[: len(X)],
             y=y,
+            extra_fields=(
+                "potential_energy",
+                "num_steps",
+                "z_grad",
+                "accept_prob",
+            ),
         )
         posterior_samples = mcmc.get_samples()
         # get prior predictive
@@ -486,9 +483,9 @@ make_forecast(
     end_date="2022-12-08",
     juris_subset=["TX"],
     forecast_days=28,
-    save_path="../forecasttools/example_flu_forecast_w_dates.nc",
+    save_path="../forecasttools/example_flu_forecast_wo_dates.nc",
     save_idata=False,
     show_plot=True,
-    use_log=False
+    use_log=False,
 )
 ```

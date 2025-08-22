@@ -5,6 +5,7 @@ from pathlib import Path
 
 import arviz as az
 import numpy as np
+import pytest
 import xarray as xr
 
 import forecasttools as ft
@@ -145,3 +146,58 @@ def test_write_to_netcdf_after_operations():
         # Verify file was created and can be read back
         assert filepath.exists()
         az.from_netcdf(filepath)
+
+
+def test_prune_no_lp():
+    n_chains_original = IDATA_WO_DATES["posterior"].sizes["chain"]
+
+    idata_no_lp = IDATA_WO_DATES.copy()
+    del idata_no_lp["sample_stats"]["lp"]
+
+    # Shouldn't drop drop any chains
+    assert (
+        ft.arviz.prune_chains_by_rel_diff(idata_no_lp, rel_diff_thresh=0)[
+            "posterior"
+        ].sizes["chain"]
+        == n_chains_original
+    )
+
+    # Should drop all but one chain
+    assert (
+        ft.arviz.prune_chains_by_rel_diff(idata_no_lp, rel_diff_thresh=0.999999)[
+            "posterior"
+        ].sizes["chain"]
+        == 1
+    )
+
+
+def test_prune_no_ll():
+    n_chains_original = IDATA_WO_DATES["posterior"].sizes["chain"]
+
+    idata_no_ll = IDATA_WO_DATES.copy()
+    del idata_no_ll["log_likelihood"]
+
+    # Shouldn't drop drop any chains
+    assert (
+        ft.arviz.prune_chains_by_rel_diff(idata_no_ll, rel_diff_thresh=0)[
+            "posterior"
+        ].sizes["chain"]
+        == n_chains_original
+    )
+
+    # Should drop all but one chain
+    assert (
+        ft.arviz.prune_chains_by_rel_diff(idata_no_ll, rel_diff_thresh=0.999999)[
+            "posterior"
+        ].sizes["chain"]
+        == 1
+    )
+
+
+def test_prune_neither():
+    idata_neither = IDATA_WO_DATES.copy()
+    del idata_neither["log_likelihood"]
+    del idata_neither["sample_stats"]["lp"]
+
+    with pytest.raises(ValueError):
+        ft.arviz.prune_chains_by_rel_diff(idata_neither)
