@@ -67,6 +67,9 @@ cfasodapy = { git = "https://github.com/CDCgov/cfasodapy.git" }
 known_first_party = ["forecasttools"]
 pep621_dev_dependency_groups = ["dev", "test"]
 
+[tool.deptry.per_rule_ignores]
+DEP002 = ["pyarrow"]
+
 [tool.ruff]
 fix = true
 
