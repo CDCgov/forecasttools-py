@@ -73,7 +73,7 @@ wheels = [
 [[package]]
 name = "arviz"
 version = "0.23.0.dev0"
-source = { git = "https://github.com/damonbayer/arviz.git?rev=dmb_numpyro_lp#ac15460ee2a1c784f3f797b6f3a8e0f73d8ec5e2" }
+source = { git = "https://github.com/arviz-devs/arviz.git#01c8b9454349247eed2145a27b03f9231acb412f" }
 dependencies = [
     { name = "h5netcdf" },
     { name = "matplotlib" },
@@ -458,7 +458,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "arviz", git = "https://github.com/damonbayer/arviz.git?rev=dmb_numpyro_lp" },
+    { name = "arviz", git = "https://github.com/arviz-devs/arviz.git" },
     { name = "cfasodapy", git = "https://github.com/CDCgov/cfasodapy.git" },
     { name = "diffrax", marker = "extra == 'dev'", specifier = ">=0.6.0" },
     { name = "epiweeks", specifier = ">=2.3.0" },
