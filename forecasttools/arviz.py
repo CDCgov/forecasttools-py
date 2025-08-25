@@ -158,7 +158,7 @@ def assign_coords_from_start_step(
 
 
 def prune_chains_by_rel_diff(
-    idata: az.InferenceData, rel_diff_thresh: float = 0.9, inplace=False
+    idata: az.InferenceData, rel_diff_thresh: float, inplace=False
 ) -> az.InferenceData | None:
     """
     Prune MCMC chains based on relative difference in log probability/likelihood.
@@ -171,7 +171,7 @@ def prune_chains_by_rel_diff(
     ----------
     idata : az.InferenceData
         ArviZ InferenceData object containing MCMC samples and statistics.
-    rel_diff_thresh : float, default 0.9
+    rel_diff_thresh : float
         Relative difference threshold for keeping chains. Chains with relative
         performance above this threshold compared to the best chain are kept.
         Value should be between 0 and 1, where 1 means only keep chains identical
