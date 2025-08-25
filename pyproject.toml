@@ -21,6 +21,7 @@ dependencies = [
     "cfasodapy",
     "jax>=0.6.2",
     "scipy>=1.16.0",
+    "pyarrow>=21.0.0",
 ]
 
 [project.optional-dependencies]
@@ -61,10 +62,14 @@ include = [
 
 [tool.uv.sources]
 cfasodapy = { git = "https://github.com/CDCgov/cfasodapy.git" }
+arviz = { git = "https://github.com/damonbayer/arviz.git", rev = "dmb_numpyro_lp" }
 
 [tool.deptry]
 known_first_party = ["forecasttools"]
 pep621_dev_dependency_groups = ["dev", "test"]
+
+[tool.deptry.per_rule_ignores]
+DEP002 = ["pyarrow"]
 
 [tool.ruff]
 fix = true
