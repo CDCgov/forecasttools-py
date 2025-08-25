@@ -200,4 +200,4 @@ def test_prune_neither():
     del idata_neither["sample_stats"]["lp"]
 
     with pytest.raises(ValueError):
-        ft.arviz.prune_chains_by_rel_diff(idata_neither)
+        ft.arviz.prune_chains_by_rel_diff(idata_neither, rel_diff_thresh=0.5)
