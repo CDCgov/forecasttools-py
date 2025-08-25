@@ -62,6 +62,7 @@ include = [
 
 [tool.uv.sources]
 cfasodapy = { git = "https://github.com/CDCgov/cfasodapy.git" }
+arviz = { git = "https://github.com/damonbayer/arviz.git", rev = "dmb_numpyro_lp" }
 
 [tool.deptry]
 known_first_party = ["forecasttools"]
