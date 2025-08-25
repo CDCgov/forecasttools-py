@@ -1,5 +1,5 @@
 """
-Plots for the simulation based calibration
+Plots for the simulation based calibration.
 """
 
 import itertools
