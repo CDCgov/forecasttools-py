@@ -88,14 +88,14 @@ repos:
   # PYTHON
   ###############################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.9
+    rev: v0.14.10
     hooks:
       # Sort imports
       - id: ruff-check
       # Run the formatter
       - id: ruff-format
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.17
+    rev: 0.9.18
     hooks:
       - id: uv-lock
   ###############################################################################
@@ -120,7 +120,7 @@ repos:
   # SPELLING
   ###############################################################################
   - repo: https://github.com/crate-ci/typos
-    rev: v1
+    rev: typos-dict-v0.13.13
     hooks:
       - id: typos
         args: ["--force-exclude"]
