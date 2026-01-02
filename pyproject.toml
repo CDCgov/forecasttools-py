@@ -26,7 +26,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pre-commit>=3.8.0",
     "ipykernel>=6.29.5",
     "diffrax>=0.6.0",
     "patsy>=0.5.6",
