@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13"
 
 [[package]]
@@ -72,17 +72,57 @@ wheels = [
 
 [[package]]
 name = "arviz"
-version = "0.23.0.dev0"
-source = { git = "https://github.com/arviz-devs/arviz.git#01c8b9454349247eed2145a27b03f9231acb412f" }
+version = "1.0.0rc0"
+source = { git = "https://github.com/arviz-devs/arviz.git#4115a1efd1dc8647d1948462315983d9eee276bf" }
 dependencies = [
-    { name = "h5netcdf" },
-    { name = "matplotlib" },
+    { name = "arviz-base" },
+    { name = "arviz-plots" },
+    { name = "arviz-stats", extra = ["xarray"] },
+]
+
+[[package]]
+name = "arviz-base"
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
     { name = "numpy" },
-    { name = "packaging" },
-    { name = "pandas" },
-    { name = "scipy" },
-    { name = "setuptools" },
     { name = "typing-extensions" },
+    { name = "xarray" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d6/0b/b99cd50213748c866432402249edf0b0c618ec5d14f95c157e6de56fb7bc/arviz_base-0.7.0.tar.gz", hash = "sha256:d800c3c26171297b1022b3defa0cd0aab64a6cd0c28257fbcce3ca13dd7358cd", size = 1381567, upload-time = "2025-11-11T08:32:04.695Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/64/2812bb89a9bf0eead1965f7e7883ba2f194be1aef36bed0405fe8f240094/arviz_base-0.7.0-py3-none-any.whl", hash = "sha256:10fd2198709eee1b562e128e6d8dd814e24af1b7e6b385a3daba903dadac53f7", size = 1404134, upload-time = "2025-11-11T08:32:02.472Z" },
+]
+
+[[package]]
+name = "arviz-plots"
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "arviz-base" },
+    { name = "arviz-stats", extra = ["xarray"] },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3f/7c/e181100796c068bafec78ea211243c2c1a10c1d68eb89d53267aaed69422/arviz_plots-0.7.0.tar.gz", hash = "sha256:d6b2cb5b35acc4fe231942e961095b647cc2bcc5b9a4bcbfe0841b03beaf5b15", size = 122460, upload-time = "2025-11-11T12:20:32.313Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/16/af/a6f4a911ae1a5715981dc935d960f55074a2159df0aad13b52ba495aa856/arviz_plots-0.7.0-py3-none-any.whl", hash = "sha256:c5a4d8fd5fa11c54fa91d21df76e8cd657eebc12ad718931f3e766b9b0b00309", size = 196417, upload-time = "2025-11-11T12:20:31.085Z" },
+]
+
+[[package]]
+name = "arviz-stats"
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3f/1d/f86f7b02621f920bce13ba9882cb5ee733acefc7553b3bae0f04dfb325d9/arviz_stats-0.7.0.tar.gz", hash = "sha256:c04d2b888fc2ecf44bdaca3f950f62834d51ddcc97472f9aeec7c4808e598032", size = 121397, upload-time = "2025-11-11T09:10:11.303Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/34/97/59f31690c561b70f1e493375f5bd774bffd1597245b10d1a62024b7f12e3/arviz_stats-0.7.0-py3-none-any.whl", hash = "sha256:d61d3fe0f00d3a92cdad01ff1389edd32b7f128a7830ce2a668de26d32f9e786", size = 148951, upload-time = "2025-11-11T09:10:09.555Z" },
+]
+
+[package.optional-dependencies]
+xarray = [
+    { name = "arviz-base" },
     { name = "xarray" },
     { name = "xarray-einstats" },
 ]
@@ -493,35 +533,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/01/ee/02a2c011bdab74c6fb3c75474d40b3052059d95df7e73351460c8588d963/h11-0.16.0.tar.gz", hash = "sha256:4e35b956cf45792e4caa5885e69fba00bdbc6ffafbfa020300e549b208ee5ff1", size = 101250, upload-time = "2025-04-24T03:35:25.427Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl", hash = "sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86", size = 37515, upload-time = "2025-04-24T03:35:24.344Z" },
-]
-
-[[package]]
-name = "h5netcdf"
-version = "1.6.3"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "h5py" },
-    { name = "packaging" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/46/9b/16f61d006227059451ad7388235a547a2dcf6f36503545d06df36bb4da97/h5netcdf-1.6.3.tar.gz", hash = "sha256:a8fededcc30f933389168ece94963bee54545546772d9e4dccadbb990dd5651e", size = 65622, upload-time = "2025-06-30T07:15:17.212Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4e/27/ca28b77f4cf613282e4ea9bac360cdfa8db8b4d2154e2f0bd82fd26baeb3/h5netcdf-1.6.3-py3-none-any.whl", hash = "sha256:b79bc24d1f8b1cdc1f16b213753209411e08af04e35b0bcf5ce5cf7fb4023572", size = 50531, upload-time = "2025-06-30T07:15:15.953Z" },
-]
-
-[[package]]
-name = "h5py"
-version = "3.14.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/5d/57/dfb3c5c3f1bf5f5ef2e59a22dec4ff1f3d7408b55bfcefcfb0ea69ef21c6/h5py-3.14.0.tar.gz", hash = "sha256:2372116b2e0d5d3e5e705b7f663f7c8d96fa79a4052d250484ef91d24d6a08f4", size = 424323, upload-time = "2025-06-06T14:06:15.01Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/c2/7efe82d09ca10afd77cd7c286e42342d520c049a8c43650194928bcc635c/h5py-3.14.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:aa4b7bbce683379b7bf80aaba68e17e23396100336a8d500206520052be2f812", size = 3289245, upload-time = "2025-06-06T14:05:28.24Z" },
-    { url = "https://files.pythonhosted.org/packages/4f/31/f570fab1239b0d9441024b92b6ad03bb414ffa69101a985e4c83d37608bd/h5py-3.14.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:ef9603a501a04fcd0ba28dd8f0995303d26a77a980a1f9474b3417543d4c6174", size = 2807335, upload-time = "2025-06-06T14:05:31.997Z" },
-    { url = "https://files.pythonhosted.org/packages/0d/ce/3a21d87896bc7e3e9255e0ad5583ae31ae9e6b4b00e0bcb2a67e2b6acdbc/h5py-3.14.0-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e8cbaf6910fa3983c46172666b0b8da7b7bd90d764399ca983236f2400436eeb", size = 4700675, upload-time = "2025-06-06T14:05:37.38Z" },
-    { url = "https://files.pythonhosted.org/packages/e7/ec/86f59025306dcc6deee5fda54d980d077075b8d9889aac80f158bd585f1b/h5py-3.14.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d90e6445ab7c146d7f7981b11895d70bc1dd91278a4f9f9028bc0c95e4a53f13", size = 4921632, upload-time = "2025-06-06T14:05:43.464Z" },
-    { url = "https://files.pythonhosted.org/packages/3f/6d/0084ed0b78d4fd3e7530c32491f2884140d9b06365dac8a08de726421d4a/h5py-3.14.0-cp313-cp313-win_amd64.whl", hash = "sha256:ae18e3de237a7a830adb76aaa68ad438d85fe6e19e0d99944a3ce46b772c69b3", size = 2852929, upload-time = "2025-06-06T14:05:47.659Z" },
 ]
 
 [[package]]
