@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13"
 
 [[package]]
@@ -72,8 +72,8 @@ wheels = [
 
 [[package]]
 name = "arviz"
-version = "0.23.0.dev0"
-source = { git = "https://github.com/arviz-devs/arviz.git#01c8b9454349247eed2145a27b03f9231acb412f" }
+version = "0.23.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "h5netcdf" },
     { name = "matplotlib" },
@@ -85,6 +85,10 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "xarray" },
     { name = "xarray-einstats" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/f2/22bd00891a2c1ff2738f6168eb79d141b71eb35d918a299bc5d526c2b542/arviz-0.23.0.tar.gz", hash = "sha256:772bb600c2b82eac239c5a6f0077cb5fc0536744bc32755e8471b008d0f26b8d", size = 1593073, upload-time = "2025-12-15T14:34:52.638Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f8/3b/821e761f0396f68ab1adfce343dcfdb19838bfa051cc38d1923ef282e1ec/arviz-0.23.0-py3-none-any.whl", hash = "sha256:f09c0e965842ecec9c7ca4f7318ca6fd8b33b6581f9c5b657e88cad196087fb3", size = 1673608, upload-time = "2025-12-15T14:34:50.961Z" },
 ]
 
 [[package]]
@@ -430,7 +434,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "arviz", git = "https://github.com/arviz-devs/arviz.git" },
+    { name = "arviz", specifier = "<1.0.0" },
     { name = "cfasodapy", git = "https://github.com/CDCgov/cfasodapy.git" },
     { name = "diffrax", marker = "extra == 'dev'", specifier = ">=0.6.0" },
     { name = "epiweeks", specifier = ">=2.3.0" },
