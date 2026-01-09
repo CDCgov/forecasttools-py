@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 keywords = ["forecasting", "infrastructure", "infectious-disease-modeling", "python"]
 dependencies = [
-    "arviz>=0.20.0",
+    "arviz<1.0.0",
     "polars>=1.8.2",
     "xarray>=2024.9.0",
     "matplotlib>=3.9.2",
@@ -61,7 +61,6 @@ include = [
 
 [tool.uv.sources]
 cfasodapy = { git = "https://github.com/CDCgov/cfasodapy.git" }
-arviz = { git = "https://github.com/arviz-devs/arviz.git" }
 
 [tool.deptry]
 known_first_party = ["forecasttools"]
