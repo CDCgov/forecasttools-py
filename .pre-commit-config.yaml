@@ -95,7 +95,7 @@ repos:
       # Run the formatter
       - id: ruff-format
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.9.18
+    rev: 0.9.21
     hooks:
       - id: uv-lock
   ###############################################################################
@@ -113,7 +113,7 @@ repos:
   # GITHUB ACTIONS
   ###############################################################################
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.9
+    rev: v1.7.10
     hooks:
       - id: actionlint
   ###############################################################################
@@ -128,7 +128,7 @@ repos:
   # COMMIT MESSAGES
   ###############################################################################
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.11.0
+    rev: v4.11.1
     hooks:
       - id: commitizen
   - repo: https://github.com/jorisroovers/gitlint
