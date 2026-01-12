@@ -342,11 +342,11 @@ wheels = [
 
 [[package]]
 name = "epiweeks"
-version = "2.3.0"
+version = "2.4.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/33/96/fc0ca16f9046cb9961b8f1a68aaa2a9bc3a4d3df6bad7d6ddd3b7fcee9e4/epiweeks-2.3.0.tar.gz", hash = "sha256:3c64ee0b217d0a03f0896fce3c35b73c848c3717790504893cb4eb61b9364bac", size = 18893, upload-time = "2023-12-18T12:12:54.288Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/51/8b749e2756cc739cf2a5009ae8d4dbf6ca110e2ac59916351a5c2948ba82/epiweeks-2.4.0.tar.gz", hash = "sha256:0096132a50cfc4b52b2bfc8cf841d278740414d01cac303df05146db8b526539", size = 21004, upload-time = "2026-01-07T19:01:37.139Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/35/22/86e5006b668ddb2b4c0de7c2df74e2af24672579b4b5468ec8365f235b4f/epiweeks-2.3.0-py3-none-any.whl", hash = "sha256:e60f31f0bb7021cb62d6a366fc90b69798b3f78b2aa929ad78709be9e0cb35a8", size = 5742, upload-time = "2023-12-18T12:12:51.158Z" },
+    { url = "https://files.pythonhosted.org/packages/40/cf/66d80e94012fedb1ad9edb3053281685ad920b14dcd5e7166a48bbd1f168/epiweeks-2.4.0-py3-none-any.whl", hash = "sha256:a40cdde09b47530e7703d3d75248bb4ae2eb340f23af7c4c50e708b2e733e101", size = 5826, upload-time = "2026-01-07T19:01:35.669Z" },
 ]
 
 [[package]]
