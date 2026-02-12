@@ -1,0 +1,139 @@
+---
+title: Using Scoring Utils With Forecasttools
+format: gfm
+engine: jupyter
+---
+
+_This notebook demonstrates how to use `forecasttools` with `scoringutils` to score FluSight submissions and evaluate posterior predictive forecasts from Arviz `InferenceData` objects._
+
+# Background
+
+Let us begin by providing some context on `scoringutils`, from [their repository](https://github.com/epiforecasts/scoringutils) [@bosse2022evaluating]:
+
+> The `scoringutils` package facilitates the process of evaluating forecasts in R, using a convenient and flexible `data.table`-based framework. It provides broad functionality to check the input data and diagnose issues, to visualise forecasts and missing data, to transform data before scoring, to handle missing forecasts, to aggregate scores, and to visualise the results of the evaluation. The package is easily extendable, meaning that users can supply their own scoring rules or extend existing classes to handle new types of forecasts.
+
+The `scoringutils` package accepts a particular data format:
+
+> The expected input format is generally a `data.frame` (or similar) with required columns `observed`, `predicted`, and `model` that holds the forecasts and observed values. Exact requirements depend on the forecast type. For more information, have a look at the [paper](https://drive.google.com/file/d/1URaMsXmHJ1twpLpMl1sl2HW4lPuUycoj/view?usp=drive_link), call `?as_forecast()`, or have a look at the example data provided in the package (`example_binary`, `example_point`, `example_quantile`, `example_sample_continuous`, `example_sample_discrete`).
+
+## Installation Of Forecasttools
+
+Install `forecasttools` via:
+
+```
+pip3 install git+https://github.com/CDCgov/forecasttools-py@main
+```
+
+## Installation Of R-Packages
+
+The following script determines whether certain R packages (if R is not installed, check out [here](https://cran.r-project.org/)) are installed and, if they are not installed, installs them.
+
+```{r}
+check_and_install_r_packages <- function(packages) {
+  # determine if each package is installed
+  for (pkg in packages) {
+    # install package if not installed
+    if (!requireNamespace(pkg, quietly = TRUE)) {
+      install.packages(pkg)
+    } else {
+      message(paste(pkg, "is already installed."))
+    }
+  }
+}
+check_and_install_r_packages(c("dplyr", "ggplot2", "readr", "arrow", "scoringutils"))
+
+# if one just wants to install scoringutils
+# one can use
+# install.packages("scoringutils")
+```
+
+# Scoring A FluSight Submission
+
+_This section explores using `scoringutils` for scoring the quantile forecasts made in a FluSight Hub submission._
+
+While `forecasttools` has an example FluSight submission (in hubverse format) available, `scoringutils` requires observed data
+
+We must first load a FluSight submission (in hubverse format). For this, `forecasttools` contains an example submission, which we can load in the following manner:
+
+```{python}
+import forecasttools
+import arviz as az
+import polars as pl
+import os
+
+
+# load example flusight submission
+flusight_submission = forecasttools.example_flusight_submission
+flusight_submission
+```
+
+Scoring utils requires observed data to be loaded.
+
+Once this submission is loaded, we must save it as a csv.
+
+```{python}
+file_name = "flusight_forecast_to_store.csv"
+if not os.path.exists(os.path.join(os.getcwd(), file_name)):
+    flusight_submission.write_csv("flusight_forecast_to_store.csv")
+```
+
+Now we can load this csv as a tibble dataframe
+
+```{r}
+# on author's computer, working directory is above
+# the notebook directory
+file_path <- list.files(
+    path = getwd(),
+    pattern = "using_scoringutils.qmd",
+    recursive = TRUE,
+    full.names = TRUE)
+
+# set the working directory to notebook directory
+setwd(dirname(file_path))
+```
+
+```{r}
+# read the flusight submission csv as tibble dataframe
+forecast_df <- readr::read_csv(
+    "flusight_forecast_to_store.csv",
+    show_col_types = FALSE)
+
+
+# read parquet file
+df <- read_parquet("forecasts_for_scoringutils.parquet")
+forecast_quantile <- df |>
+  as_forecast_quantile(
+    forecast_unit = c(
+      "location", "forecast_date", "target_end_date", "target_type", "model", "horizon"
+    )
+  )
+```
+
+And then score it using `scoringutils`.
+
+```{r}
+
+make_ready_flusight_df_for_scoring <- function(forecast_df) {
+  forecast_df %>%
+    # rename columns appropriately to match scoringutils
+    dplyr::rename(
+      forecast_date = reference_date,
+      target_type = target,
+      quantile_level = output_type_id,
+      predicted = value
+    ) %>%
+    dplyr::mutate(observed = NA_real_) %>%
+    dplyr::select(
+      location, forecast_date, target_end_date, target_type, horizon, quantile_level, predicted, observed
+    )
+}
+
+
+df_scoringutils <- make_ready_flusight_df_for_scoring(forecast_df)
+print(df_scoringutils)
+```
+
+
+
+:::{.refs}
+:::
