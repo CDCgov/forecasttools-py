@@ -325,7 +325,7 @@ wheels = [
 
 [[package]]
 name = "diffrax"
-version = "0.7.0"
+version = "0.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "equinox" },
@@ -336,9 +336,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "wadler-lindig" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c9/9e/d6081a1daf7a7b70f53ddac637bd2e6cd6fa91042ffd7b204741c0ce6d44/diffrax-0.7.0.tar.gz", hash = "sha256:f3bcc578cd92a9ca86fc6f5a54c1de76c1ba62f74de69b56002624bf205316f1", size = 151595, upload-time = "2025-03-14T03:52:22.422Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9a/26/78a444edaf01434ae0f1a4a295840030e2e5b74b945f33fff80cb1fdceb8/diffrax-0.7.1.tar.gz", hash = "sha256:909f3df6a88de6f06040031a58baf01ed80d375388c0dff55511bfaaefc33f02", size = 155127, upload-time = "2026-02-01T17:17:45.213Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/aa/1d/236424e689f62d7fe58f8b10f08c63a49c68efba087eabdd09198a9bbf38/diffrax-0.7.0-py3-none-any.whl", hash = "sha256:aa9645c40552f11a2d32042ef6b9fcd53c1f0f6bdbe32d37cb788669ca9910be", size = 193163, upload-time = "2025-03-14T03:52:20.943Z" },
+    { url = "https://files.pythonhosted.org/packages/35/75/369ab00f837a822e83d0fd6ee7208717b6cd07a86f1c00158152a1f1f57a/diffrax-0.7.1-py3-none-any.whl", hash = "sha256:049ac74a8246f51b93ccf1a8a99777d455841f1272990a475c75856f21127ceb", size = 199629, upload-time = "2026-02-01T17:17:43.63Z" },
 ]
 
 [[package]]
