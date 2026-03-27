@@ -27,12 +27,28 @@ def calculate_epi_week_and_year(date: str):
     return epiweek_df_struct
 
 
+def calculate_epiweek_enddate(epiyear: int, epiweek: int) -> str:
+    """
+    Given an epiweek and epiyear, return
+    the enddate (Saturday) of that epiweek as
+    an ISO8601 date string.
+
+    epiyear
+        Epidemiological year.
+    epiweek
+        Epidemiological week number.
+    """
+    return epiweeks.Week(epiyear, epiweek).enddate().isoformat()
+
+
 def df_aggregate_to_epiweekly(
     df: pl.DataFrame,
     value_col: str = "value",
     date_col: str = "date",
     id_cols: list[str] = None,
     weekly_value_name: str = "weekly_value",
+    with_epiweek_end_date: bool = False,
+    epiweek_end_date_name: str = "epiweek_end_date",
     strict: bool = True,
 ) -> pl.DataFrame:
     """
@@ -60,6 +76,12 @@ def df_aggregate_to_epiweekly(
         The name to use for the output column
         containing weekly trajectory values.
         Defaults to ``"weekly_value"``.
+    with_epiweek_end_date
+        Whether to annotate output with the last date
+        of each epiweek. Defaults to ``False``.
+    epiweek_end_date_name
+        Name for the output epiweek end-date column.
+        Defaults to ``"epiweek_end_date"``.
     strict
         Whether to aggregate to epiweekly only
         for weeks in which all seven days have
@@ -125,4 +147,18 @@ def df_aggregate_to_epiweekly(
         .agg(pl.col(value_col).sum().alias(weekly_value_name))
         .sort(group_cols)
     )
+
+    if with_epiweek_end_date:
+        df = df.with_columns(
+            pl.struct(["epiyear", "epiweek"])
+            .map_elements(
+                lambda elt: calculate_epiweek_enddate(
+                    epiyear=elt["epiyear"],
+                    epiweek=elt["epiweek"],
+                ),
+                return_dtype=pl.String,
+            )
+            .alias(epiweek_end_date_name)
+        )
+
     return df
