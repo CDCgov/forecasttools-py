@@ -3,7 +3,7 @@ Converts daily resolution dataframes
 to epiweekly dataframes.
 """
 
-from datetime import datetime
+import datetime
 
 import epiweeks
 import polars as pl
@@ -11,15 +11,19 @@ import polars as pl
 from forecasttools.utils import ensure_listlike
 
 
-def calculate_epi_week_and_year(date: str):
+def calculate_epi_week_and_year(date_input: datetime.date):
     """
-    Converts an ISO8601 formatted
-    date into an epiweek and epiyear.
+    Converts a given date into an
+    epiweek and epiyear.
 
-    date
-        An ISO8601 date.
+    date_input
+        A date as ``datetime.date``
+        (including values from ``pl.Date`` columns).
     """
-    epiweek = epiweeks.Week.fromdate(datetime.strptime(date, "%Y-%m-%d"))
+    if not isinstance(date_input, datetime.date):
+        raise TypeError("date input must be datetime.date")
+
+    epiweek = epiweeks.Week.fromdate(date_input)
     epiweek_df_struct = {
         "epiweek": epiweek.week,
         "epiyear": epiweek.year,
@@ -27,24 +31,23 @@ def calculate_epi_week_and_year(date: str):
     return epiweek_df_struct
 
 
-def calculate_epiweek_enddate(epiyear: int, epiweek: int) -> str:
+def calculate_epiweek_enddate(epiyear: int, epiweek: int) -> datetime.date:
     """
     Given an epiweek and epiyear, return
-    the enddate (Saturday) of that epiweek as
-    an ISO8601 date string.
+    the enddate (Saturday) of that epiweek.
 
     epiyear
         Epidemiological year.
     epiweek
         Epidemiological week number.
     """
-    return epiweeks.Week(epiyear, epiweek).enddate().isoformat()
+    return epiweeks.Week(epiyear, epiweek).enddate()
 
 
 def df_aggregate_to_epiweekly(
     df: pl.DataFrame,
     value_col: str = "value",
-    date_col: str = "date",
+    date_col: datetime.date = "date",
     id_cols: list[str] = None,
     weekly_value_name: str = "weekly_value",
     with_epiweek_end_date: bool = False,
@@ -156,7 +159,7 @@ def df_aggregate_to_epiweekly(
                     epiyear=elt["epiyear"],
                     epiweek=elt["epiweek"],
                 ),
-                return_dtype=pl.String,
+                return_dtype=pl.Date,
             )
             .alias(epiweek_end_date_name)
         )
