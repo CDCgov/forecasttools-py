@@ -11,16 +11,12 @@ import polars as pl
 from forecasttools.utils import ensure_listlike
 
 
-def calculate_epi_week_and_year(date_input: datetime.date | pl.Date):
-    """
-    Converts a given date into an
-    epiweek and epiyear.
-
-    date_input
-        A date as ``datetime.date`` or ``pl.Date``
-    """
+def calculate_epi_week_and_year(date_input: datetime.date) -> dict[str, int]:
+    """Convert a date to epidemiological week and year."""
     if not isinstance(date_input, datetime.date):
-        raise TypeError("date input must be datetime.date")
+        raise TypeError(
+            f"date_input must be a datetime.date, got {type(date_input).__name__}"
+        )
 
     epiweek = epiweeks.Week.fromdate(date_input)
     epiweek_df_struct = {
