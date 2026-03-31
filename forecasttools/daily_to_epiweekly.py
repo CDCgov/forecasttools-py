@@ -17,7 +17,7 @@ def calculate_epi_week_and_year(date_input: datetime.date | pl.Date):
     epiweek and epiyear.
 
     date_input
-        A date as ``datetime.date`` or ``pl.Date`` 
+        A date as ``datetime.date`` or ``pl.Date``
     """
     if not isinstance(date_input, datetime.date):
         raise TypeError("date input must be datetime.date")
