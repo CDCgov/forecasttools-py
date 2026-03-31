@@ -47,7 +47,7 @@ def calculate_epiweek_enddate(epiyear: int, epiweek: int) -> datetime.date:
 def df_aggregate_to_epiweekly(
     df: pl.DataFrame,
     value_col: str = "value",
-    date_col: datetime.date = "date",
+    date_col: str = "date",
     id_cols: list[str] = None,
     weekly_value_name: str = "weekly_value",
     with_epiweek_end_date: bool = False,
