@@ -42,7 +42,7 @@ test = [
 Repository = "https://github.com/CDCgov/forecasttools-py/"
 "Repository Issues" = "https://github.com/CDCgov/forecasttools-py/issues"
 "CDCgov Repositories" = "https://github.com/CDCgov"
-"Package That Will Use Forecasttools" = "https://github.com/CDCgov/pyrenew-hew"
+"Package That Will Use Forecasttools" = "https://github.com/CDCgov/cfa-stf-routine-forecasting"
 "Poetry Pyproject Page" = "https://python-poetry.org/docs/pyproject/"
 
 [tool.ruff.lint.mccabe]
