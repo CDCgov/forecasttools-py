@@ -88,14 +88,14 @@ repos:
   # PYTHON
   ###############################################################################
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.12
+    rev: v0.15.13
     hooks:
       # Sort imports
       - id: ruff-check
       # Run the formatter
       - id: ruff-format
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.13
+    rev: 0.11.14
     hooks:
       - id: uv-lock
   ###############################################################################
@@ -128,7 +128,7 @@ repos:
   # COMMIT MESSAGES
   ###############################################################################
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.15.1
+    rev: v4.16.2
     hooks:
       - id: commitizen
   - repo: https://github.com/jorisroovers/gitlint
