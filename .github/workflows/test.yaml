@@ -1,27 +1,49 @@
-name: Workflow For Tests In Forecasttools
+name: test
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  install-and-test:
+  test:
+    name: Run Python tests and collect coverage
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - name: "Set up Python"
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version-file: ".python-version"
-      - name: Install uv
+          python-version-file: .python-version
+
+      - name: Set up uv
         uses: astral-sh/setup-uv@v7
-      - name: install package and dependencies
+        with:
+          enable-cache: true
+
+      - name: Run tests
         run: |
-            uv sync --all-extras
-      - name: run tests
-        run: |
-          uv run pytest
+          uv run pytest \
+            --cov=cfa/stf/forecasttools \
+            --cov-report=term \
+            --cov-report=xml:cfa-stf-forecasttools-coverage.xml \
+            tests/cfa/stf/forecasttools
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          env_vars: OS,PYTHON
+          fail_ci_if_error: true
+          flags: cfa-stf-forecasttools
+          files: cfa-stf-forecasttools-coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true

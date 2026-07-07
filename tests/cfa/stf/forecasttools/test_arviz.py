@@ -8,9 +8,10 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import forecasttools as ft
+import cfa.stf.forecasttools as ft
 
-IDATA_WO_DATES = ft.nhsn_flu_forecast_wo_dates
+TESTDATA_DIR = Path(__file__).resolve().parent / "test_data"
+IDATA_WO_DATES = az.from_netcdf(TESTDATA_DIR / "test_idata.nc")
 
 
 def test_replace_all_dim_suffix_basic():
@@ -51,7 +52,7 @@ def test_replace_all_dim_suffix_custom_prefix():
     data = xr.Dataset(
         {"obs": (["test_0", "test_1"], np.random.rand(3, 2))}, coords=coords
     )
-    idata = az.InferenceData(posterior=data)
+    idata = xr.DataTree.from_dict({"posterior": data})
 
     new_suffixes = ["time", "location"]
     result = ft.arviz.replace_all_dim_suffix(idata, new_suffixes, dim_prefix="test_")
@@ -67,12 +68,12 @@ def test_replace_all_dim_suffix_empty_suffixes():
     all_dims_original = ft.arviz.get_all_dims(IDATA_WO_DATES)
     result = ft.arviz.replace_all_dim_suffix(IDATA_WO_DATES, new_suffixes)
     all_dims_result = ft.arviz.get_all_dims(result)
-    # Should return unchanged InferenceData
+    # Should return unchanged DataTree
     assert all_dims_result == all_dims_original
 
 
 def test_assign_coords_from_start_step_basic():
-    dim_name = "beta_coeffs_dim_0"
+    dim_name = "latent_infections_dim_0"
     start = dt.date(2020, 1, 1)
     interval = dt.timedelta(days=1)
 
@@ -80,11 +81,10 @@ def test_assign_coords_from_start_step_basic():
         IDATA_WO_DATES, dim_name, start, interval=interval, inplace=False
     )
 
-    assert isinstance(result, az.InferenceData)
+    assert isinstance(result, xr.DataTree)
     assert result is not IDATA_WO_DATES
 
-    for group in result.groups():
-        ds = getattr(result, group)
+    for ds in result.values():
         if dim_name in ds.dims:
             result_coords = ds.coords[dim_name]
             assert result_coords[0] == np.datetime64(start)
@@ -92,8 +92,8 @@ def test_assign_coords_from_start_step_basic():
 
 
 def test_assign_coords_from_start_step_inplace():
-    idata_copy = copy.deepcopy(IDATA_WO_DATES)
-    dim_name = "beta_coeffs_dim_0"
+    idata_copy = IDATA_WO_DATES.copy()
+    dim_name = "latent_infections_dim_0"
     start = dt.date(2019, 9, 29)
     interval = dt.timedelta(days=7)
 
@@ -102,8 +102,7 @@ def test_assign_coords_from_start_step_inplace():
     )
     assert result is None
 
-    for group in idata_copy.groups():
-        ds = getattr(idata_copy, group)
+    for ds in idata_copy.values():
         if dim_name in ds.dims:
             result_coords = ds.coords[dim_name]
             assert result_coords[0] == np.datetime64(start)
@@ -118,10 +117,11 @@ def test_assign_coords_from_start_step_no_matching_dim():
         IDATA_WO_DATES, dim_name, start, inplace=False
     )
 
-    for group in IDATA_WO_DATES.groups():
-        original_ds = getattr(IDATA_WO_DATES, group)
-        result_ds = getattr(result, group)
-        assert original_ds.equals(result_ds)
+    for group in IDATA_WO_DATES.groups:
+        original_ds = IDATA_WO_DATES.get(group)
+        if original_ds:
+            result_ds = result.get(group)
+            assert original_ds.equals(result_ds)
 
 
 def test_write_to_netcdf_after_operations():
@@ -132,7 +132,7 @@ def test_write_to_netcdf_after_operations():
 
     ft.arviz.assign_coords_from_start_step(
         out,
-        "beta_coeffs_time",
+        "latent_infections_time",
         dt.date(2020, 1, 1),
         interval=dt.timedelta(days=1),
         inplace=True,
