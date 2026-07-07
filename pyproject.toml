@@ -20,9 +20,6 @@ Issues = "https://github.com/CDCgov/forecasttools-py/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["cfa"]
-artifacts = [
-  "cfa/stf/forecasttools/test_data/*.nc",
-]
 
 [tool.hatch.build.targets.sdist]
 include = [
