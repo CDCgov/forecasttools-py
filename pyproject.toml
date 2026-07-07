@@ -5,15 +5,12 @@ description = "Forecasting helpers for CFA short-term forecasting."
 readme = "README.md"
 requires-python = ">=3.13,<3.14"
 authors = [
-  {name = "Damon Bayer", email = "xum8@cdc.gov"},
-  {name = "Dylan H. Morris"},
-  {name = "Subekshya Bidari"},
-  {name = "Jon Kislin", email = "qxk3@cdc.gov"},
+  {name = "CFA STF Team"},
 ]
 dependencies = [
   "arviz[h5netcdf]>=1.1.0",
   "numpy>=2.2",
-  "polars[pyarrow,numpy]>=1.36",
+  "polars[numpy,pyarrow]>=1.36",
   "xarray>=2025.10.1",
 ]
 
@@ -54,9 +51,6 @@ fix = true
 
 [tool.ruff.lint]
 select = ["I", "E4", "E7", "E9", "F", "UP"]
-
-[tool.hatch.metadata]
-allow-direct-references = true
 
 [tool.uv]
 override-dependencies = [
