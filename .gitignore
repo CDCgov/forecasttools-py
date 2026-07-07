@@ -8,7 +8,7 @@
 *.rds
 *.pickle
 *.nc
-!cfa/stf/forecasttools/test_data/test_idata.nc
+!cfa/stf/forecasttools/data/us_location_pop.csv
 !tests/cfa/stf/forecasttools/test_data/test_idata.nc
 
 __pycache__/

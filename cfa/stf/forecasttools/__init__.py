@@ -2,7 +2,7 @@
 
 from importlib import import_module
 
-from .location_constants import LOCATION_LIST
+from .location_table import LOCATION_LIST
 from .utils import coalesce_common_columns
 
 

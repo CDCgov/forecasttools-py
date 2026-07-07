@@ -21,9 +21,13 @@ Issues = "https://github.com/CDCgov/forecasttools-py/issues"
 [tool.hatch.build.targets.wheel]
 packages = ["cfa"]
 
+[tool.hatch.build.targets.wheel.force-include]
+"cfa/stf/forecasttools/data/us_location_pop.csv" = "cfa/stf/forecasttools/data/us_location_pop.csv"
+
 [tool.hatch.build.targets.sdist]
 include = [
   "cfa/stf/forecasttools",
+  "scripts/build_us_location_pop_table.R",
   "tests/cfa/stf/forecasttools",
 ]
 

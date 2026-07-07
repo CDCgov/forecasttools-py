@@ -1,19 +1,16 @@
-from .location_constants import LOCATION_LIST
+from functools import cache
+from importlib.resources import as_file, files
 
 __all__ = ["get_us_loc_pop_tbl", "LOCATION_LIST"]
 
 
+@cache
 def get_us_loc_pop_tbl():
     import polars as pl
-    from pipelines.utils.common_utils import run_r_code
 
-    r_code = """
-    dplyr::left_join(
-    forecasttools::us_location_table,
-    forecasttools::us_location_pop,
-    by = "name"
-) |>
-    readr::write_csv(file = stdout(), na = "")
-    """
-    tbl_csv = run_r_code(r_code).stdout
-    return pl.read_csv(tbl_csv)
+    resource = files(__package__).joinpath("data", "us_location_pop.csv")
+    with as_file(resource) as path:
+        return pl.read_csv(path)
+
+
+LOCATION_LIST = get_us_loc_pop_tbl().get_column("abbr").to_list()
