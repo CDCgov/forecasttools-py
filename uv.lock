@@ -235,6 +235,9 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "arviz", extra = ["h5netcdf"] },
+    { name = "arviz-base", extra = ["h5netcdf"] },
+    { name = "arviz-plots" },
+    { name = "arviz-stats", extra = ["xarray"] },
     { name = "numpy" },
     { name = "polars", extra = ["numpy", "pyarrow"] },
     { name = "xarray" },
@@ -256,6 +259,9 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "arviz", extras = ["h5netcdf"], specifier = ">=1.1.0" },
+    { name = "arviz-base", extras = ["h5netcdf"], git = "https://github.com/arviz-devs/arviz-base?rev=main" },
+    { name = "arviz-plots", git = "https://github.com/arviz-devs/arviz-plots?rev=main" },
+    { name = "arviz-stats", extras = ["xarray"], git = "https://github.com/arviz-devs/arviz-stats?rev=main" },
     { name = "numpy", specifier = ">=2.2" },
     { name = "polars", extras = ["numpy", "pyarrow"], specifier = ">=1.36" },
     { name = "xarray", specifier = ">=2025.10.1" },
