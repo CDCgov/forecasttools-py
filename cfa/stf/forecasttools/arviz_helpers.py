@@ -40,7 +40,7 @@ def replace_all_dim_suffix(
 
     Parameters
     ----------
-    idata : arviz.DataTree
+    idata : xr.DataTree
         The DataTree object containing dimensions to rename.
     new_suffixes : list of str
         List of new suffixes to replace the existing 'dim_i' suffixes.

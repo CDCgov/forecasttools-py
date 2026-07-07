@@ -3,7 +3,6 @@ import datetime as dt
 import tempfile
 from pathlib import Path
 
-import arviz as az
 import numpy as np
 import pytest
 import xarray as xr
@@ -11,7 +10,9 @@ import xarray as xr
 import cfa.stf.forecasttools as ft
 
 TESTDATA_DIR = Path(__file__).resolve().parent / "test_data"
-IDATA_WO_DATES = az.from_netcdf(TESTDATA_DIR / "test_idata.nc")
+IDATA_WO_DATES = xr.open_datatree(
+    TESTDATA_DIR / "test_idata.nc", engine="h5netcdf"
+).load()
 
 
 def test_replace_all_dim_suffix_basic():
@@ -141,11 +142,11 @@ def test_write_to_netcdf_after_operations():
     # Test writing to NetCDF
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = Path(tmpdir, "test_output.nc")
-        out.to_netcdf(str(filepath))
+        out.to_netcdf(str(filepath), engine="h5netcdf")
 
         # Verify file was created and can be read back
         assert filepath.exists()
-        az.from_netcdf(filepath)
+        assert isinstance(xr.open_datatree(filepath, engine="h5netcdf"), xr.DataTree)
 
 
 def test_prune_no_lp():

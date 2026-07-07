@@ -8,13 +8,9 @@ authors = [
   {name = "CFA STF Team"},
 ]
 dependencies = [
-  "arviz[h5netcdf]>=1.1.0",
-  "arviz-base[h5netcdf] @ git+https://github.com/arviz-devs/arviz-base@main",
-  "arviz-plots @ git+https://github.com/arviz-devs/arviz-plots@main",
-  "arviz-stats[xarray] @ git+https://github.com/arviz-devs/arviz-stats@main",
   "numpy>=2.2",
   "polars[numpy,pyarrow]>=1.36",
-  "xarray>=2025.10.1",
+  "xarray[io]>=2025.10.1",
 ]
 
 [project.urls]
@@ -58,15 +54,3 @@ fix = true
 
 [tool.ruff.lint]
 select = ["I", "E4", "E7", "E9", "F", "UP"]
-
-[tool.uv]
-override-dependencies = [
-  "arviz-base[h5netcdf] @ git+https://github.com/arviz-devs/arviz-base@main",
-  "arviz-plots @ git+https://github.com/arviz-devs/arviz-plots@main",
-  "arviz-stats[xarray] @ git+https://github.com/arviz-devs/arviz-stats@main",
-]
-
-[tool.uv.sources]
-arviz-base = { git = "https://github.com/arviz-devs/arviz-base", rev = "main" }
-arviz-plots = { git = "https://github.com/arviz-devs/arviz-plots", rev = "main" }
-arviz-stats = { git = "https://github.com/arviz-devs/arviz-stats", rev = "main" }
