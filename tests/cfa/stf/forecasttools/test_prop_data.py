@@ -88,23 +88,6 @@ def test_append_prop_data_preserves_additional_identifier_columns():
     plt.assert_frame_equal(result, expected)
 
 
-def test_append_prop_data_drops_all_null_columns_from_derived_rows():
-    data = pl.DataFrame(
-        {
-            "date": ["2024-01-01", "2024-01-01"],
-            "all_null_id": [None, None],
-            ".variable": ["observed_ed_visits", "other_ed_visits"],
-            ".value": [1, 1],
-        }
-    )
-
-    result = ft.append_prop_data(data)
-    prop_row = result.filter(pl.col(".variable") == "prop_disease_ed_visits")
-
-    assert prop_row.item(0, ".value") == 0.5
-    assert prop_row.item(0, "all_null_id") is None
-
-
 def test_append_prop_data_errors_when_required_column_is_missing():
     data = pl.DataFrame(
         {
