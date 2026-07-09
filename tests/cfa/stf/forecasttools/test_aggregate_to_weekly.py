@@ -93,13 +93,13 @@ def test_daily_to_weekly_invalid_standard_raises():
         ("ISO", datetime.date(2016, 1, 2), 2015, 53),
         ("USA", datetime.date(2016, 1, 3), 2016, 1),
         ("ISO", datetime.date(2016, 1, 3), 2015, 53),
-        ("MMWR", datetime.date(2021, 1, 3), 2021, 1),
-        ("ISO", datetime.date(2021, 1, 3), 2020, 53),
+        ("MMWR", datetime.datetime(2021, 1, 3), 2021, 1),
+        ("ISO", datetime.datetime(2021, 1, 3), 2020, 53),
     ],
 )
 def test_calculate_week_and_year_boundary_diverge(
     standard: str,
-    date_input: datetime.date,
+    date_input: datetime.date | datetime.datetime,
     expected_weekyear: int,
     expected_week: int,
 ):
@@ -213,5 +213,30 @@ def test_floor_ceiling_week_with_standard(
     date_input, standard, expected_floor, expected_ceiling
 ):
     """Test floor_week and ceiling_week with various standards (case-insensitive)."""
+    assert floor_week(date_input, standard=standard) == expected_floor
+    assert ceiling_week(date_input, standard=standard) == expected_ceiling
+
+
+@pytest.mark.parametrize(
+    ("date_input", "standard", "expected_floor", "expected_ceiling"),
+    [
+        (
+            datetime.datetime(2026, 3, 12, 18, 45),
+            "ISO",
+            datetime.date(2026, 3, 9),
+            datetime.date(2026, 3, 15),
+        ),
+        (
+            datetime.datetime(2026, 3, 12, 18, 45),
+            "MMWR",
+            datetime.date(2026, 3, 8),
+            datetime.date(2026, 3, 14),
+        ),
+    ],
+)
+def test_floor_ceiling_week_supports_datetime_input(
+    date_input, standard, expected_floor, expected_ceiling
+):
+    """Datetime inputs should still resolve to date week boundaries."""
     assert floor_week(date_input, standard=standard) == expected_floor
     assert ceiling_week(date_input, standard=standard) == expected_ceiling

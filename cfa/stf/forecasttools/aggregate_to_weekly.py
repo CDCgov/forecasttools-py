@@ -59,7 +59,7 @@ def _calculate_week_enddate(
 
 
 def floor_week(
-    date: datetime.date,
+    date: datetime.date | datetime.datetime,
     standard: WeekStandard | str = "MMWR",
 ) -> datetime.date:
     """Get the first date in an epidemiological week.
@@ -91,7 +91,7 @@ def floor_week(
 
 
 def ceiling_week(
-    date: datetime.date,
+    date: datetime.date | datetime.datetime,
     standard: WeekStandard | str = "MMWR",
 ) -> datetime.date:
     """Get the last date in an epidemiological week.
@@ -123,22 +123,30 @@ def ceiling_week(
     )
 
 
-def floor_isoweek(date: datetime.date) -> datetime.date:
+def floor_isoweek(
+    date: datetime.date | datetime.datetime,
+) -> datetime.date:
     """Get the first date (Monday) in an ISO week."""
     return floor_week(date, standard="ISO")
 
 
-def ceiling_isoweek(date: datetime.date) -> datetime.date:
+def ceiling_isoweek(
+    date: datetime.date | datetime.datetime,
+) -> datetime.date:
     """Get the last date (Sunday) in an ISO week."""
     return ceiling_week(date, standard="ISO")
 
 
-def floor_mmwr_epiweek(date: datetime.date) -> datetime.date:
+def floor_mmwr_epiweek(
+    date: datetime.date | datetime.datetime,
+) -> datetime.date:
     """Get the first date (Sunday) in an MMWR epidemiological week."""
     return floor_week(date, standard="MMWR")
 
 
-def ceiling_mmwr_epiweek(date: datetime.date) -> datetime.date:
+def ceiling_mmwr_epiweek(
+    date: datetime.date | datetime.datetime,
+) -> datetime.date:
     """Get the last date (Saturday) in an MMWR epidemiological week."""
     return ceiling_week(date, standard="MMWR")
 
