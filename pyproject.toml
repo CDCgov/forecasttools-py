@@ -14,8 +14,8 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/CDCgov/forecasttools-py"
-Issues = "https://github.com/CDCgov/forecasttools-py/issues"
+Repository = "https://github.com/CDCgov/cfa-stf-forecasttools"
+Issues = "https://github.com/CDCgov/cfa-stf-forecasttools/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["cfa"]

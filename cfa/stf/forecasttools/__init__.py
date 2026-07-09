@@ -3,6 +3,7 @@
 from importlib import import_module
 
 from .location_table import LOCATION_LIST
+from .prop_data import append_prop_data
 from .utils import coalesce_common_columns
 
 
@@ -16,6 +17,7 @@ def __getattr__(name):
 
 __all__ = [
     "coalesce_common_columns",
+    "append_prop_data",
     "get_us_loc_pop_tbl",
     "LOCATION_LIST",
     "arviz",
