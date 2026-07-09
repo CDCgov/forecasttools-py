@@ -2,6 +2,7 @@
 
 from importlib import import_module
 
+from .aggregate_to_weekly import daily_to_weekly
 from .location_table import LOCATION_LIST
 from .prop_data import append_prop_data
 from .utils import coalesce_common_columns
@@ -21,4 +22,5 @@ __all__ = [
     "get_us_loc_pop_tbl",
     "LOCATION_LIST",
     "arviz",
+    "daily_to_weekly",
 ]
