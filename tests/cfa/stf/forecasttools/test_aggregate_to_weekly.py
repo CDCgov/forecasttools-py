@@ -14,13 +14,13 @@ from cfa.stf.forecasttools import daily_to_weekly
     ("standard", "start_date", "expected_week_start_date", "expected_week_end_date"),
     [
         (
-            "epiweek",
+            "MMWR",
             datetime.date(2025, 10, 4),
             datetime.date(2025, 10, 5),
             datetime.date(2025, 10, 11),
         ),
         (
-            "isoweek",
+            "ISO",
             datetime.date(2025, 10, 4),
             datetime.date(2025, 10, 6),
             datetime.date(2025, 10, 12),
@@ -77,16 +77,16 @@ def test_daily_to_weekly_invalid_standard_raises():
 @pytest.mark.parametrize(
     ("standard", "date_input", "expected_weekyear", "expected_week"),
     [
-        ("epiweek", datetime.date(2015, 12, 31), 2015, 52),
-        ("isoweek", datetime.date(2015, 12, 31), 2015, 53),
-        ("epiweek", datetime.date(2016, 1, 1), 2015, 52),
-        ("isoweek", datetime.date(2016, 1, 1), 2015, 53),
-        ("epiweek", datetime.date(2016, 1, 2), 2015, 52),
-        ("isoweek", datetime.date(2016, 1, 2), 2015, 53),
-        ("epiweek", datetime.date(2016, 1, 3), 2016, 1),
-        ("isoweek", datetime.date(2016, 1, 3), 2015, 53),
-        ("epiweek", datetime.date(2021, 1, 3), 2021, 1),
-        ("isoweek", datetime.date(2021, 1, 3), 2020, 53),
+        ("MMWR", datetime.date(2015, 12, 31), 2015, 52),
+        ("ISO", datetime.date(2015, 12, 31), 2015, 53),
+        ("USA", datetime.date(2016, 1, 1), 2015, 52),
+        ("iso", datetime.date(2016, 1, 1), 2015, 53),
+        ("mmwr", datetime.date(2016, 1, 2), 2015, 52),
+        ("ISO", datetime.date(2016, 1, 2), 2015, 53),
+        ("USA", datetime.date(2016, 1, 3), 2016, 1),
+        ("ISO", datetime.date(2016, 1, 3), 2015, 53),
+        ("MMWR", datetime.date(2021, 1, 3), 2021, 1),
+        ("ISO", datetime.date(2021, 1, 3), 2020, 53),
     ],
 )
 def test_calculate_week_and_year_boundary_diverge(

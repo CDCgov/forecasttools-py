@@ -4,61 +4,58 @@ from typing import Literal
 import epiweeks
 import polars as pl
 
-WeekStandard = Literal["epiweek", "isoweek"]
+WeekStandard = Literal["MMWR", "USA", "ISO"]
 
 
-def calculate_week_and_year(
-    date_input: datetime.date,
-    standard: WeekStandard = "epiweek",
+def _normalize_week_standard(standard: WeekStandard | str) -> Literal["cdc", "iso"]:
+    """Normalize week standard labels."""
+    normalized = standard.upper()
+    if normalized in ["MMWR", "USA"]:
+        return "cdc"
+    if normalized in ["ISO"]:
+        return "iso"
+
+    raise ValueError(
+        "standard must be one of {'MMWR', 'USA', 'ISO'} (not case-sensitive)"
+    )
+
+
+def _calculate_week_and_year(
+    date_input: datetime.date | datetime.datetime,
+    standard: WeekStandard | str = "MMWR",
 ) -> dict[str, int]:
     """Convert a date to week and weekyear for the requested weekly standard."""
     if not isinstance(date_input, datetime.date):
         raise TypeError(
-            f"date_input must be a datetime.date, got {type(date_input).__name__}"
+            f"date_input must be either a datetime.date or datetime.datetime, got {type(date_input).__name__}"
         )
-    if standard not in ["epiweek", "isoweek"]:
-        raise ValueError("standard must be one of {'epiweek', 'isoweek'}")
+    epiweek_standard = _normalize_week_standard(standard)
 
-    if standard == "epiweek":
-        epiweek = epiweeks.Week.fromdate(date_input)
-        return {
-            "week": epiweek.week,
-            "weekyear": epiweek.year,
-        }
-
-    isocal = date_input.isocalendar()
+    epiweek = epiweeks.Week.fromdate(date_input, system=epiweek_standard)
     return {
-        "week": isocal.week,
-        "weekyear": isocal.year,
+        "week": epiweek.week,
+        "weekyear": epiweek.year,
     }
 
 
-def calculate_week_startdate(
+def _calculate_week_startdate(
     year: int,
     week: int,
-    standard: WeekStandard = "epiweek",
+    standard: WeekStandard | str = "MMWR",
 ) -> datetime.date:
     """Given a week and year, return the week start date."""
-    if standard not in ["epiweek", "isoweek"]:
-        raise ValueError("standard must be one of {'epiweek', 'isoweek'}")
-    if standard == "epiweek":
-        return epiweeks.Week(year, week).startdate()
-
-    return datetime.date.fromisocalendar(year, week, 1)
+    epiweek_standard = _normalize_week_standard(standard)
+    return epiweeks.Week(year, week, system=epiweek_standard).startdate()
 
 
-def calculate_week_enddate(
+def _calculate_week_enddate(
     year: int,
     week: int,
-    standard: WeekStandard = "epiweek",
+    standard: WeekStandard | str = "MMWR",
 ) -> datetime.date:
     """Given a week and year, return the week end date."""
-    if standard not in ["epiweek", "isoweek"]:
-        raise ValueError("standard must be one of {'epiweek', 'isoweek'}")
-    if standard == "epiweek":
-        return epiweeks.Week(year, week).enddate()
-
-    return datetime.date.fromisocalendar(year, week, 7)
+    epiweek_standard = _normalize_week_standard(standard)
+    return epiweeks.Week(year, week, system=epiweek_standard).enddate()
 
 
 def daily_to_weekly(
@@ -67,7 +64,7 @@ def daily_to_weekly(
     date_col: str = "date",
     id_cols: str | list[str] = ".draw",
     weekly_value_name: str = "weekly_value",
-    standard: WeekStandard = "epiweek",
+    standard: WeekStandard | str = "MMWR",
     with_week_start_date: bool = False,
     with_week_end_date: bool = False,
     week_start_date_name: str = "week_start_date",
@@ -92,8 +89,9 @@ def daily_to_weekly(
         Defaults to ``"weekly_value"``.
     standard
         Weekly standard used to compute week and weekyear.
-        Must be one of ``"epiweek"`` or ``"isoweek"``.
-        Defaults to ``"epiweek"``.
+        One of ``"MMWR"`` or ``"USA"`` (Sunday start) and ``"ISO"``
+        (Monday start). Not case-sensitive.
+        Defaults to ``"MMWR"``.
     with_week_start_date
         Whether to annotate output with week start date.
     with_week_end_date
@@ -120,8 +118,6 @@ def daily_to_weekly(
         raise ValueError(
             f"Specified date column '{date_col}' is missing from the dataframe"
         )
-    if standard not in ["epiweek", "isoweek"]:
-        raise ValueError("standard must be one of {'epiweek', 'isoweek'}")
 
     if isinstance(id_cols, str):
         id_cols = [id_cols]
@@ -136,7 +132,7 @@ def daily_to_weekly(
     df = df.with_columns(
         pl.col(date_col)
         .map_elements(
-            lambda elt: calculate_week_and_year(elt, standard=standard),
+            lambda elt: _calculate_week_and_year(elt, standard=standard),
             return_dtype=pl.Struct(
                 [pl.Field("week", pl.Int64), pl.Field("weekyear", pl.Int64)]
             ),
@@ -169,7 +165,7 @@ def daily_to_weekly(
         df = df.with_columns(
             pl.struct(["weekyear", "week"])
             .map_elements(
-                lambda elt: calculate_week_startdate(
+                lambda elt: _calculate_week_startdate(
                     year=elt["weekyear"],
                     week=elt["week"],
                     standard=standard,
@@ -183,7 +179,7 @@ def daily_to_weekly(
         df = df.with_columns(
             pl.struct(["weekyear", "week"])
             .map_elements(
-                lambda elt: calculate_week_enddate(
+                lambda elt: _calculate_week_enddate(
                     year=elt["weekyear"],
                     week=elt["week"],
                     standard=standard,
