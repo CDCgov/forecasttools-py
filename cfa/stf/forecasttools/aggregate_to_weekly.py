@@ -58,6 +58,91 @@ def _calculate_week_enddate(
     return epiweeks.Week(year, week, system=epiweek_standard).enddate()
 
 
+def floor_week(
+    date: datetime.date,
+    standard: WeekStandard | str = "MMWR",
+) -> datetime.date:
+    """Get the first date in an epidemiological week.
+
+    Given any date from an epidemiological week, return
+    the date of the first day of the epiweek,
+    according to the given epidemiological week standard.
+
+    Parameters
+    ----------
+    date
+        A date.
+    standard
+        One of ``"USA"`` or ``"MMWR"``
+        (USA / MMWR epiweek, starts on Sunday) and ``"ISO"``
+        (ISO week, starts on Monday). Not case-sensitive.
+
+    Returns
+    -------
+    datetime.date
+        The date that starts the epidemiological week.
+    """
+    week_info = _calculate_week_and_year(date, standard=standard)
+    return _calculate_week_startdate(
+        year=week_info["weekyear"],
+        week=week_info["week"],
+        standard=standard,
+    )
+
+
+def ceiling_week(
+    date: datetime.date,
+    standard: WeekStandard | str = "MMWR",
+) -> datetime.date:
+    """Get the last date in an epidemiological week.
+
+    Given any date from an epidemiological week, return
+    the date of the final day of the epiweek,
+    according to the given epidemiological week standard.
+
+    Parameters
+    ----------
+    date
+        A date.
+    standard
+        One of ``"USA"`` or ``"MMWR"``
+        (USA / MMWR epiweek, starts on Sunday) and ``"ISO"``
+        (ISO week, starts on Monday). Not case-sensitive.
+
+    Returns
+    -------
+    datetime.date
+        The date that ends the epidemiological week.
+
+    """
+    week_info = _calculate_week_and_year(date, standard=standard)
+    return _calculate_week_enddate(
+        year=week_info["weekyear"],
+        week=week_info["week"],
+        standard=standard,
+    )
+
+
+def floor_isoweek(date: datetime.date) -> datetime.date:
+    """Get the first date (Monday) in an ISO week."""
+    return floor_week(date, standard="ISO")
+
+
+def ceiling_isoweek(date: datetime.date) -> datetime.date:
+    """Get the last date (Sunday) in an ISO week."""
+    return ceiling_week(date, standard="ISO")
+
+
+def floor_mmwr_epiweek(date: datetime.date) -> datetime.date:
+    """Get the first date (Sunday) in an MMWR epidemiological week."""
+    return floor_week(date, standard="MMWR")
+
+
+def ceiling_mmwr_epiweek(date: datetime.date) -> datetime.date:
+    """Get the last date (Saturday) in an MMWR epidemiological week."""
+    return ceiling_week(date, standard="MMWR")
+
+
 def daily_to_weekly(
     df: pl.DataFrame,
     value_col: str = "value",

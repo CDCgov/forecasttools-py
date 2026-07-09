@@ -7,7 +7,15 @@ import datetime
 import polars as pl
 import pytest
 
-from cfa.stf.forecasttools import daily_to_weekly
+from cfa.stf.forecasttools import (
+    ceiling_isoweek,
+    ceiling_mmwr_epiweek,
+    ceiling_week,
+    daily_to_weekly,
+    floor_isoweek,
+    floor_mmwr_epiweek,
+    floor_week,
+)
 
 
 @pytest.mark.parametrize(
@@ -112,3 +120,98 @@ def test_calculate_week_and_year_boundary_diverge(
 
     assert out.get_column("week").item() == expected_week
     assert out.get_column("weekyear").item() == expected_weekyear
+
+
+@pytest.mark.parametrize(
+    ("date_input", "expected_floor", "expected_ceiling"),
+    [
+        (
+            datetime.date(2026, 3, 9),
+            datetime.date(2026, 3, 9),
+            datetime.date(2026, 3, 15),
+        ),
+        (
+            datetime.date(2026, 3, 12),
+            datetime.date(2026, 3, 9),
+            datetime.date(2026, 3, 15),
+        ),
+        (
+            datetime.date(2026, 3, 15),
+            datetime.date(2026, 3, 9),
+            datetime.date(2026, 3, 15),
+        ),
+    ],
+)
+def test_iso_week_floor_ceiling(date_input, expected_floor, expected_ceiling):
+    """Test floor_isoweek and ceiling_isoweek with ISO standard (Monday start)."""
+    assert floor_isoweek(date_input) == expected_floor
+    assert ceiling_isoweek(date_input) == expected_ceiling
+
+
+@pytest.mark.parametrize(
+    ("date_input", "expected_floor", "expected_ceiling"),
+    [
+        (
+            datetime.date(2026, 3, 8),
+            datetime.date(2026, 3, 8),
+            datetime.date(2026, 3, 14),
+        ),
+        (
+            datetime.date(2026, 3, 12),
+            datetime.date(2026, 3, 8),
+            datetime.date(2026, 3, 14),
+        ),
+        (
+            datetime.date(2026, 3, 14),
+            datetime.date(2026, 3, 8),
+            datetime.date(2026, 3, 14),
+        ),
+    ],
+)
+def test_mmwr_week_floor_ceiling(date_input, expected_floor, expected_ceiling):
+    """Test floor_mmwr_epiweek and ceiling_mmwr_epiweek with MMWR standard (Sunday start)."""
+    assert floor_mmwr_epiweek(date_input) == expected_floor
+    assert ceiling_mmwr_epiweek(date_input) == expected_ceiling
+
+
+@pytest.mark.parametrize(
+    ("date_input", "standard", "expected_floor", "expected_ceiling"),
+    [
+        (
+            datetime.date(2026, 3, 12),
+            "iso",
+            datetime.date(2026, 3, 9),
+            datetime.date(2026, 3, 15),
+        ),
+        (
+            datetime.date(2026, 3, 12),
+            "ISO",
+            datetime.date(2026, 3, 9),
+            datetime.date(2026, 3, 15),
+        ),
+        (
+            datetime.date(2026, 3, 12),
+            "USA",
+            datetime.date(2026, 3, 8),
+            datetime.date(2026, 3, 14),
+        ),
+        (
+            datetime.date(2026, 3, 12),
+            "MMWR",
+            datetime.date(2026, 3, 8),
+            datetime.date(2026, 3, 14),
+        ),
+        (
+            datetime.date(2026, 3, 12),
+            "mmwr",
+            datetime.date(2026, 3, 8),
+            datetime.date(2026, 3, 14),
+        ),
+    ],
+)
+def test_floor_ceiling_week_with_standard(
+    date_input, standard, expected_floor, expected_ceiling
+):
+    """Test floor_week and ceiling_week with various standards (case-insensitive)."""
+    assert floor_week(date_input, standard=standard) == expected_floor
+    assert ceiling_week(date_input, standard=standard) == expected_ceiling
