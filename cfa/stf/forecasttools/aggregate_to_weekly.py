@@ -239,7 +239,7 @@ def daily_to_weekly(
     if not problematic_trajectories.is_empty():
         message = (
             "At least one trajectory has more than 7 values for a given "
-            f"week of a given weekyear.\n"
+            f"week.\n"
             f"Problematic trajectories with more than 7 values: {problematic_trajectories}"
         )
         raise ValueError(message)
