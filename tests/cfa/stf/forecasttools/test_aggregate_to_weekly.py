@@ -240,3 +240,37 @@ def test_floor_ceiling_week_supports_datetime_input(
     """Datetime inputs should still resolve to date week boundaries."""
     assert floor_week(date_input, standard=standard) == expected_floor
     assert ceiling_week(date_input, standard=standard) == expected_ceiling
+
+
+@pytest.mark.parametrize("strict", [True, False])
+def test_duplicate_dates_are_rejected(strict):
+    """Duplicate dates in a weekly group should raise an error"""
+    sunday = datetime.date(2026, 1, 4)
+    dates = [sunday] + [sunday + datetime.timedelta(days=i) for i in range(6)]
+
+    df = pl.DataFrame(
+        {
+            ".draw": [0] * 7,
+            "date": dates,
+            "value": [1] * 7,
+        }
+    )
+
+    with pytest.raises(ValueError, match="repeated dates"):
+        daily_to_weekly(df, strict=strict)
+
+
+def test_multi_year_output_is_chronological():
+    start = datetime.date(2025, 12, 21)
+
+    df = pl.DataFrame(
+        {
+            ".draw": [0] * 21,
+            "date": [start + datetime.timedelta(days=i) for i in range(21)],
+            "value": [1] * 21,
+        }
+    )
+
+    result = daily_to_weekly(df)
+    actual = list(zip(result["weekyear"], result["week"]))
+    assert actual == [(2025, 52), (2025, 53), (2026, 1)]

@@ -234,28 +234,32 @@ def daily_to_weekly(
     ).unnest("week_struct")
 
     group_cols = ["week", "weekyear"] + id_cols
-    n_elements = df.group_by(group_cols).agg(pl.len().alias("n_elements"))
-    problematic_trajectories = n_elements.filter(pl.col("n_elements") > 7)
-    if not problematic_trajectories.is_empty():
+    grouped_df = df.group_by(group_cols).agg(
+        pl.col(value_col).sum().alias(weekly_value_name),
+        pl.len().alias("n_dates"),
+        pl.col(date_col).dt.date().n_unique().alias("n_unique_dates"),
+    )
+
+    duplicate_date_trajectories = grouped_df.filter(
+        pl.col("n_dates") != pl.col("n_unique_dates")
+    )
+    if not duplicate_date_trajectories.is_empty():
         message = (
-            "At least one trajectory has more than 7 values for a given "
+            "At least one trajectory has repeated dates within a given "
             f"week.\n"
-            f"Problematic trajectories with more than 7 values: {problematic_trajectories}"
+            f"Trajectories with repeated dates: {duplicate_date_trajectories}"
         )
         raise ValueError(message)
 
     if strict:
-        valid_groups = n_elements.filter(pl.col("n_elements") == 7)
-        df = df.join(valid_groups.select(group_cols), on=group_cols, how="inner")
+        grouped_df = grouped_df.filter(pl.col("n_unique_dates") == 7)
 
-    df = (
-        df.group_by(group_cols)
-        .agg(pl.col(value_col).sum().alias(weekly_value_name))
-        .sort(group_cols)
+    grouped_df = grouped_df.drop(["n_dates", "n_unique_dates"]).sort(
+        ["weekyear", "week", *id_cols]
     )
 
     if with_week_start_date:
-        df = df.with_columns(
+        grouped_df = grouped_df.with_columns(
             pl.struct(["weekyear", "week"])
             .map_elements(
                 lambda elt: _calculate_week_startdate(
@@ -269,7 +273,7 @@ def daily_to_weekly(
         )
 
     if with_week_end_date:
-        df = df.with_columns(
+        grouped_df = grouped_df.with_columns(
             pl.struct(["weekyear", "week"])
             .map_elements(
                 lambda elt: _calculate_week_enddate(
@@ -282,4 +286,4 @@ def daily_to_weekly(
             .alias(week_end_date_name)
         )
 
-    return df
+    return grouped_df
