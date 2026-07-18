@@ -255,7 +255,7 @@ def daily_to_weekly(
         grouped_df = grouped_df.filter(pl.col("n_unique_dates") == 7)
 
     grouped_df = grouped_df.drop(["n_dates", "n_unique_dates"]).sort(
-        ["weekyear", "week", *id_cols]
+        [*id_cols, "weekyear", "week"]
     )
 
     if with_week_start_date:
