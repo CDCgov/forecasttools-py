@@ -11,6 +11,7 @@ dependencies = [
   "numpy>=2.2",
   "polars[numpy,pyarrow]>=1.36",
   "xarray[io]>=2025.10.1",
+  "epiweeks",
 ]
 
 [project.urls]

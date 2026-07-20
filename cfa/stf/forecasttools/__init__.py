@@ -2,6 +2,15 @@
 
 from importlib import import_module
 
+from .aggregate_to_weekly import (
+    ceiling_isoweek,
+    ceiling_mmwr_epiweek,
+    ceiling_week,
+    daily_to_weekly,
+    floor_isoweek,
+    floor_mmwr_epiweek,
+    floor_week,
+)
 from .location_table import LOCATION_LIST
 from .prop_data import append_prop_data
 from .utils import coalesce_common_columns
@@ -21,4 +30,11 @@ __all__ = [
     "get_us_loc_pop_tbl",
     "LOCATION_LIST",
     "arviz",
+    "daily_to_weekly",
+    "floor_week",
+    "ceiling_week",
+    "floor_isoweek",
+    "ceiling_isoweek",
+    "floor_mmwr_epiweek",
+    "ceiling_mmwr_epiweek",
 ]
